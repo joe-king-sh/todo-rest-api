@@ -4,11 +4,13 @@ import {
   MatchStyle,
   haveResource,
   countResources,
+  ResourcePart,
 } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as Cdk from "../lib/app-stack";
 import * as environment from "../lib/environment";
 import { Authentication } from "../lib/construct/authentication";
+import { generateResourceName } from "../lib/utility";
 
 /**
  * テスト用のヘルパー関数
@@ -21,10 +23,10 @@ const generateCaseName = (env: string, caseName: string) => {
  * 各環境毎に生成されるテンプレートが異なるので、各環境分テストを回す
  */
 for (const env of Object.values(environment.Environments)) {
-  console.log(`${env} 環境のテスト 開始`);
 
   // 環境変数を取得
   const environmentVariables = environment.getVariablesOf(env);
+  const projectName = environmentVariables.projectName;
 
   /**
    * Stackレベルでのテスト
@@ -53,21 +55,33 @@ for (const env of Object.values(environment.Environments)) {
       const stack = new cdk.Stack();
 
       // WHEN
-      new Authentication(stack, "MyAuthenticationConstruct", {
-        userPoolProps: {
-          userPoolName: "MyUserPool",
-        },
-      });
+      new Authentication(
+        stack,
+        "MyAuthenticationConstruct",
+        environmentVariables
+      );
       // THEN
       expectCDK(stack).to(
         haveResource("AWS::Cognito::UserPool", {
-          UserPoolName: "MyUserPool",
+          UserPoolName: generateResourceName(projectName, "UserPool", env),
+          AdminCreateUserConfig: { AllowAdminCreateUserOnly: false },
+        })
+      );
+      expectCDK(stack).to(
+        haveResource(
+          "AWS::Cognito::UserPool",
+          {
+            DeletionPolicy: "Retain", // 事故防止
+          },
+          ResourcePart.CompleteDefinition
+        )
+      );
+      expectCDK(stack).to(
+        haveResource("AWS::Cognito::UserPoolClient", {
+          ClientName: generateResourceName(projectName, "Client", env),
         })
       );
     }
   );
 
-  console.log(`${env} 環境のテスト 終了`);
 }
-
-// TODO まだ実装していない観点のテスト　Outputが適切にあるかどうか？
