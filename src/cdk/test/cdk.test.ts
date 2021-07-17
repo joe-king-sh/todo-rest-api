@@ -58,7 +58,7 @@ for (const env of Object.values(environment.Environments)) {
       new Authentication(
         stack,
         "MyAuthenticationConstruct",
-        environmentVariables
+        {environmentVariables: environmentVariables}
       );
       // THEN
       expectCDK(stack).to(

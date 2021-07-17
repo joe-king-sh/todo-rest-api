@@ -21,7 +21,7 @@ export class AppStack extends cdk.Stack {
     const auth = new Authentication(
       this,
       generateResourceName(projectName, "Authentication", env),
-      environmentVariables
+      {environmentVariables: environmentVariables}
     );
     
   }

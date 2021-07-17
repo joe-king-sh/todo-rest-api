@@ -3,6 +3,10 @@ import { generateResourceName } from "../utility";
 import cognito = require("@aws-cdk/aws-cognito");
 import * as environment from "../environment";
 
+interface AuthenticationProps {
+  environmentVariables: environment.EnvironmentVariables
+}
+
 export class Authentication extends cdk.Construct {
 
   userPool: cognito.IUserPool
@@ -10,12 +14,12 @@ export class Authentication extends cdk.Construct {
   constructor(
     scope: cdk.Construct,
     id: string,
-    environmentVariables: environment.EnvironmentVariables
+    props: AuthenticationProps
   ) {
     super(scope, id);
 
-    const projectName = environmentVariables.projectName;
-    const env = environmentVariables.environment;
+    const projectName = props.environmentVariables.projectName;
+    const env = props.environmentVariables.environment;
 
     //Cognitoのユーザプールを作成
     this.userPool = new cognito.UserPool(this, "UserPool", {
