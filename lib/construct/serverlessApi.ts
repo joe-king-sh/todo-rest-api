@@ -36,6 +36,10 @@ export class ServerlessApi extends cdk.Construct {
     /**
      * Dynamodb Table の作成
      */
+    const removalPolicy =
+      env == environment.Environments.PROD
+        ? cdk.RemovalPolicy.RETAIN // 本番はテーブルの削除ポリシーをRETAINに
+        : cdk.RemovalPolicy.DESTROY;
     const todoTable = new dynamodb.Table(
       this,
       generateResourceName(projectName, "Todo", env),
@@ -44,24 +48,97 @@ export class ServerlessApi extends cdk.Construct {
         sortKey: { name: "todoId", type: dynamodb.AttributeType.STRING },
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableName: generateResourceName(projectName, "Todo", env),
+        removalPolicy: removalPolicy
       }
     );
 
     /**
      * Lambda Function の作成
      */
-    const helloLambda = new lambda.Function(this, "helloFunction", {
-      code: new lambda.AssetCode("lambda/src"),
-      handler: "hello.handler",
-      runtime: lambda.Runtime.NODEJS_14_X,
-      environment: {
-        // TABLE_NAME: dynamoTable.tableName,
-        // PRIMARY_KEY: 'itemId',
-      },
-      functionName: generateResourceName(projectName, "HelloLambda", env),
-      description: "テスト用の関数だよ",
-      // events: [new ApiEventSource("get", "/hello")], // swaggerもあるので冗長な気がするが、これを指定しないとAPI GatewayからLambdaInvokeするロールが作られない
-    });
+    const listTodosLambda = new lambda.Function(
+      this,
+      generateResourceName(projectName, "listTodos", env),
+      {
+        code: new lambda.AssetCode("lambda/api"),
+        handler: "listTodos.handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+        },
+        functionName: generateResourceName(projectName, "listTodos", env),
+        description: "Dynamodbに格納されたTodo情報を一括で取得する",
+      }
+    );
+    const createTodosLambda = new lambda.Function(
+      this,
+      generateResourceName(projectName, "createTodos", env),
+      {
+        code: new lambda.AssetCode("lambda/api"),
+        handler: "createTodos.handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+        },
+        functionName: generateResourceName(projectName, "createTodos", env),
+        description: "Todo情報をDynamodbに登録する",
+      }
+    );
+    const findTodosLambda = new lambda.Function(
+      this,
+      generateResourceName(projectName, "findTodos", env),
+      {
+        code: new lambda.AssetCode("lambda/api"),
+        handler: "findTodos.handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+        },
+        functionName: generateResourceName(projectName, "findTodos", env),
+        description: "Dynamodbに格納されたTodo情報を検索する",
+      }
+    );
+    const getTodosLambda = new lambda.Function(
+      this,
+      generateResourceName(projectName, "getTodos", env),
+      {
+        code: new lambda.AssetCode("lambda/api"),
+        handler: "getTodos.handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+        },
+        functionName: generateResourceName(projectName, "getTodos", env),
+        description: "Dynamodbに格納されたTodo情報を1件取得する",
+      }
+    );
+    const updateTodosLambda = new lambda.Function(
+      this,
+      generateResourceName(projectName, "updateTodos", env),
+      {
+        code: new lambda.AssetCode("lambda/api"),
+        handler: "updateTodos.handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+        },
+        functionName: generateResourceName(projectName, "updateTodos", env),
+        description: "Dynamodbに格納されたTodo情報を1件更新する",
+      }
+    );
+    const deleteTodosLambda = new lambda.Function(
+      this,
+      generateResourceName(projectName, "deleteTodos", env),
+      {
+        code: new lambda.AssetCode("lambda/api"),
+        handler: "deleteTodos.handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+        },
+        functionName: generateResourceName(projectName, "deleteTodos", env),
+        description: "Dynamodbに格納されたTodo情報を1件削除する",
+      }
+    );
 
     /**
      * API Gateway の作成
@@ -263,7 +340,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                helloLambda.functionName +
+                listTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -365,7 +442,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                helloLambda.functionName +
+                createTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -380,9 +457,9 @@ export class ServerlessApi extends cdk.Construct {
           },
         },
 
-        "/todos/searchByText": {
+        "/todos/findByText": {
           get: {
-            operationId: "searchTodos",
+            operationId: "findTodos",
             tags: ["Todo"],
             summary: "Todo情報 検索API",
             description: "ユーザーのTodoを指定したワードで検索し返却する",
@@ -421,7 +498,7 @@ export class ServerlessApi extends cdk.Construct {
                       },
                     },
                     examples: {
-                      searchTodo: {
+                      findTodo: {
                         summary: "Todo情報 検索結果例",
                         value: [
                           {
@@ -463,7 +540,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                helloLambda.functionName +
+                findTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -560,7 +637,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                helloLambda.functionName +
+                getTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -688,7 +765,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                helloLambda.functionName +
+                updateTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -763,7 +840,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                helloLambda.functionName +
+                deleteTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -779,6 +856,7 @@ export class ServerlessApi extends cdk.Construct {
         },
       },
     };
+    // API Gateway本体の作成
     const api = new apigw.SpecRestApi(
       this,
       generateResourceName(projectName, "SpecRestApi", env),
@@ -804,25 +882,36 @@ export class ServerlessApi extends cdk.Construct {
     );
 
     // API GatewayからLambdaをInovokeできるようにリソースベースポリシーを追加
-    helloLambda.addPermission(`LambdaPermission`, {
+    listTodosLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    createTodosLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    getTodosLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    updateTodosLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    deleteTodosLambda.addPermission(`LambdaPermission`, {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
 
-    // const authorizer = new apigw.CfnAuthorizer(
-    //   this,
-    //   'APIGatewayAuthorizer',
-    //   {
-    //     name: 'authorizer',
-    //     identitySource: 'method.request.header.Authorization',
-    //     providerArns: [props.userPoolArn],
-    //     restApiId: api.restApiId,
-    //     type: apigw.AuthorizationType.COGNITO,
-    //   }
-    // );
+    // DynamodbにLambdaがアクセス可能にする
+    todoTable.grantReadData(listTodosLambda);
+    todoTable.grantReadData(getTodosLambda);
+    todoTable.grantWriteData(createTodosLambda);
+    todoTable.grantWriteData(updateTodosLambda);
+    todoTable.grantWriteData(deleteTodosLambda);
+
 
     // TODO  API ドキュメント公開用 S3Bucketの作成
-
     const fs = require("fs");
     const yaml = require("js-yaml");
 
