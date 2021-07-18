@@ -6,6 +6,7 @@ import { ServicePrincipal } from "@aws-cdk/aws-iam";
 import * as logs from "@aws-cdk/aws-logs";
 
 import * as apigw from "@aws-cdk/aws-apigateway";
+import * as dynamodb from "@aws-cdk/aws-dynamodb";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
@@ -32,7 +33,23 @@ export class ServerlessApi extends cdk.Construct {
     const projectName = props.environmentVariables.projectName;
     const env = props.environmentVariables.environment;
 
-    // Lambdaの作成
+    /**
+     * Dynamodb Table の作成
+     */
+    const todoTable = new dynamodb.Table(
+      this,
+      generateResourceName(projectName, "Todo", env),
+      {
+        partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+        sortKey: { name: "todoId", type: dynamodb.AttributeType.STRING },
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        tableName: generateResourceName(projectName, "Todo", env),
+      }
+    );
+
+    /**
+     * Lambda Function の作成
+     */
     const helloLambda = new lambda.Function(this, "helloFunction", {
       code: new lambda.AssetCode("lambda/src"),
       handler: "hello.handler",
@@ -46,7 +63,9 @@ export class ServerlessApi extends cdk.Construct {
       // events: [new ApiEventSource("get", "/hello")], // swaggerもあるので冗長な気がするが、これを指定しないとAPI GatewayからLambdaInvokeするロールが作られない
     });
 
-    // API Gatewayの作成
+    /**
+     * API Gateway の作成
+     */
     // Open API 3.0でAPI仕様を定義する
     this.swagger = {
       openapi: "3.0.0",
