@@ -121,6 +121,24 @@ export class ServerlessApi extends cdk.Construct {
             },
           },
         },
+        examples: {
+          ErrorExample: {
+            summary: "Todo情報 エラー例(Unexpected)",
+            value: {
+              message: "予期せぬエラーが発生しました",
+            },
+          },
+          ErrorNotFoundExample: {
+            summary: "Todo情報 エラー例(Not Found)",
+            value: {
+              message: "指定したTodoは見つかりませんでした",
+            },
+          },
+          TodoId: {
+            summary: "TodoId 指定例",
+            value: "111aac0e-eb29-41c3-b377-05e14102942d",
+          },
+        },
       },
       // 各APIのリソースを以下で定義していく
       paths: {
@@ -145,6 +163,12 @@ export class ServerlessApi extends cdk.Construct {
                   type: "integer",
                   format: "int32",
                 },
+                examples: {
+                  limit: {
+                    summary: "limit 指定例",
+                    value: 5,
+                  },
+                },
               },
               {
                 name: "nextToken",
@@ -155,6 +179,12 @@ export class ServerlessApi extends cdk.Construct {
                 schema: {
                   type: "string",
                 },
+                examples: {
+                  nextToken: {
+                    summary: "nextToken 指定例",
+                    value: "eyJ2ZXJzaW9uIjoxLCJ0b2...",
+                  },
+                },
               },
             ],
             responses: {
@@ -163,17 +193,32 @@ export class ServerlessApi extends cdk.Construct {
                 content: {
                   "application/json": {
                     schema: {
-                      type: "object",
-                      required: ["todos"],
-                      properties: {
-                        todos: {
-                          type: "array",
-                          items: {
-                            $ref: "#/components/schemas/Todo",
-                          },
-                        },
-                        nextToken: {
-                          type: "string",
+                      type: "array",
+                      items: {
+                        $ref: "#/components/schemas/Todo",
+                      },
+                    },
+                    examples: {
+                      listTodo: {
+                        summary: "Todo情報 一括取得結果例",
+                        value: {
+                          todos: [
+                            {
+                              todoId: "3894bd64-3061-4fa5-914a-b798b5f56bb9",
+                              title: "今日のうちに終わらせること",
+                              content: "swaggerの定義を実装する",
+                              dueDate: "2021-07-18",
+                              isImportant: true,
+                            },
+                            {
+                              todoId: "933b923b-3238-4ec1-b3fb-1164e897d690",
+                              title: "明日朝起きたらやること",
+                              content: "DynamodbをCDKで立てる",
+                              dueDate: "2021-07-18",
+                              isImportant: false,
+                            },
+                          ],
+                          nextToken: "eyJ2ZXJzaW9uIjoxLCJ0b...",
                         },
                       },
                     },
@@ -186,6 +231,11 @@ export class ServerlessApi extends cdk.Construct {
                   "application/json": {
                     schema: {
                       $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
                     },
                   },
                 },
@@ -218,7 +268,7 @@ export class ServerlessApi extends cdk.Construct {
               },
             ],
             requestBody: {
-              description: "Todo情報をシステムに登録する",
+              description: "登録するTodo情報",
               content: {
                 "application/json": {
                   schema: {
@@ -262,6 +312,18 @@ export class ServerlessApi extends cdk.Construct {
                     schema: {
                       $ref: "#/components/schemas/Todo",
                     },
+                    examples: {
+                      Todo: {
+                        summary: "Todo情報 登録例",
+                        value: {
+                          todoId: "a5d93e28-180f-404e-b6fe-29972ca4b73c",
+                          title: "今日やること",
+                          content: "ゴミを捨てる",
+                          dueDate: "2021-07-18",
+                          isImportant: false,
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -271,6 +333,409 @@ export class ServerlessApi extends cdk.Construct {
                   "application/json": {
                     schema: {
                       $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              uri:
+                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+                helloLambda.functionName +
+                "/invocations",
+              responses: {
+                default: {
+                  statusCode: "200",
+                },
+              },
+              passthroughBehavior: "when_no_match",
+              httpMethod: "POST",
+              contentHandling: "CONVERT_TO_TEXT",
+              type: "aws_proxy",
+            },
+          },
+        },
+
+        "/todos/searchByText": {
+          get: {
+            operationId: "searchTodos",
+            tags: ["Todo"],
+            summary: "Todo情報 検索API",
+            description: "ユーザーのTodoを指定したワードで検索し返却する",
+            security: [
+              {
+                CognitoAuth: [],
+              },
+            ],
+            parameters: [
+              {
+                name: "q",
+                in: "query",
+                description:
+                  "指定したワードで、Todoのタイトル、内容を全文検索する",
+                required: true,
+                schema: {
+                  type: "string",
+                },
+                examples: {
+                  q: {
+                    summary: "検索指定ワード例",
+                    value: "実装",
+                  },
+                },
+              },
+            ],
+            responses: {
+              200: {
+                description: "Todo情報のjsonリストを返却する",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "array",
+                      items: {
+                        $ref: "#/components/schemas/Todo",
+                      },
+                    },
+                    examples: {
+                      searchTodo: {
+                        summary: "Todo情報 検索結果例",
+                        value: [
+                          {
+                            todoId: "3e19c048-ecc8-45e3-86df-779b5e2e2304",
+                            title: "今日中に実装するもの",
+                            content: "swagger.yaml",
+                            dueDate: "2021-07-18",
+                            isImportant: true,
+                          },
+                          {
+                            todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
+                            title: "明日の自分にお願いすること",
+                            content: "DynamodbをCDKで実装してもらう",
+                            dueDate: "2021-07-18",
+                            isImportant: false,
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+              default: {
+                description: "予期せぬエラーが発生",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              uri:
+                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+                helloLambda.functionName +
+                "/invocations",
+              responses: {
+                default: {
+                  statusCode: "200",
+                },
+              },
+              passthroughBehavior: "when_no_match",
+              httpMethod: "POST",
+              contentHandling: "CONVERT_TO_TEXT",
+              type: "aws_proxy",
+            },
+          },
+        },
+
+        "/todos/{todoId}": {
+          get: {
+            operationId: "showTodoById",
+            tags: ["Todo"],
+            summary: "Todo情報 取得API",
+            description: "ユーザーの指定したTodoを1件取得する",
+            security: [
+              {
+                CognitoAuth: [],
+              },
+            ],
+            parameters: [
+              {
+                name: "todoId",
+                in: "path",
+                description: "取得するTodoのIdを指定する",
+                required: true,
+                schema: {
+                  type: "string",
+                },
+                examples: {
+                  todoId: { $ref: "#/components/examples/TodoId" },
+                },
+              },
+            ],
+            responses: {
+              200: {
+                description: "Todoを正常に取得完了",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Todo",
+                    },
+                    examples: {
+                      getTodo: {
+                        summary: "Todo情報 1件取得結果例",
+                        value: {
+                          todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
+                          title: "冷蔵庫の整理",
+                          content: "卵と納豆を食べる",
+                          dueDate: "",
+                          isImportant: false,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              404: {
+                description: "指定したTodoIdが存在しない",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      TodoNotFound: {
+                        $ref: "#/components/examples/ErrorNotFoundExample",
+                      },
+                    },
+                  },
+                },
+              },
+              default: {
+                description: "予期せぬエラーが発生",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              uri:
+                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+                helloLambda.functionName +
+                "/invocations",
+              responses: {
+                default: {
+                  statusCode: "200",
+                },
+              },
+              passthroughBehavior: "when_no_match",
+              httpMethod: "POST",
+              contentHandling: "CONVERT_TO_TEXT",
+              type: "aws_proxy",
+            },
+          },
+          put: {
+            operationId: "updateTodo",
+            tags: ["Todo"],
+            summary: "Todo情報 更新API",
+            description: "ユーザーのTodo情報を1件更新する",
+            security: [
+              {
+                CognitoAuth: [],
+              },
+            ],
+            parameters: [
+              {
+                name: "todoId",
+                in: "path",
+                description: "更新するTodoのIdを指定する",
+                required: true,
+                schema: {
+                  type: "string",
+                },
+                examples: {
+                  todoId: { $ref: "#/components/examples/TodoId" },
+                },
+              },
+            ],
+            requestBody: {
+              description: "更新する項目だけをリクエストボディに指定する",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      title: {
+                        type: "string",
+                      },
+                      content: {
+                        type: "string",
+                      },
+                      dueDate: {
+                        type: "string",
+                        format: "date",
+                      },
+                      isImportant: {
+                        type: "boolean",
+                      },
+                    },
+                  },
+                  examples: {
+                    Todo: {
+                      summary: "Todo情報 更新例",
+                      value: {
+                        dueDate: "2021-07-21",
+                        isImportant: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              200: {
+                description: "Todo情報の更新が正常に完了",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Todo",
+                    },
+                    examples: {
+                      updateTodo: {
+                        summary: "Todo情報 更新結果例",
+                        value: {
+                          todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
+                          title: "冷蔵庫の整理",
+                          content: "卵と納豆を食べる",
+                          dueDate: "2021-07-21",
+                          isImportant: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              404: {
+                description: "指定したTodoIdが存在しない",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      TodoNotFound: {
+                        $ref: "#/components/examples/ErrorNotFoundExample",
+                      },
+                    },
+                  },
+                },
+              },
+              default: {
+                description: "予期せぬエラーが発生",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              uri:
+                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+                helloLambda.functionName +
+                "/invocations",
+              responses: {
+                default: {
+                  statusCode: "200",
+                },
+              },
+              passthroughBehavior: "when_no_match",
+              httpMethod: "POST",
+              contentHandling: "CONVERT_TO_TEXT",
+              type: "aws_proxy",
+            },
+          },
+          delete: {
+            operationId: "deleteTodoById",
+            tags: ["Todo"],
+            summary: "Todo情報 削除API",
+            description: "ユーザーの指定したTodoを1件削除する",
+            security: [
+              {
+                CognitoAuth: [],
+              },
+            ],
+            parameters: [
+              {
+                name: "todoId",
+                in: "path",
+                description: "削除するTodoのIdを指定する",
+                required: true,
+                schema: {
+                  type: "string",
+                },
+                examples: {
+                  todoId: { $ref: "#/components/examples/TodoId" },
+                },
+              },
+            ],
+            responses: {
+              200: {
+                description: "Todoを正常に削除完了",
+              },
+              404: {
+                description: "指定したTodoIdが存在しない",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      TodoNotFound: {
+                        $ref: "#/components/examples/ErrorNotFoundExample",
+                      },
+                    },
+                  },
+                },
+              },
+              default: {
+                description: "予期せぬエラーが発生",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
                     },
                   },
                 },
