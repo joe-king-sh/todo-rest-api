@@ -36,7 +36,7 @@ export class ServerlessApi extends cdk.Construct {
     /**
      * Dynamodb Table の作成
      */
-    const removalPolicy =
+    const removalPolicy = 
       env == environment.Environments.PROD
         ? cdk.RemovalPolicy.RETAIN // 本番はテーブルの削除ポリシーをRETAINに
         : cdk.RemovalPolicy.DESTROY;
@@ -48,7 +48,7 @@ export class ServerlessApi extends cdk.Construct {
         sortKey: { name: "todoId", type: dynamodb.AttributeType.STRING },
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableName: generateResourceName(projectName, "Todo", env),
-        removalPolicy: removalPolicy
+        removalPolicy: removalPolicy,
       }
     );
 
@@ -910,19 +910,18 @@ export class ServerlessApi extends cdk.Construct {
     todoTable.grantWriteData(updateTodosLambda);
     todoTable.grantWriteData(deleteTodosLambda);
 
-
     // TODO  API ドキュメント公開用 S3Bucketの作成
-    const fs = require("fs");
-    const yaml = require("js-yaml");
+    // const fs = require("fs");
+    // const yaml = require("js-yaml");
 
-    const yamlText = yaml.dump(this.swagger);
-    fs.writeFile("./cdk.out/swagger.yaml", yamlText, "utf8", (err: any) => {
-      if (err) {
-        console.error(err.message);
-        process.exit(1);
-      }
-      console.log("SwaggerファイルをYamlで出力しました");
-    });
+    // const yamlText = yaml.dump(this.swagger);
+    // fs.writeFile("./cdk.out/swagger.yaml", yamlText, "utf8", (err: any) => {
+    //   if (err) {
+    //     console.error(err.message);
+    //     process.exit(1);
+    //   }
+    //   console.log("SwaggerファイルをYamlで出力しました");
+    // });
     // TODO ドキュメントを各環境毎のS3へアップロードするやつ。Synthで動いてしまうから、S３Put自体は、テスト通った後の方がいいかも　ここではcdk.outに吐くまで
 
     // APIキーとかも作られるまでは、わからないので、それを事前にSwaggerに入れることはできない。
