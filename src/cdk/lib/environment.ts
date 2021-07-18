@@ -11,25 +11,27 @@ export type Environments = typeof Environments[keyof typeof Environments];
 /**
  * 環境に依存せず共通の変数のインタフェース
  */
- interface CommonVariable {
-    projectName: string,
-};  
+interface CommonVariable {
+  projectName: string;
+  region: string;
+}
 /**
  * 環境に依存せず共通の変数
  */
- const CommonVariableConfig = {
-    projectName: "TodoApp",
-};  
-  
+const CommonVariableConfig: CommonVariable = {
+  projectName: "TodoApp",
+  region: "ap-northeast-1",
+};
+
 /**
  * 各環境毎の環境変数のインタフェース
  * @export
  * @interface EnvironmentVariables
  */
-export interface EnvironmentVariables extends CommonVariable{
-  environment: Environments
+export interface EnvironmentVariables extends CommonVariable {
+  environment: Environments;
   dynamodbSetting: { [key: string]: any }; //Dynamodbに渡す環境変数
-} 
+}
 
 /**
  * 各環境毎の環境変数

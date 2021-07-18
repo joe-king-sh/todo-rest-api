@@ -2,20 +2,18 @@ import * as cdk from "@aws-cdk/core";
 import { generateResourceName } from "../utility";
 import cognito = require("@aws-cdk/aws-cognito");
 import * as environment from "../environment";
+import { Z_ASCII } from "zlib";
 
 interface AuthenticationProps {
-  environmentVariables: environment.EnvironmentVariables
+  environmentVariables: environment.EnvironmentVariables;
 }
 
 export class Authentication extends cdk.Construct {
+  userPool: cognito.IUserPool;
+  userPoolDomain: cognito.IUserPoolDomain;
+  domainName:string;
 
-  userPool: cognito.IUserPool
-
-  constructor(
-    scope: cdk.Construct,
-    id: string,
-    props: AuthenticationProps
-  ) {
+  constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
     super(scope, id);
 
     const projectName = props.environmentVariables.projectName;
@@ -33,10 +31,18 @@ export class Authentication extends cdk.Construct {
     });
     // アプリクライアントをユーザプールに追加
     this.userPool.addClient("UserPoolClient", {
-      authFlows: { adminUserPassword: true, userSrp: true},
-      generateSecret:false,
+      authFlows: { adminUserPassword: true, userSrp: true, custom: true},
+      generateSecret: false,
       userPoolClientName: generateResourceName(projectName, "Client", env),
-      preventUserExistenceErrors: true
+      preventUserExistenceErrors: true,
+      
     });
+    // 認証用UIのためドメイン名を追加する
+    this.domainName  = generateResourceName(projectName.toLowerCase(), "domain", env)
+
+    this.userPoolDomain = new cognito.UserPoolDomain(this,"Domain", {
+      userPool: this.userPool ,
+      cognitoDomain: {domainPrefix: this.domainName}
+    })
   }
 }

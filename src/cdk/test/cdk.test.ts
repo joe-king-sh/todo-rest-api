@@ -42,6 +42,10 @@ for (const env of Object.values(environment.Environments)) {
     // THEN
     expectCDK(stack).to(haveResource("AWS::Cognito::UserPool", {}));
     expectCDK(stack).to(countResources("AWS::Cognito::UserPool", 1));
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolClient", {}));
+    expectCDK(stack).to(countResources("AWS::Cognito::UserPoolClient", 1));
+    expectCDK(stack).to(haveResource("AWS::Cognito::UserPoolDomain", {}));
+    expectCDK(stack).to(countResources("AWS::Cognito::UserPoolDomain", 1));
   });
 
   /**
@@ -81,6 +85,12 @@ for (const env of Object.values(environment.Environments)) {
           ClientName: generateResourceName(projectName, "Client", env),
         })
       );
+      expectCDK(stack).to(
+        haveResource("AWS::Cognito::UserPoolDomain", {
+          Domain: generateResourceName(projectName.toLowerCase(), "domain", env),
+        })
+      );
+
     }
   );
 
