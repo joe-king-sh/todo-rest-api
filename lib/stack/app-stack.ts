@@ -1,8 +1,8 @@
 import * as cdk from "@aws-cdk/core";
-import { generateResourceName } from "../lib/utility";
-import * as environment from "../lib/environment";
-import { Authentication } from "./construct/authentication";
-import { ServerlessApi } from "./construct/serverlessApi";
+import { generateResourceName } from "../utility";
+import * as environment from "../environment";
+import { Authentication } from "../construct/authentication";
+import { ServerlessApi } from "../construct/serverlessApi";
 import { Server } from "http";
 
 export class AppStack extends cdk.Stack {

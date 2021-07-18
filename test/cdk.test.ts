@@ -7,7 +7,7 @@ import {
   ResourcePart,
 } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
-import * as Cdk from "../lib/app-stack";
+import * as Cdk from "../lib/stack/app-stack";
 import * as environment from "../lib/environment";
 import { Authentication } from "../lib/construct/authentication";
 import { ServerlessApi } from "../lib/construct/serverlessApi";

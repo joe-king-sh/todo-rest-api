@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
-import { AppStack } from '../lib/app-stack';
+import { AppStack } from '../lib/stack/app-stack';
 import {generateResourceName} from '../lib/utility'
 import * as environment from '../lib/environment'
 
