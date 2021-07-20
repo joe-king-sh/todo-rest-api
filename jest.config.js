@@ -1,8 +1,23 @@
 module.exports = {
-  testEnvironment: 'node',
-  roots: ['<rootDir>/test'],
-  testMatch: ['**/*.test.ts'],
+  testEnvironment: "node",
+  roots: ["<rootDir>/test", "<rootDir>/lambda","<rootDir>/lib","<rootDir>/bin"],
+  testMatch: ["**/*.test.ts"],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest'
-  }
+    "^.+\\.tsx?$": "ts-jest",
+  },
+  // moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  collectCoverage: true,
+  collectCoverageFrom: [
+    // "<rootDir>/lambda/api/*.ts",
+    "**.{ts,tsx}",
+    "*.{ts,tsx}",
+    "**/*.{ts,tsx}",
+    "**/**/*.{ts,tsx}",
+    "!**/node_modules/**",
+    "!**/test/**",
+    "!**/**/*.d.ts",
+  ],
+  coverageReporters: ["text"],
+
 };
+

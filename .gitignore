@@ -1,6 +1,7 @@
 
 *.js
 !jest.config.js
+!jest-dynalite-config.js
 *.d.ts
 node_modules
 

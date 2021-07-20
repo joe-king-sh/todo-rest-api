@@ -2,6 +2,7 @@ import * as cdk from "@aws-cdk/core";
 import { generateResourceName } from "../utility";
 import * as environment from "../environment";
 import * as lambda from "@aws-cdk/aws-lambda";
+import * as nodeLambda from "@aws-cdk/aws-lambda-nodejs";
 import { ServicePrincipal } from "@aws-cdk/aws-iam";
 import * as logs from "@aws-cdk/aws-logs";
 
@@ -18,7 +19,6 @@ interface ServerlessApiProps {
 export class ServerlessApi extends cdk.Construct {
   // serverlessApi:
 
-  private region: string = cdk.Stack.of(this).region;
   swagger: {
     openapi: string;
     info: {};
@@ -32,11 +32,12 @@ export class ServerlessApi extends cdk.Construct {
 
     const projectName = props.environmentVariables.projectName;
     const env = props.environmentVariables.environment;
+    const region = props.environmentVariables.region;
 
     /**
      * Dynamodb Table の作成
      */
-    const removalPolicy = 
+    const removalPolicy =
       env == environment.Environments.PROD
         ? cdk.RemovalPolicy.RETAIN // 本番はテーブルの削除ポリシーをRETAINに
         : cdk.RemovalPolicy.DESTROY;
@@ -55,85 +56,92 @@ export class ServerlessApi extends cdk.Construct {
     /**
      * Lambda Function の作成
      */
-    const listTodosLambda = new lambda.Function(
+    const listTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "listTodos", env),
       {
-        code: new lambda.AssetCode("lambda/api"),
-        handler: "listTodos.handler",
+        entry: "lambda/handlers/listTodosHandler.ts",
+        handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
         },
         functionName: generateResourceName(projectName, "listTodos", env),
         description: "Dynamodbに格納されたTodo情報を一括で取得する",
       }
     );
-    const createTodosLambda = new lambda.Function(
+    const createTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "createTodos", env),
       {
-        code: new lambda.AssetCode("lambda/api"),
-        handler: "createTodos.handler",
+        entry: "lambda/handlers/createTodosHandler.ts",
+        handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
         },
         functionName: generateResourceName(projectName, "createTodos", env),
         description: "Todo情報をDynamodbに登録する",
       }
     );
-    const findTodosLambda = new lambda.Function(
+    const findTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "findTodos", env),
       {
-        code: new lambda.AssetCode("lambda/api"),
-        handler: "findTodos.handler",
+        entry: "lambda/handlers/findTodosHandler.ts",
+        handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
         },
         functionName: generateResourceName(projectName, "findTodos", env),
         description: "Dynamodbに格納されたTodo情報を検索する",
       }
     );
-    const getTodosLambda = new lambda.Function(
+    const getTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "getTodos", env),
       {
-        code: new lambda.AssetCode("lambda/api"),
-        handler: "getTodos.handler",
+        entry: "lambda/handlers/getTodosHandler.ts",
+        handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
         },
         functionName: generateResourceName(projectName, "getTodos", env),
         description: "Dynamodbに格納されたTodo情報を1件取得する",
       }
     );
-    const updateTodosLambda = new lambda.Function(
+
+    const updateTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "updateTodos", env),
       {
-        code: new lambda.AssetCode("lambda/api"),
-        handler: "updateTodos.handler",
+        entry: "lambda/handlers/updateTodosHandler.ts",
+        handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
         },
         functionName: generateResourceName(projectName, "updateTodos", env),
         description: "Dynamodbに格納されたTodo情報を1件更新する",
       }
     );
-    const deleteTodosLambda = new lambda.Function(
+    const deleteTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "deleteTodos", env),
       {
-        code: new lambda.AssetCode("lambda/api"),
-        handler: "deleteTodos.handler",
+        entry: "lambda/handlers/deleteTodosHandler.ts",
+        handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
         },
         functionName: generateResourceName(projectName, "deleteTodos", env),
         description: "Dynamodbに格納されたTodo情報を1件削除する",
