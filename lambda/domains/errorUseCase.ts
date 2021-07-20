@@ -71,8 +71,12 @@ export class ErrorMessage {
     return `予期せぬエラーが発生しました`;
   };
 
-  static PARAMETERS_NOT_FOUND = (params: [string]) => {
+  static PARAMETERS_NOT_FOUND = (params: string[]) => {
     return `パラメータ ${JSON.stringify(params)}} を指定する必要があります`;
+  };
+
+  static INVALID_PARAMETER = () => {
+    return `リクエストパラメータが不正です`;
   };
 
   static INVALID_TOKEN = () => {

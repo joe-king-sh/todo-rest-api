@@ -57,21 +57,66 @@ export class DynamodbTodoTable {
       })
       .catch((e) => {
         console.log(
-          "Dynamodb呼び出し処理で予期せぬエラー発生。そのままThrowする"
+          "Dynamodb呼び出し処理で予期せぬエラー発生"
         );
         console.log(JSON.stringify(e));
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
-  //   .finally(() => {
-  //   });
+
+  /**
+   * DynamodbにTodoを1件Putする処理
+   *
+   * @static
+   * @param {PutTodoInDynamodbProps} putTodoInDynamodbProps
+   * @memberof DynamodbTodoTable
+   */
+  public static putTodo = (putTodoInDynamodbProps: PutTodoInDynamodbProps) => {
+    myPromisify((callback: any) =>
+      DYNAMO.put(
+        {
+          TableName: tableName,
+          Item: putTodoInDynamodbProps,
+        },
+        callback
+      )
+    )
+      .then((response: any) => {
+        console.log(
+          `Response from dynamodb: ${JSON.stringify(response)}`
+        );
+      })
+      .catch((e) => {
+        console.log(
+          "Dynamodbへの登録処理で予期せぬエラー発生"
+        );
+        console.log(JSON.stringify(e));
+        throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+      });
+  };
 }
 
 /**
- * DynamodbからTodoをgetItemする時に必要なパラメータ
+ * DynamodbからTodoをgetItemする時に必要なパラメータのインタフェース
  * @export
  * @interface GetTodoFromDdbProps
  */
 export interface GetTodoFromDdbProps {
   userId: string;
   todoId: string;
+}
+
+/**
+ * DynamodbにTodoをputItemする時に必要なItemパラメータのインタフェース
+ * 　TodoUseCase.Todoと完全一致しているが、疎結合のため別で定義
+ *
+ * @export
+ * @interface PutTodoInDynamodbProps
+ */
+export interface PutTodoInDynamodbProps {
+  userId: string;
+  todoId: string;
+  title: string;
+  content: string;
+  dueDate?: string;
+  isImportant?: boolean;
 }

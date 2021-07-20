@@ -60,6 +60,7 @@ const baseApiGatewayEvent: APIGatewayEvent = {
 describe("Todo取得処理のハンドラのテスト", (): void => {
   test("Case1: Authorizationヘッダーが指定されていない", async () => {
     expect.assertions(1);
+    jest.resetAllMocks();
 
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
@@ -74,6 +75,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
 
   test("Case2: todoIdがパスパラメータに指定されていない", async () => {
     expect.assertions(1);
+    jest.resetAllMocks();
 
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
@@ -89,6 +91,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
 
   test("Case3: 正常にTodo取得完了", async () => {
     expect.assertions(1);
+    jest.resetAllMocks();
 
     // モックをセット
     const getSpecificTodoSpy = jest
@@ -129,6 +132,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
 
   test("Case4: 予期せぬエラー発生", async () => {
     expect.assertions(1);
+    jest.resetAllMocks();
 
     // モックをセット
     const getSpecificTodoSpy = jest
@@ -154,6 +158,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
 
   test("Case5: Dynamodb接続時にエラー発生", async () => {
     expect.assertions(1);
+    jest.resetAllMocks();
 
     // モックをセット
     const getSpecificTodoSpy = jest
@@ -179,6 +184,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
 
   test("Case6: NotFoundエラー発生", async () => {
     expect.assertions(1);
+    jest.resetAllMocks();
 
     // モックをセット
     const getSpecificTodoSpy = jest

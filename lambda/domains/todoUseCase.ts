@@ -1,6 +1,11 @@
 import { CognitoUserPool } from "../infrastructures/cognito";
-import { DynamodbTodoTable } from "../infrastructures/dynamodbTodoTable";
+import {
+  DynamodbTodoTable,
+  PutTodoInDynamodbProps,
+} from "../infrastructures/dynamodbTodoTable";
 import { NotFoundError, ErrorMessage } from "../domains/errorUseCase";
+import { v4 as uuidv4 } from "uuid";
+
 /**
  * 特定のユーザのTodoについてユースケースを管理するクラス
  *
@@ -17,6 +22,42 @@ export class TodoUseCase {
    */
   constructor(token: string) {
     this.userId = CognitoUserPool.getUserNameFromIdToken(token);
+  }
+
+  public async createTodo(createTodoProps: CreateTodoProps): Promise<Todo> {
+    console.log(
+      `Todo 登録処理 開始 props:  ${JSON.stringify(createTodoProps)}`
+    );
+
+    let todo = {
+      userId: "",
+      todoId: "",
+      title: "",
+      content: "",
+      dueDate: "",
+      isImportant: false,
+    };
+
+    todo.userId = this.userId;
+    todo.todoId = uuidv4();
+
+    if (createTodoProps.title) {
+      todo.title = createTodoProps.title as string;
+    }
+    if (createTodoProps.content) {
+      todo.content = createTodoProps.content as string;
+    }
+    if (createTodoProps.dueDate) {
+      todo.dueDate = createTodoProps.dueDate as string;
+    }
+    if (createTodoProps.dueDate) {
+      todo.isImportant = createTodoProps.isImportant as boolean;
+    }
+
+    // Dynamodbへ追加で登録
+    await DynamodbTodoTable.putTodo(todo);
+
+    return todo;
   }
 
   /**
@@ -92,10 +133,6 @@ export class TodoUseCase {
   // public async deleteTodo(specifyTodoProps:SpecifyTodoProps) {
 
   // }
-
-  // public async createTodo(createTodoProps: CreateTodoProps) {
-
-  // }
 }
 
 export interface Todo {
@@ -107,12 +144,12 @@ export interface Todo {
   isImportant: boolean;
 }
 
-// export interface CreateTodoProps {
-//     title: string;
-//     content: string;
-//     dueDate?: Date;
-//     isImportant?: boolean;
-// }
+export interface CreateTodoProps {
+  title: string;
+  content: string;
+  dueDate?: string;
+  isImportant?: boolean;
+}
 
 // export interface UpdateTodoProps {
 //     todoId: string;
