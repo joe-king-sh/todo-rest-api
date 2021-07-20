@@ -1,16 +1,16 @@
-import { handler } from "../lambda/handlers/getTodosHandler";
+import { handler } from "../../lambda/handlers/getTodosHandler";
 
 import { APIGatewayEvent } from "aws-lambda";
 import {
   ErrorMessage,
   NotFoundError,
   DynamodbError,
-} from "../lambda/domains/errorUseCase";
+} from "../../lambda/domains/errorUseCase";
 
-import { TodoUseCase } from "../lambda/domains/todoUseCase";
+import { TodoUseCase } from "../../lambda/domains/todoUseCase";
 
 // 認証関連は全てモック化しておく
-jest.mock("../lambda/infrastructures/cognito");
+jest.mock("../../lambda/infrastructures/cognito");
 
 // Lambdaに渡ってくるイベント変数のベース
 const baseApiGatewayEvent: APIGatewayEvent = {

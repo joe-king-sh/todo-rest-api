@@ -1,17 +1,15 @@
 import {
   expect as expectCDK,
-  matchTemplate,
-  MatchStyle,
   haveResource,
   countResources,
   ResourcePart,
 } from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
-import * as Cdk from "../lib/stack/app-stack";
-import * as environment from "../lib/environment";
-import { Authentication } from "../lib/construct/authentication";
-import { ServerlessApi } from "../lib/construct/serverlessApi";
-import { generateResourceName } from "../lib/utility";
+import * as Cdk from "../../lib/stack/app-stack";
+import * as environment from "../../lib/environment";
+import { Authentication } from "../../lib/construct/authentication";
+import { ServerlessApi } from "../../lib/construct/serverlessApi";
+import { generateResourceName } from "../../lib/utility";
 
 /**
  * テスト用のヘルパー関数

@@ -1,5 +1,5 @@
-import { CognitoUserPool } from "../lambda/infrastructures/cognito";
-import {UnauthorizedError,ErrorMessage, NotFoundError} from "../lambda/domains/errorUseCase"
+import { CognitoUserPool } from "../../lambda/infrastructures/cognito";
+import {UnauthorizedError,ErrorMessage} from "../../lambda/domains/errorUseCase"
 
 const sign = require('jwt-encode');
 const secret = 'secret';

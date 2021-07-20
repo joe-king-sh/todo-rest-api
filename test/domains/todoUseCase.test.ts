@@ -1,19 +1,19 @@
-import { TodoUseCase, SpecifyTodoProps } from "../lambda/domains/todoUseCase";
+import { TodoUseCase, SpecifyTodoProps } from "../../lambda/domains/todoUseCase";
 
 import {
   ErrorMessage,
   NotFoundError,
   DynamodbError,
-} from "../lambda/domains/errorUseCase";
-import {DynamodbTodoTable} from "../lambda/infrastructures/dynamodbTodoTable";
+} from "../../lambda/domains/errorUseCase";
+import {DynamodbTodoTable} from "../../lambda/infrastructures/dynamodbTodoTable";
 
 
 
 // Dynamodb関連処理をモック化する
-jest.mock("../lambda/infrastructures/dynamodbTodoTable");
+jest.mock("../../lambda/infrastructures/dynamodbTodoTable");
 // const MockDynamodbTodoTable = DynamodbTodoTable as unknown as jest.Mock
 // 認証関連は全てモック化しておく
-jest.mock("../lambda/infrastructures/cognito");
+jest.mock("../../lambda/infrastructures/cognito");
 
 describe("特定のTodo取得処理のテスト", (): void => {
   test("Case1: Todoが正常に1件取得成功", async () => {

@@ -2,12 +2,12 @@ const aws = require("aws-sdk");
 import {
   DynamodbTodoTable,
   DYNAMO,
-} from "../lambda/infrastructures/dynamodbTodoTable";
+} from "../../lambda/infrastructures/dynamodbTodoTable";
 import {
   DynamodbError,
   ErrorMessage,
   NotFoundError,
-} from "../lambda/domains/errorUseCase";
+} from "../../lambda/domains/errorUseCase";
 
 process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";
 process.env.REGION = "ap-northeast-1";
