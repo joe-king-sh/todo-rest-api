@@ -19,6 +19,9 @@ class BaseError extends Error {
  */
 export class DynamodbError extends BaseError {
     public statusCode = 500;
+    constructor(e?: string) {
+      super(e);
+    }
 }
 
 /**
@@ -30,31 +33,27 @@ export class DynamodbError extends BaseError {
  */
 export class NotFoundError extends BaseError {
   public statusCode = 404;
+  constructor(e?: string) {
+    super(e);
+  }
 }
 
 /**
  * 認証エラー発生時にthrowするException
  *
  * @export
- * @class NotFoundError
+ * @class UnauthorizedError
  * @extends {BaseError}
  */
 export class UnauthorizedError extends BaseError {
   public statusCode = 401;
+  constructor(e?: string) {
+    super(e);
+  }
 }
-/**
- * 認可エラー発生時にthrowするException
- *
- * @export
- * @class AuthorizationError
- * @extends {BaseError}
- */
-// export class AuthorizationError extends BaseError {
-//   public statusCode = 403;
-// }
 
 /**
- * 認可エラー発生時にthrowするException
+ * エラーメッセージ共通クラス
  *
  * @export
  * @class ErrorMessage
