@@ -3,7 +3,11 @@ import {
   DynamodbTodoTable,
   DYNAMO,
 } from "../lambda/infrastructures/dynamodbTodoTable";
-// import { mocked } from "ts-jest/utils";
+import {
+  DynamodbError,
+  ErrorMessage,
+  NotFoundError,
+} from "../lambda/domains/errorUseCase";
 
 process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";
 process.env.REGION = "ap-northeast-1";
@@ -21,6 +25,9 @@ describe("Dynamodb 操作用サービス のテスト", (): void => {
   });
 
   test("Case1: DynamodbからのgetItemが正常に終了する場合", async () => {
+    jest.resetAllMocks();
+
+    expect.assertions(2);
 
     // Dynamodbのから返却される想定のモックレスポンス
     const mockResult = {
@@ -47,23 +54,70 @@ describe("Dynamodb 操作用サービス のテスト", (): void => {
       dueDate: "2019-05-31T18:24:00",
       isImportant: false,
     };
-
-    // THEN
-    const actual = await DynamodbTodoTable.getTodo({
+    const params = {
       userId: "my-unit-test-user",
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-    });
+    };
+
+    // THEN
+    const actual = await DynamodbTodoTable.getTodo(params);
     // 取得結果確認
     expect(actual).toEqual(expected);
     // 呼び出し回数確認
     expect(DYNAMO.get).toHaveBeenCalledTimes(1);
-    // 渡されているパラメータ確認
-    // expect(DYNAMO.get).toHaveBeenCalledWith({
-    //   TableName: "MOCK_DYNAMODB_TABLE",
-    //   Key: {
-    //     userId: "my-unit-test-user",
-    //     todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
-    //   },
-    // });
+  }, 5000);
+
+  test("Case2: DynamodbからのgetItemの結果が0件", async () => {
+    jest.resetAllMocks();
+    expect.assertions(2);
+
+    // Dynamodbのから返却される想定のモックレスポンス
+    const mockResult = {};
+    // DynamoDB.DocumentClient.getのモックが、上記レスポンスを返すようセット
+    mDynamoDb.get.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, mockResult)
+    );
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    };
+    const expected = undefined;
+
+    // THEN
+    const actual = await DynamodbTodoTable.getTodo(params);
+    // 取得結果確認
+    expect(actual).toEqual(expected);
+    // 呼び出し回数確認
+    expect(DYNAMO.get).toHaveBeenCalledTimes(1);
+  }, 5000);
+
+  test("Case3: Dynamodbから予期せぬエラーが発生", async () => {
+    jest.resetAllMocks();
+    expect.assertions(2);
+
+    // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
+    mDynamoDb.get.mockImplementationOnce((_: any, callback: any) => {
+      throw new Error();
+    });
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    };
+    const expectedErrorMessage = ErrorMessage.DYNAMODB_ERROR();
+    // THEN
+    // エラーメッセージと Exceptionの種類を確認
+    expect(async () => {
+      await DynamodbTodoTable.getTodo(params);
+    }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
+    expect(async () => {
+      await DynamodbTodoTable.getTodo(params);
+    }).rejects.toThrowError(DynamodbError);
+
+    // 呼び出し回数確認
+    expect(DYNAMO.get).toHaveBeenCalledTimes(2);
   }, 5000);
 });

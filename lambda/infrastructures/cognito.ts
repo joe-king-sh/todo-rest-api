@@ -1,8 +1,5 @@
 import * as jose from "node-jose";
-import {
-  UnauthorizedError,
-  ErrorMessage,
-} from "../domains/errorUseCase";
+import { UnauthorizedError, ErrorMessage } from "../domains/errorUseCase";
 
 export class CognitoUserPool {
   /**
@@ -11,27 +8,30 @@ export class CognitoUserPool {
    * @return {userName}  {string}
    */
   public static getUserNameFromIdToken = (token: string): string => {
+    let userName: string;
+    let expireAt: number;
+    let issuedAt: number;
+
     try {
       // JWTトークンをデコードする
       const sections = token.split(".");
       const payload = jose.util.base64url.decode(sections[1]);
       const payloadJson = JSON.parse(payload as unknown as string);
-      const userName = payloadJson["cognito:username"];
-
-      // 有効期限を取り出し
-      const expireAt = payloadJson["exp"];
-      const issuedAt = payloadJson["iat"];
-
-      if (expireAt < issuedAt) {
-        console.log('トークンの有効期限が切れている')
-        throw new UnauthorizedError(ErrorMessage.TOKEN_EXPIRED())
-      }
-
-      return userName;
+      expireAt = payloadJson["exp"];
+      issuedAt = payloadJson["iat"];
+      userName = payloadJson["cognito:username"];
     } catch (e) {
-      console.log('トークンのデコードでエラーが発生');
-      console.dir(e);
+      console.log("トークンのデコードでエラーが発生");
+      console.log(JSON.stringify(e.message));
       throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN());
     }
+
+    // 有効期限の検証
+    if (expireAt < issuedAt) {
+      console.log("トークンの有効期限が切れている");
+      throw new UnauthorizedError(ErrorMessage.TOKEN_EXPIRED());
+    }
+
+    return userName;
   };
 }

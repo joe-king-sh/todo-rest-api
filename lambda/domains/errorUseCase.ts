@@ -18,7 +18,7 @@ class BaseError extends Error {
  * @extends {BaseError}
  */
 export class DynamodbError extends BaseError {
-    public statusCode = 404;
+    public statusCode = 500;
 }
 
 /**
@@ -60,7 +60,7 @@ export class UnauthorizedError extends BaseError {
  * @class ErrorMessage
  */
 export class ErrorMessage {
-  static NOT_FOUND_ERROR = (target: string) => {
+  static NOT_FOUND = (target: string) => {
     return `${target} は見つかりませんでした`;
   };
 
@@ -73,7 +73,7 @@ export class ErrorMessage {
   };
 
   static PARAMETERS_NOT_FOUND = (params: [string]) => {
-    return `パラメータ ${{params}} を指定する必要があります`;
+    return `パラメータ ${JSON.stringify(params)}} を指定する必要があります`;
   };
 
   static INVALID_TOKEN = () => {

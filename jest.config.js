@@ -1,11 +1,16 @@
 module.exports = {
   testEnvironment: "node",
-  roots: ["<rootDir>/test", "<rootDir>/lambda","<rootDir>/lib","<rootDir>/bin"],
+  roots: [
+    "<rootDir>/test",
+    "<rootDir>/lambda",
+    "<rootDir>/lib",
+    "<rootDir>/bin",
+  ],
   testMatch: ["**/*.test.ts"],
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
-  // moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverage: true,
   collectCoverageFrom: [
     // "<rootDir>/lambda/api/*.ts",
@@ -17,7 +22,6 @@ module.exports = {
     "!**/test/**",
     "!**/**/*.d.ts",
   ],
-  coverageReporters: ["text"],
-
+  // coverageReporters: ["text"],
+  coverageReporters: ["text", "json", "html"],
 };
-

@@ -13,9 +13,9 @@ AWS.config.update({
 });
 export const DYNAMO = new AWS.DynamoDB.DocumentClient();
 
-const myPromisify = (foo: any) =>
+const myPromisify = (func: any) =>
   new Promise((resolve, reject) => {
-    foo((error: any, result: any) => {
+    func((error: any, result: any) => {
       if (error) {
         reject(error);
       } else {
@@ -53,19 +53,13 @@ export class DynamodbTodoTable {
         console.log(
           `Retrieved todo from dynamodb: ${JSON.stringify(response)}`
         );
-        if (!response) {
-          console.log("DynamodbからgetItemで取得結果が0件");
-          throw new NotFoundError(
-            ErrorMessage.NOT_FOUND_ERROR(`todoId: ${getTodoFromDdbProps.todoId}`)
-          );
-        }
         return response.Item;
       })
       .catch((e) => {
         console.log(
           "Dynamodb呼び出し処理で予期せぬエラー発生。そのままThrowする"
         );
-        console.dir(e);
+        console.log(JSON.stringify(e));
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
   //   .finally(() => {
