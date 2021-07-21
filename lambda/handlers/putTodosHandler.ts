@@ -1,18 +1,19 @@
 import { APIGatewayEvent, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import { TodoUseCase, CreateTodoProps } from "../domains/todoUseCase";
+import { TodoUseCase, PutTodoProps } from "../domains/todoUseCase";
 import { ErrorMessage } from "../domains/errorUseCase";
 
 export const handler = async (
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyStructuredResultV2> => {
-  console.log("createTodoHandler 処理開始");
+  console.log("putTodoHandler 処理開始");
   console.log(`Input parameters: ${JSON.stringify(event)}`);
 
-  let body: CreateTodoProps;
+  let body: PutTodoProps;
 
   // パラメータ受け取り
   const token = event.headers?.Authorization;
   const bodyJsonString = event.body;
+  const todoId = event.pathParameters?.todoId;　// 更新でPUT呼び出し想定
 
   // 入力チェック
   if (!token) {
@@ -30,7 +31,7 @@ export const handler = async (
     };
   }
   try {
-    body = JSON.parse(bodyJsonString) as CreateTodoProps;
+    body = JSON.parse(bodyJsonString) as PutTodoProps;
   } catch (e) {
     console.log("BodyがJson Parseできない形式で指定されてきた");
     return {
@@ -47,11 +48,17 @@ export const handler = async (
     };
   }
 
+  // PathParameterにTodoIdがセットされていたら、更新モードでtodoUserCase.putTodoは動作する
+  const putTodoProps = {
+    ...body,
+    todoId: todoId
+  }
+
   // コアロジック呼び出し
   try {
     const todoUserCase = new TodoUseCase(token);
     console.log("Todo登録のユースケース呼び出し");
-    const todo = await todoUserCase.createTodo(body);
+    const todo = await todoUserCase.putTodo(putTodoProps);
     return { statusCode: 200, body: JSON.stringify(todo) };
   } catch (e) {
     console.log(

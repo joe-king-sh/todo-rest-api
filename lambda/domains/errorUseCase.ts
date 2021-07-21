@@ -72,7 +72,7 @@ export class ErrorMessage {
   };
 
   static PARAMETERS_NOT_FOUND = (params: string[]) => {
-    return `パラメータ ${JSON.stringify(params)}} を指定する必要があります`;
+    return `パラメータ ${JSON.stringify(params)} を指定する必要があります`;
   };
 
   static INVALID_PARAMETER = () => {

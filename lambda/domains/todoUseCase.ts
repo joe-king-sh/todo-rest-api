@@ -24,9 +24,9 @@ export class TodoUseCase {
     this.userId = CognitoUserPool.getUserNameFromIdToken(token);
   }
 
-  public async createTodo(createTodoProps: CreateTodoProps): Promise<Todo> {
+  public async putTodo(putTodoProps: PutTodoProps): Promise<Todo> {
     console.log(
-      `Todo 登録処理 開始 props:  ${JSON.stringify(createTodoProps)}`
+      `Todo 登録更新処理 開始 props:  ${JSON.stringify(putTodoProps)}`
     );
 
     let todo = {
@@ -38,20 +38,25 @@ export class TodoUseCase {
       isImportant: false,
     };
 
+    if (!putTodoProps.todoId){
+      // uuidでtodoIdを発番して新規登録する
+      todo.todoId = uuidv4();
+    }else{
+      todo.todoId = putTodoProps.todoId
+    }
     todo.userId = this.userId;
-    todo.todoId = uuidv4();
 
-    if (createTodoProps.title) {
-      todo.title = createTodoProps.title as string;
+    if (putTodoProps.title) {
+      todo.title = putTodoProps.title as string;
     }
-    if (createTodoProps.content) {
-      todo.content = createTodoProps.content as string;
+    if (putTodoProps.content) {
+      todo.content = putTodoProps.content as string;
     }
-    if (createTodoProps.dueDate) {
-      todo.dueDate = createTodoProps.dueDate as string;
+    if (putTodoProps.dueDate) {
+      todo.dueDate = putTodoProps.dueDate as string;
     }
-    if (createTodoProps.dueDate) {
-      todo.isImportant = createTodoProps.isImportant as boolean;
+    if (putTodoProps.isImportant) {
+      todo.isImportant = putTodoProps.isImportant as boolean;
     }
 
     // Dynamodbへ追加で登録
@@ -63,15 +68,15 @@ export class TodoUseCase {
   /**
    * 指定したIdのTodo情報を返却する
    *
-   * @param {SpecifyTodoProps} specifyProps
+   * @param {SpecifyTodoProps} specifyTodoProps
    * @return {todo}  {Promise<Todo>}
    * @memberof TodoUseCase
    */
-  public async getSpecificTodo(specifyProps: SpecifyTodoProps): Promise<Todo> {
+  public async getSpecificTodo(specifyTodoProps: SpecifyTodoProps): Promise<Todo> {
     console.log(
-      `指定したIdのTodo取得処理 開始 props: ${JSON.stringify(specifyProps)}`
+      `指定したIdのTodo取得処理 開始 props: ${JSON.stringify(specifyTodoProps)}`
     );
-    const todoId = specifyProps.todoId;
+    const todoId = specifyTodoProps.todoId;
     const ddbReponse = await DynamodbTodoTable.getTodo({
       userId: this.userId,
       todoId: todoId,
@@ -118,6 +123,27 @@ export class TodoUseCase {
     return todo;
   }
 
+/**
+ * 指定したtodoIdのTodoを削除する
+ *
+ * @param {SpecifyTodoProps} specifyTodoProps
+ * @return {*}  {Promise<void>}
+ * @memberof TodoUseCase
+ */
+public async deleteTodo(specifyTodoProps: SpecifyTodoProps): Promise<void> {
+    console.log(
+      `Todo 削除処理 開始 props:  ${JSON.stringify(specifyTodoProps)}`
+    );
+
+    const todoId = specifyTodoProps.todoId;
+    await DynamodbTodoTable.deleteTodo({
+      userId: this.userId,
+      todoId: todoId,
+    });
+
+    return;
+
+  }
   // public async getAllTodo() {
 
   // }
@@ -126,13 +152,6 @@ export class TodoUseCase {
 
   // }
 
-  // public async updateTodo(updateTodoProps: UpdateTodoProps) {
-
-  // }
-
-  // public async deleteTodo(specifyTodoProps:SpecifyTodoProps) {
-
-  // }
 }
 
 export interface Todo {
@@ -144,20 +163,13 @@ export interface Todo {
   isImportant: boolean;
 }
 
-export interface CreateTodoProps {
+export interface PutTodoProps {
+  todoId? : string;
   title: string;
   content: string;
   dueDate?: string;
   isImportant?: boolean;
 }
-
-// export interface UpdateTodoProps {
-//     todoId: string;
-//     title?: string;
-//     content?: string;
-//     dueDate?: Date;
-//     isImportant?: boolean;
-// }
 
 export interface SpecifyTodoProps {
   todoId: string;

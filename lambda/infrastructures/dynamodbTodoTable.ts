@@ -56,9 +56,7 @@ export class DynamodbTodoTable {
         return response.Item;
       })
       .catch((e) => {
-        console.log(
-          "Dynamodb呼び出し処理で予期せぬエラー発生"
-        );
+        console.log("Dynamodb呼び出し処理で予期せぬエラー発生");
         console.log(JSON.stringify(e));
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
@@ -81,14 +79,39 @@ export class DynamodbTodoTable {
       )
     )
       .then((response: any) => {
-        console.log(
-          `Response from dynamodb: ${JSON.stringify(response)}`
-        );
+        console.log(`Response from dynamodb: ${JSON.stringify(response)}`);
       })
       .catch((e) => {
-        console.log(
-          "Dynamodbへの登録処理で予期せぬエラー発生"
-        );
+        console.log("Dynamodbへの登録処理で予期せぬエラー発生");
+        console.log(JSON.stringify(e));
+        throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+      });
+  };
+
+  /**
+   * DynamodbのTodoを1件削除する処理
+   *
+   * @static
+   * @param {DeleteTodoInDynamodbProps} deleteTodoInDynamodbProps
+   * @memberof DynamodbTodoTable
+   */
+  public static deleteTodo = (
+    deleteTodoInDynamodbProps: DeleteTodoInDynamodbProps
+  ) => {
+    myPromisify((callback: any) =>
+      DYNAMO.delete(
+        {
+          TableName: tableName,
+          Key: deleteTodoInDynamodbProps,
+        },
+        callback
+      )
+    )
+      .then((response: any) => {
+        console.log(`Response from dynamodb: ${JSON.stringify(response)}`);
+      })
+      .catch((e) => {
+        console.log("Dynamodbへの登録処理で予期せぬエラー発生");
         console.log(JSON.stringify(e));
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
@@ -119,4 +142,15 @@ export interface PutTodoInDynamodbProps {
   content: string;
   dueDate?: string;
   isImportant?: boolean;
+}
+
+/**
+ * Dynamodbから1件Todoを削除する際に使用するProps
+ *
+ * @export
+ * @interface DeleteTodoInDynamodbProps
+ */
+export interface DeleteTodoInDynamodbProps {
+  userId: string;
+  todoId: string;
 }

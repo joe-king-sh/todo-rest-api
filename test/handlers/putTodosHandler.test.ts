@@ -1,4 +1,4 @@
-import { handler } from "../../lambda/handlers/createTodosHandler";
+import { handler } from "../../lambda/handlers/putTodosHandler";
 
 import { APIGatewayEvent } from "aws-lambda";
 import {
@@ -147,8 +147,8 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     expect.assertions(1);
 
     // モックをセット
-    const createTodoSpy = jest
-      .spyOn(TodoUseCase.prototype, "createTodo")
+    const putTodoSpy = jest
+      .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
         new Promise((resolve, reject) => {
           const todo = {
@@ -187,8 +187,8 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
-    const createTodoSpy = jest
-      .spyOn(TodoUseCase.prototype, "createTodo")
+    const putTodoSpy = jest
+      .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
         new Promise((resolve, reject) => {
           const todo = {
@@ -233,8 +233,8 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
-    const createTodoSpy = jest
-      .spyOn(TodoUseCase.prototype, "createTodo")
+    const putTodoSpy = jest
+      .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
         new Promise((resolve, reject) => {
           throw Error(ErrorMessage.UNEXPECTED_ERROR());
@@ -259,8 +259,8 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
-    const createTodoSpy = jest
-      .spyOn(TodoUseCase.prototype, "createTodo")
+    const putTodoSpy = jest
+      .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
         new Promise((resolve, reject) => {
           throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
@@ -285,8 +285,8 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
-    const createTodoSpy = jest
-      .spyOn(TodoUseCase.prototype, "createTodo")
+    const putTodoSpy = jest
+      .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
         new Promise((resolve, reject) => {
           throw new NotFoundError(

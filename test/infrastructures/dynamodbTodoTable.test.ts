@@ -13,7 +13,13 @@ process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";
 process.env.REGION = "ap-northeast-1";
 
 jest.mock("aws-sdk", () => {
-  const mDocumentClient = { get: jest.fn(),put: jest.fn(),scan: jest.fn(),delete:jest.fn(),update:jest.fn() };
+  const mDocumentClient = {
+    get: jest.fn(),
+    put: jest.fn(),
+    scan: jest.fn(),
+    delete: jest.fn(),
+    update: jest.fn(),
+  };
   const mDynamoDB = { DocumentClient: jest.fn(() => mDocumentClient) };
   return { DynamoDB: mDynamoDB, config: { update: () => {} } };
 });
@@ -183,5 +189,61 @@ describe("Dynamodb 操作用サービス データ登録系のテスト", (): vo
 
     // 呼び出し回数確認
     expect(DYNAMO.put).toHaveBeenCalledTimes(2);
+  }, 5000);
+});
+
+describe("Dynamodb 操作用サービス データ削除系のテスト", (): void => {
+  afterAll(() => {
+    jest.resetAllMocks();
+  });
+
+  test("Case1: Dynamodbへのdeleteが正常に終了する場合", async () => {
+    jest.resetAllMocks();
+    expect.assertions(1);
+
+    // Dynamodbから返却される想定のモックレスポンス
+    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
+    mDynamoDb.delete.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, null)
+    );
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    };
+
+    // THEN
+    await DynamodbTodoTable.deleteTodo(params);
+    // 呼び出し回数確認
+    expect(DYNAMO.delete).toHaveBeenCalledTimes(1);
+  }, 5000);
+
+  test("Case2: Dynamodbへdeleteした際に予期せぬエラーが発生", async () => {
+    jest.resetAllMocks();
+    expect.assertions(1);
+
+    // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
+    mDynamoDb.delete.mockImplementationOnce((_: any, callback: any) => {
+      throw new Error();
+    });
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    };
+    const expectedErrorMessage = ErrorMessage.DYNAMODB_ERROR();
+    // THEN
+    // エラーメッセージと Exceptionの種類を確認
+    expect(async () => {
+      await DynamodbTodoTable.deleteTodo(params);
+    }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
+    expect(async () => {
+      await DynamodbTodoTable.deleteTodo(params);
+    }).rejects.toThrowError(DynamodbError);
+
+    // 呼び出し回数確認
+    expect(DYNAMO.delete).toHaveBeenCalledTimes(2);
   }, 5000);
 });

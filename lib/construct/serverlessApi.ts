@@ -71,19 +71,19 @@ export class ServerlessApi extends cdk.Construct {
         description: "Dynamodbに格納されたTodo情報を一括で取得する",
       }
     );
-    const createTodosLambda = new nodeLambda.NodejsFunction(
+    const putTodosLambda = new nodeLambda.NodejsFunction(
       this,
-      generateResourceName(projectName, "createTodos", env),
+      generateResourceName(projectName, "putTodos", env),
       {
-        entry: "lambda/handlers/createTodosHandler.ts",
+        entry: "lambda/handlers/putTodosHandler.ts",
         handler: "handler",
         runtime: lambda.Runtime.NODEJS_14_X,
         environment: {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
           REGION: region,
         },
-        functionName: generateResourceName(projectName, "createTodos", env),
-        description: "Todo情報をDynamodbに登録する",
+        functionName: generateResourceName(projectName, "putTodos", env),
+        description: "Todo情報をDynamodbに登録更新する",
       }
     );
     const findTodosLambda = new nodeLambda.NodejsFunction(
@@ -117,21 +117,6 @@ export class ServerlessApi extends cdk.Construct {
       }
     );
 
-    const updateTodosLambda = new nodeLambda.NodejsFunction(
-      this,
-      generateResourceName(projectName, "updateTodos", env),
-      {
-        entry: "lambda/handlers/updateTodosHandler.ts",
-        handler: "handler",
-        runtime: lambda.Runtime.NODEJS_14_X,
-        environment: {
-          DYNAMODB_TABLE_NAME: todoTable.tableName,
-          REGION: region,
-        },
-        functionName: generateResourceName(projectName, "updateTodos", env),
-        description: "Dynamodbに格納されたTodo情報を1件更新する",
-      }
-    );
     const deleteTodosLambda = new nodeLambda.NodejsFunction(
       this,
       generateResourceName(projectName, "deleteTodos", env),
@@ -362,7 +347,7 @@ export class ServerlessApi extends cdk.Construct {
             },
           },
           post: {
-            operationId: "createTodos",
+            operationId: "putTodos",
             tags: ["Todo"],
             summary: "Todo情報 登録API",
             description: "ユーザーのTodo情報を1件登録する",
@@ -450,7 +435,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                createTodosLambda.functionName +
+                putTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -688,6 +673,7 @@ export class ServerlessApi extends cdk.Construct {
                 "application/json": {
                   schema: {
                     type: "object",
+                    required: ["title", "content"],
                     properties: {
                       title: {
                         type: "string",
@@ -708,6 +694,8 @@ export class ServerlessApi extends cdk.Construct {
                     Todo: {
                       summary: "Todo情報 更新例",
                       value: {
+                        title: "new title",
+                        content: "new content",
                         dueDate: "2021-07-21",
                         isImportant: true,
                       },
@@ -773,7 +761,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                updateTodosLambda.functionName +
+                putTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -894,15 +882,11 @@ export class ServerlessApi extends cdk.Construct {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
-    createTodosLambda.addPermission(`LambdaPermission`, {
+    putTodosLambda.addPermission(`LambdaPermission`, {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
     getTodosLambda.addPermission(`LambdaPermission`, {
-      principal: new ServicePrincipal("apigateway.amazonaws.com"),
-      sourceArn: api.arnForExecuteApi(),
-    });
-    updateTodosLambda.addPermission(`LambdaPermission`, {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
@@ -914,8 +898,7 @@ export class ServerlessApi extends cdk.Construct {
     // DynamodbにLambdaがアクセス可能にする
     todoTable.grantReadData(listTodosLambda);
     todoTable.grantReadData(getTodosLambda);
-    todoTable.grantWriteData(createTodosLambda);
-    todoTable.grantWriteData(updateTodosLambda);
+    todoTable.grantWriteData(putTodosLambda);
     todoTable.grantWriteData(deleteTodosLambda);
 
     // TODO  API ドキュメント公開用 S3Bucketの作成
