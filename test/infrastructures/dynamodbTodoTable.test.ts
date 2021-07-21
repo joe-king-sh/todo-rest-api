@@ -9,6 +9,9 @@ import {
   NotFoundError,
 } from "../../lambda/domains/errorUseCase";
 
+const sign = require("jwt-encode");
+const secret = "This is not so secret.";
+
 process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";
 process.env.REGION = "ap-northeast-1";
 
@@ -19,6 +22,7 @@ jest.mock("aws-sdk", () => {
     scan: jest.fn(),
     delete: jest.fn(),
     update: jest.fn(),
+    query: jest.fn(),
   };
   const mDynamoDB = { DocumentClient: jest.fn(() => mDocumentClient) };
   return { DynamoDB: mDynamoDB, config: { update: () => {} } };
@@ -128,7 +132,7 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
   }, 5000);
 });
 
-describe("Dynamodb 操作用サービス データ登録系のテスト", (): void => {
+describe("Dynamodb 操作用サービス データ登録/更新系のテスト", (): void => {
   afterAll(() => {
     jest.resetAllMocks();
   });
@@ -202,9 +206,10 @@ describe("Dynamodb 操作用サービス データ削除系のテスト", (): vo
     expect.assertions(1);
 
     // Dynamodbから返却される想定のモックレスポンス
+    const mockResult = null;
     // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
     mDynamoDb.delete.mockImplementationOnce((_: any, callback: any) =>
-      callback(null, null)
+      callback(null, mockResult)
     );
 
     // WHEN
@@ -246,4 +251,281 @@ describe("Dynamodb 操作用サービス データ削除系のテスト", (): vo
     // 呼び出し回数確認
     expect(DYNAMO.delete).toHaveBeenCalledTimes(2);
   }, 5000);
+});
+
+describe("Dynamodb 操作用サービス データ一括取得系(listTodo)のテスト", (): void => {
+  afterAll(() => {
+    jest.resetAllMocks();
+  });
+
+  test("Case1: Dynamodbへのqueryが正常に終了する場合(指定条件：Limitなし、nextTokenなし)", async () => {
+    jest.resetAllMocks();
+    expect.assertions(2);
+
+    // Dynamodbから返却される想定のモックレスポンス
+    const mockResult = {
+      Items: [
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+      ],
+    };
+    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, mockResult)
+    );
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+    };
+    const expected = {
+      todos: [
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+      ],
+    };
+
+    // THEN
+    const actual = await DynamodbTodoTable.listTodo(params);
+
+    // 取得結果確認
+    expect(actual).toEqual(expected);
+    // 呼び出し回数確認
+    expect(DYNAMO.query).toHaveBeenCalledTimes(1);
+  }, 5000);
+
+  test("Case2: Dynamodbへのqueryが正常に終了する場合(指定条件：Limitあり/ 結果:LastEvaluatedKeyあり)", async () => {
+    jest.resetAllMocks();
+    expect.assertions(2);
+
+    // LastEvaluateKey用にトークンを生成する
+    const mockLastEvaluatedKey = {
+      userId: "unit-test-user",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b883722213444",
+    };
+    const mockToken = sign(mockLastEvaluatedKey, secret);
+
+    // Dynamodbから返却される想定のモックレスポンス
+    const mockResult = {
+      Items: [
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+      ],
+      LastEvaluatedKey: mockLastEvaluatedKey,
+    };
+    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, mockResult)
+    );
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      limit: 2
+    };
+    const expected = {
+      todos: [
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+      ],
+      nextToken: mockToken,
+    };
+
+    // THEN
+    const actual = await DynamodbTodoTable.listTodo(params);
+
+    // 取得結果確認
+    expect(actual).toEqual(expected);
+    // 呼び出し回数確認
+    expect(DYNAMO.query).toHaveBeenCalledTimes(1);
+  }, 5000);
+
+  test("Case3: Dynamodbへのqueryが正常に終了する場合(指定条件：nextTokenあり)", async () => {
+    jest.resetAllMocks();
+    expect.assertions(2);
+
+    // LastEvaluateKey用にトークンを生成する
+    const mockLastEvaluatedKey = {
+      userId: "unit-test-user",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b883722213444",
+    };
+    const mockToken = sign(mockLastEvaluatedKey, secret);
+
+    // Dynamodbから返却される想定のモックレスポンス
+    const mockResult = {
+      Items: [
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+      ],
+    };
+    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, mockResult)
+    );
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      nextToken: mockToken
+    };
+    const expected = {
+      todos: [
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+        {
+          userId: "my-unit-test-user",
+          todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+          title: "タイトル",
+          content: "内容",
+          dueDate: "2019-05-31T18:24:00",
+          isImportant: false,
+        },
+      ],
+    };
+
+    // THEN
+    const actual = await DynamodbTodoTable.listTodo(params);
+
+    // 取得結果確認
+    expect(actual).toEqual(expected);
+    // 呼び出し回数確認
+    expect(DYNAMO.query).toHaveBeenCalledTimes(1);
+  }, 5000);
+
+  test("Case4: Dynamodbへのqueryが異常終了する場合(指定条件：nextTokenあり->トークンが不正)", async () => {
+    jest.resetAllMocks();
+    expect.assertions(3);
+
+    // LastEvaluateKey用にトークンを生成する
+    const mockInvalidToken = 'This is invalid token'
+
+    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, null)
+    );
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+      nextToken: mockInvalidToken
+    };
+    const expectedErrorMessage = ErrorMessage.INVALID_TOKEN();
+
+    // THEN
+    // エラーメッセージと Exceptionの種類を確認
+    expect(async () => {
+      await DynamodbTodoTable.listTodo(params);
+    }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
+    expect(async () => {
+      await DynamodbTodoTable.listTodo(params);
+    }).rejects.toThrowError(DynamodbError);
+
+    // 呼び出し回数確認
+    expect(DYNAMO.query).toHaveBeenCalledTimes(0);
+  }, 5000);
+
+  test("Case5: Dynamodbのquery実行で予期せぬエラーが発生", async () => {
+    jest.resetAllMocks();
+    expect.assertions(2);
+
+    // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
+    mDynamoDb.query.mockImplementationOnce((_: any, callback: any) => {
+      throw new Error();
+    });
+
+    // WHEN
+    const params = {
+      userId: "my-unit-test-user",
+    };
+    const expectedErrorMessage = ErrorMessage.DYNAMODB_ERROR();
+    // THEN
+    // エラーメッセージと Exceptionの種類を確認
+    expect(async () => {
+      await DynamodbTodoTable.listTodo(params);
+    }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
+    expect(async () => {
+      await DynamodbTodoTable.listTodo(params);
+    }).rejects.toThrowError(DynamodbError);
+
+    // 呼び出し回数確認
+    expect(DYNAMO.query).toHaveBeenCalledTimes(2);
+    
+  }, 5000);
+
 });

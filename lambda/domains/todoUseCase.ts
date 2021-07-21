@@ -2,6 +2,7 @@ import { CognitoUserPool } from "../infrastructures/cognito";
 import {
   DynamodbTodoTable,
   PutTodoInDynamodbProps,
+  ListTodoInDynamodbOutput,
 } from "../infrastructures/dynamodbTodoTable";
 import { NotFoundError, ErrorMessage } from "../domains/errorUseCase";
 import { v4 as uuidv4 } from "uuid";
@@ -38,11 +39,11 @@ export class TodoUseCase {
       isImportant: false,
     };
 
-    if (!putTodoProps.todoId){
+    if (!putTodoProps.todoId) {
       // uuidでtodoIdを発番して新規登録する
       todo.todoId = uuidv4();
-    }else{
-      todo.todoId = putTodoProps.todoId
+    } else {
+      todo.todoId = putTodoProps.todoId;
     }
     todo.userId = this.userId;
 
@@ -72,7 +73,9 @@ export class TodoUseCase {
    * @return {todo}  {Promise<Todo>}
    * @memberof TodoUseCase
    */
-  public async getSpecificTodo(specifyTodoProps: SpecifyTodoProps): Promise<Todo> {
+  public async getSpecificTodo(
+    specifyTodoProps: SpecifyTodoProps
+  ): Promise<Todo> {
     console.log(
       `指定したIdのTodo取得処理 開始 props: ${JSON.stringify(specifyTodoProps)}`
     );
@@ -123,14 +126,14 @@ export class TodoUseCase {
     return todo;
   }
 
-/**
- * 指定したtodoIdのTodoを削除する
- *
- * @param {SpecifyTodoProps} specifyTodoProps
- * @return {*}  {Promise<void>}
- * @memberof TodoUseCase
- */
-public async deleteTodo(specifyTodoProps: SpecifyTodoProps): Promise<void> {
+  /**
+   * 指定したtodoIdのTodoを削除する
+   *
+   * @param {SpecifyTodoProps} specifyTodoProps
+   * @return {*}  {Promise<void>}
+   * @memberof TodoUseCase
+   */
+  public async deleteTodo(specifyTodoProps: SpecifyTodoProps): Promise<void> {
     console.log(
       `Todo 削除処理 開始 props:  ${JSON.stringify(specifyTodoProps)}`
     );
@@ -142,16 +145,41 @@ public async deleteTodo(specifyTodoProps: SpecifyTodoProps): Promise<void> {
     });
 
     return;
-
   }
-  // public async getAllTodo() {
 
-  // }
+  /**
+   * 指定した件数のTodoを一括で取得する
+   *
+   * @param {listTodosProps} listTodosProps
+   * @return {*}  {Promise<ListTodoOutput>}
+   * @memberof TodoUseCase
+   */
+  public async listTodos(listTodosProps: listTodosProps): Promise<ListTodoInDynamodbOutput> {
+    console.log(
+      `指定した件数のTodo一括取得処理 開始 props: ${JSON.stringify(
+        listTodosProps
+      )}`
+    );
+
+    const todos = await DynamodbTodoTable.listTodo({
+      userId: this.userId,
+      ...listTodosProps,
+    });
+
+    console.log(`Dynamodbからのレスポンス: ${JSON.stringify(todos)}`);
+
+    console.log(
+      `指定した件数のTodo一括取得処理 終了 Retreved todos : ${JSON.stringify(
+        todos
+      )}`
+    );
+
+    return todos;
+  }
 
   // public async findTodo() {
 
   // }
-
 }
 
 export interface Todo {
@@ -164,7 +192,7 @@ export interface Todo {
 }
 
 export interface PutTodoProps {
-  todoId? : string;
+  todoId?: string;
   title: string;
   content: string;
   dueDate?: string;
@@ -173,4 +201,9 @@ export interface PutTodoProps {
 
 export interface SpecifyTodoProps {
   todoId: string;
+}
+
+export interface listTodosProps {
+  limit?: number;
+  nextToken?: string;
 }

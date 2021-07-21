@@ -245,4 +245,26 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       await expect(todoUseCase.deleteTodo(params)).resolves.toEqual(undefined);
     });
   });
+
+  describe("Todo Todo一括取得のユースケースのテスト", (): void => {
+    test("Case1: Todoが正常に指定した件数取得できる", async () => {
+      jest.resetAllMocks();
+      expect.assertions(1);
+
+      // Dynamodb関連処理をモック化する
+      const mockListTodo = jest.fn();
+      mockListTodo.mockReturnValue(undefined);
+      DynamodbTodoTable.listTodo = mockListTodo.bind(DynamodbTodoTable);
+
+      // WHEN
+      const params = {
+        limit: 10,
+        nextToken: 'next token like jwt',
+      };
+
+      // THEN
+      const todoUseCase = new TodoUseCase("dummyToken");
+      await expect(todoUseCase.listTodos(params)).resolves.toEqual(undefined);
+    });
+  });
 });
