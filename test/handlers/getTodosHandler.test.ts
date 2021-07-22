@@ -97,6 +97,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
+    const mockUpdatedDate = new Date().toUTCString();
     const getSpecificTodoSpy = jest
       .spyOn(TodoUseCase.prototype, "getSpecificTodo")
       .mockReturnValue(
@@ -108,6 +109,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
             content: "Todo内容",
             dueDate: "2019-05-31T18:24:00",
             isImportant: false,
+            updatedDate: mockUpdatedDate,
           };
           resolve(todo);
         })
@@ -126,6 +128,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
         content: "Todo内容",
         dueDate: "2019-05-31T18:24:00",
         isImportant: false,
+        updatedDate: mockUpdatedDate,
       }),
     };
 

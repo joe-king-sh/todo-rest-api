@@ -157,6 +157,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     expect.assertions(1);
 
     // モックをセット
+    const mockUpdatedDate = new Date().toUTCString();
     const putTodoSpy = jest
       .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
@@ -168,6 +169,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
             content: "content",
             dueDate: "",
             isImportant: false,
+            updatedDate: mockUpdatedDate,
           };
           resolve(todo);
         })
@@ -185,6 +187,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         content: "content",
         dueDate: "",
         isImportant: false,
+        updatedDate: mockUpdatedDate,
       }),
     };
 
@@ -197,6 +200,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
+    const mockUpdatedDate = new Date().toUTCString();
     const putTodoSpy = jest
       .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
@@ -208,6 +212,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
             content: "content",
             dueDate: "2021-07-21",
             isImportant: true,
+            updatedDate: mockUpdatedDate,
           };
           resolve(todo);
         })
@@ -231,6 +236,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         content: "content",
         dueDate: "2021-07-21",
         isImportant: true,
+        updatedDate: mockUpdatedDate,
       }),
     };
 
@@ -243,6 +249,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     jest.resetAllMocks();
 
     // モックをセット
+    const mockUpdatedDate = new Date().toUTCString();
     const putTodoSpy = jest
       .spyOn(TodoUseCase.prototype, "putTodo")
       .mockReturnValue(
@@ -254,6 +261,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
             content: "content",
             dueDate: "2021-07-21",
             isImportant: true,
+            updatedDate: mockUpdatedDate,
           };
           resolve(todo);
         })
@@ -278,6 +286,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         content: "content",
         dueDate: "2021-07-21",
         isImportant: true,
+        updatedDate: mockUpdatedDate,
       }),
     };
 

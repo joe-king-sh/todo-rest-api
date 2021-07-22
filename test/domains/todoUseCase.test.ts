@@ -188,6 +188,7 @@ describe("Todo 登録/更新系ユースケースのテスト", (): void => {
       content: "Todo内容",
       dueDate: "2019-05-31T18:24:00",
       isImportant: false,
+      updatedDate: expect.any(String),
     };
 
     // THEN
@@ -220,6 +221,7 @@ describe("Todo 登録/更新系ユースケースのテスト", (): void => {
       content: "",
       dueDate: "",
       isImportant: false,
+      updatedDate: expect.any(String),
     };
 
     // THEN
@@ -253,6 +255,7 @@ describe("Todo 登録/更新系ユースケースのテスト", (): void => {
       content: "Todo内容",
       dueDate: "2019-05-31T18:24:00",
       isImportant: false,
+      updatedDate: expect.any(String),
     };
 
     // THEN
@@ -278,6 +281,7 @@ describe("Todo 削除ユースケースのテスト", (): void => {
       content: "Todo内容",
       dueDate: "2019-05-31T18:24:00",
       isImportant: false,
+      updatedDate: expect.any(String),
     });
     DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
 

@@ -41,6 +41,7 @@ export class TodoUseCase {
       content: "",
       dueDate: "",
       isImportant: false,
+      updatedDate: new Date().toUTCString(),
     };
 
     if (!putTodoProps.todoId) {
@@ -99,6 +100,7 @@ export class TodoUseCase {
       content: "",
       dueDate: "",
       isImportant: false,
+      updatedDate: "",
     };
     resultTodo.userId = ddbReponse?.userId;
     resultTodo.todoId = ddbReponse?.todoId;
@@ -106,6 +108,7 @@ export class TodoUseCase {
     resultTodo.content = ddbReponse?.content;
     resultTodo.dueDate = ddbReponse?.dueDate;
     resultTodo.isImportant = ddbReponse?.isImportant;
+    resultTodo.updatedDate = ddbReponse?.updatedDate;
 
     console.log(
       `指定したIdのTodo取得処理 終了 Retreved todo : ${JSON.stringify(
@@ -194,6 +197,7 @@ export interface Todo {
   content: string;
   dueDate: string;
   isImportant: boolean;
+  updatedDate: string;
 }
 
 export interface PutTodoProps {
