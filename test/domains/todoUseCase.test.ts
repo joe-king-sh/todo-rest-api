@@ -59,7 +59,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       expected
     );
   });
-  test("Case2: Todoが正常に1件取得成功(値が全部空)", async () => {
+  test("Case2-1: Todoが正常に1件取得成功(値が全部空)", async () => {
     jest.resetAllMocks();
     expect.assertions(1);
 
@@ -88,6 +88,44 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       content: "",
       dueDate: "",
       isImportant: false,
+    };
+
+    // THEN
+    const todoUseCase = new TodoUseCase("dummyToken");
+    await expect(todoUseCase.getSpecificTodo(params)).resolves.toEqual(
+      expected
+    );
+  });
+
+  test("Case2-2: Todoが正常に1件取得成功(値が全部undefined)", async () => {
+    jest.resetAllMocks();
+    expect.assertions(1);
+
+    // Dynamodb関連処理をモック化する
+
+    const mockGetTodo = jest.fn();
+    mockGetTodo.mockReturnValue({
+      userId: undefined,
+      todoId: undefined,
+      title: undefined,
+      content: undefined,
+      dueDate: undefined,
+      isImportant: undefined,
+    });
+
+    DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
+
+    // WHEN
+    const params: SpecifyTodoProps = {
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    };
+    const expected = {
+      userId: undefined,
+      todoId: undefined,
+      title: undefined,
+      content: undefined,
+      dueDate: undefined,
+      isImportant: undefined,
     };
 
     // THEN

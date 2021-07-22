@@ -53,19 +53,13 @@ export class TodoUseCase {
     }
 
     todo.userId = this.userId;
-
-    if (putTodoProps.title) {
-      todo.title = putTodoProps.title as string;
-    }
-    if (putTodoProps.content) {
-      todo.content = putTodoProps.content as string;
-    }
-    if (putTodoProps.dueDate) {
-      todo.dueDate = putTodoProps.dueDate as string;
-    }
-    if (putTodoProps.isImportant) {
-      todo.isImportant = putTodoProps.isImportant as boolean;
-    }
+    todo.title = putTodoProps?.title;
+    todo.content = putTodoProps?.content;
+    todo.dueDate = putTodoProps?.dueDate ? putTodoProps.dueDate : "";
+    todo.isImportant =
+      putTodoProps?.isImportant !== undefined
+        ? putTodoProps.isImportant
+        : false;
 
     // Dynamodbへ登録 or 更新
     await DynamodbTodoTable.putTodoItem(todo);
