@@ -15,17 +15,6 @@ AWS.config.update({
 });
 export const DYNAMO = new AWS.DynamoDB.DocumentClient();
 
-const myPromisify = (func: any) =>
-  new Promise((resolve, reject) => {
-    func((error: any, result: any) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-
 /**
  * Todo情報を管理するDynamodbテーブル
  *

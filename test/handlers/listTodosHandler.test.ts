@@ -3,7 +3,6 @@ import { handler } from "../../lambda/handlers/listTodosHandler";
 import { APIGatewayEvent } from "aws-lambda";
 import {
   ErrorMessage,
-  NotFoundError,
   DynamodbError,
   buildErrorMessage,
 } from "../../lambda/domains/errorUseCase";
@@ -93,8 +92,6 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
                 todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
                 title: "タイトル",
                 content: "Todo内容",
-                dueDate: "2019-05-31T18:24:00",
-                isImportant: false,
                 updatedDate: mockUpdatedDate,
               },
             ],
@@ -116,8 +113,6 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
             todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             title: "タイトル",
             content: "Todo内容",
-            dueDate: "2019-05-31T18:24:00",
-            isImportant: false,
             updatedDate: mockUpdatedDate,
           },
         ],
@@ -146,8 +141,6 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
                 todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
                 title: "タイトル",
                 content: "Todo内容",
-                dueDate: "2019-05-31T18:24:00",
-                isImportant: false,
                 updatedDate: mockUpdatedDate,
               },
             ],
@@ -170,8 +163,6 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
             todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             title: "タイトル",
             content: "Todo内容",
-            dueDate: "2019-05-31T18:24:00",
-            isImportant: false,
             updatedDate: mockUpdatedDate,
           },
         ],
@@ -202,6 +193,30 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const expected = {
       statusCode: 500,
       body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
+    };
+
+    // THEN
+    await expect(handler(event)).resolves.toEqual(expected);
+  });
+  test("Case5: Dynamodbアクセス時のエラー発生(ユーザー定義エラーの確認)", async () => {
+    expect.assertions(1);
+    jest.resetAllMocks();
+
+    // モックをセット
+    const listTodosSpy = jest
+      .spyOn(TodoUseCase.prototype, "listTodos")
+      .mockReturnValue(
+        new Promise((resolve, reject) => {
+          throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+        })
+      );
+
+    // WHEN
+    const event: APIGatewayEvent = { ...baseApiGatewayEvent };
+    event.headers = { Authorization: "XXX" };
+    const expected = {
+      statusCode: 500,
+      body: buildErrorMessage(ErrorMessage.DYNAMODB_ERROR()),
     };
 
     // THEN
