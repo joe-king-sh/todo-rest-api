@@ -65,8 +65,11 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
       isImportant: false,
     };
     const params = {
-      userId: "my-unit-test-user",
-      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      Key: {
+        userId: "my-unit-test-user",
+        todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      },
+      ConsistentRead: false,
     };
 
     // THEN
@@ -90,8 +93,11 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
 
     // WHEN
     const params = {
-      userId: "my-unit-test-user",
-      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      Key: {
+        userId: "my-unit-test-user",
+        todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      },
+      ConsistentRead: false,
     };
     const expected = undefined;
 
@@ -114,8 +120,11 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
 
     // WHEN
     const params = {
-      userId: "my-unit-test-user",
-      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      Key: {
+        userId: "my-unit-test-user",
+        todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+      },
+      ConsistentRead: false,
     };
     const expectedErrorMessage = ErrorMessage.DYNAMODB_ERROR();
     // THEN

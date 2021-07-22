@@ -262,8 +262,7 @@ export class ServerlessApi extends cdk.Construct {
               {
                 name: "nextToken",
                 in: "query",
-                description:
-                  "次のページを取得する場合に指定する(指定した場合limitは無視される)",
+                description: "次のページを取得する場合に指定する",
                 required: false,
                 schema: {
                   type: "string",
@@ -282,7 +281,7 @@ export class ServerlessApi extends cdk.Construct {
                 content: {
                   "application/json": {
                     schema: {
-                      type: "array",
+                      type: "object",
                       items: {
                         $ref: "#/components/schemas/Todo",
                       },
@@ -899,6 +898,7 @@ export class ServerlessApi extends cdk.Construct {
     todoTable.grantReadData(listTodosLambda);
     todoTable.grantReadData(getTodosLambda);
     todoTable.grantWriteData(putTodosLambda);
+    todoTable.grantReadData(putTodosLambda);
     todoTable.grantWriteData(deleteTodosLambda);
 
     // TODO  API ドキュメント公開用 S3Bucketの作成

@@ -46,7 +46,8 @@ export class DynamodbTodoTable {
       DYNAMO.get(
         {
           TableName: tableName,
-          Key: getTodoFromDdbProps,
+          Key: getTodoFromDdbProps.Key,
+          ConsistentRead: getTodoFromDdbProps.ConsistentRead,
         },
         callback
       )
@@ -83,6 +84,7 @@ export class DynamodbTodoTable {
       )
     )
       .then((response: any) => {
+        console.log(`Dynamodbへの put 処理完了`);
         console.log(`Response from dynamodb: ${JSON.stringify(response)}`);
       })
       .catch((e) => {
@@ -206,8 +208,11 @@ export class DynamodbTodoTable {
  * @interface GetTodoFromDdbProps
  */
 export interface GetTodoFromDdbProps {
-  userId: string;
-  todoId: string;
+  Key: {
+    userId: string;
+    todoId: string;
+  };
+  ConsistentRead: boolean;
 }
 
 /**

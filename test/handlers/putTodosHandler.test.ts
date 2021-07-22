@@ -9,6 +9,7 @@ import {
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
+import { Environments } from "../../lib/environment";
 
 // 認証関連は全てモック化しておく
 jest.mock("../../lambda/infrastructures/cognito");
@@ -191,7 +192,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     await expect(handler(event)).resolves.toEqual(expected);
   });
 
-  test("Case7: Requestボディに全項目指定", async () => {
+  test("Case7-1: Requestボディに全項目指定", async () => {
     expect.assertions(1);
     jest.resetAllMocks();
 
@@ -215,6 +216,53 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
+    event.body = JSON.stringify({
+      title: "todo title",
+      content: "content",
+      dueDate: "2021-07-21",
+      isImportant: true,
+    });
+    const expected = {
+      statusCode: 200,
+      body: JSON.stringify({
+        userId: "my-unit-test-user",
+        todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+        title: "todo title",
+        content: "content",
+        dueDate: "2021-07-21",
+        isImportant: true,
+      }),
+    };
+
+    // THEN
+    await expect(handler(event)).resolves.toEqual(expected);
+  });
+
+  test("Case7-2: Requestボディに全項目指定、TodoId指定の更新系", async () => {
+    expect.assertions(1);
+    jest.resetAllMocks();
+
+    // モックをセット
+    const putTodoSpy = jest
+      .spyOn(TodoUseCase.prototype, "putTodo")
+      .mockReturnValue(
+        new Promise((resolve, reject) => {
+          const todo = {
+            userId: "my-unit-test-user",
+            todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+            title: "todo title",
+            content: "content",
+            dueDate: "2021-07-21",
+            isImportant: true,
+          };
+          resolve(todo);
+        })
+      );
+
+    // WHEN
+    const event: APIGatewayEvent = { ...baseApiGatewayEvent };
+    event.headers = { Authorization: "XXX" };
+    event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" }; // パスパラメータを指定する更新系
     event.body = JSON.stringify({
       title: "todo title",
       content: "content",

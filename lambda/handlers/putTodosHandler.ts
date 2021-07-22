@@ -62,12 +62,12 @@ export const handler = async (
   // コアロジック呼び出し
   try {
     const todoUserCase = new TodoUseCase(token);
-    console.log("Todo登録のユースケース呼び出し");
+    console.log("Todo登録/更新のユースケース呼び出し");
     const todo = await todoUserCase.putTodo(putTodoProps);
     return { statusCode: 200, body: JSON.stringify(todo) };
   } catch (e) {
     console.log(
-      `特定のTodo登録ユースケース呼び出しでエラー発生 エラー内容: ${JSON.stringify(
+      `特定のTodo登録/更新ユースケース呼び出しでエラー発生 エラー内容: ${JSON.stringify(
         e
       )}`
     );

@@ -4,7 +4,11 @@ import {
   PutTodoInDynamodbProps,
   ListTodoInDynamodbOutput,
 } from "../infrastructures/dynamodbTodoTable";
-import { NotFoundError, ErrorMessage } from "../domains/errorUseCase";
+import {
+  NotFoundError,
+  ErrorMessage,
+  DynamodbError,
+} from "../domains/errorUseCase";
 import { v4 as uuidv4 } from "uuid";
 
 /**
@@ -42,9 +46,12 @@ export class TodoUseCase {
     if (!putTodoProps.todoId) {
       // 現在時刻とuuidでtodoIdを発番して新規登録する
       todo.todoId = issueTodoId();
+      console.log(`新規発番 todoId: ${todo.todoId}`);
     } else {
       todo.todoId = putTodoProps.todoId;
+      console.log(`更新 todoId: ${todo.todoId}`);
     }
+
     todo.userId = this.userId;
 
     if (putTodoProps.title) {
@@ -60,7 +67,7 @@ export class TodoUseCase {
       todo.isImportant = putTodoProps.isImportant as boolean;
     }
 
-    // Dynamodbへ追加で登録
+    // Dynamodbへ登録 or 更新
     await DynamodbTodoTable.putTodoItem(todo);
 
     return todo;
@@ -81,8 +88,8 @@ export class TodoUseCase {
     );
     const todoId = specifyTodoProps.todoId;
     const ddbReponse = await DynamodbTodoTable.getTodoItem({
-      userId: this.userId,
-      todoId: todoId,
+      Key: { userId: this.userId, todoId: todoId },
+      ConsistentRead: false,
     });
 
     console.log(`Dynamodbからのレスポンス: ${JSON.stringify(ddbReponse)}`);
@@ -91,7 +98,7 @@ export class TodoUseCase {
       console.log("Todoの取得結果が0件なのでthrowする");
       throw new NotFoundError(ErrorMessage.NOT_FOUND(`todoId: ${todoId}`));
     }
-    let todo = {
+    let resultTodo = {
       userId: "",
       todoId: "",
       title: "",
@@ -99,31 +106,20 @@ export class TodoUseCase {
       dueDate: "",
       isImportant: false,
     };
-
-    if (ddbReponse.userId) {
-      todo.userId = ddbReponse.userId as string;
-    }
-    if (ddbReponse.todoId) {
-      todo.todoId = ddbReponse.todoId as string;
-    }
-    if (ddbReponse.title) {
-      todo.title = ddbReponse.title as string;
-    }
-    if (ddbReponse.content) {
-      todo.content = ddbReponse.content as string;
-    }
-    if (ddbReponse.dueDate) {
-      todo.dueDate = ddbReponse.dueDate as string;
-    }
-    if (ddbReponse.dueDate) {
-      todo.isImportant = ddbReponse.isImportant as boolean;
-    }
+    resultTodo.userId = ddbReponse?.userId;
+    resultTodo.todoId = ddbReponse?.todoId;
+    resultTodo.title = ddbReponse?.title;
+    resultTodo.content = ddbReponse?.content;
+    resultTodo.dueDate = ddbReponse?.dueDate;
+    resultTodo.isImportant = ddbReponse?.isImportant;
 
     console.log(
-      `指定したIdのTodo取得処理 終了 Retreved todo : ${JSON.stringify(todo)}`
+      `指定したIdのTodo取得処理 終了 Retreved todo : ${JSON.stringify(
+        resultTodo
+      )}`
     );
 
-    return todo;
+    return resultTodo;
   }
 
   /**
@@ -139,6 +135,19 @@ export class TodoUseCase {
     );
 
     const todoId = specifyTodoProps.todoId;
+
+    // 削除対象存在チェック
+    const getTodoResponse = await DynamodbTodoTable.getTodoItem({
+      Key: { userId: this.userId, todoId: todoId },
+      ConsistentRead: false,
+    });
+    console.log(`Dynamodbからのレスポンス: ${JSON.stringify(getTodoResponse)}`);
+    if (!getTodoResponse) {
+      console.log("削除対象のTodoが見つからないのでthrowする");
+      throw new NotFoundError(ErrorMessage.NOT_FOUND(`todoId: ${todoId}`));
+    }
+
+    // Dynamodbから削除
     await DynamodbTodoTable.deleteTodoItem({
       userId: this.userId,
       todoId: todoId,
@@ -214,7 +223,7 @@ const issueTodoId = (): string => {
   const now = new Date();
   const newTodoId =
     now.getFullYear().toString().padStart(4, "0") +
-    now.getMonth().toString().padStart(2, "0") +
+    (now.getMonth() + 1).toString().padStart(2, "0") + // 0 ~ 11 を返すので1足す
     now.getDate().toString().padStart(2, "0") +
     now.getHours().toString().padStart(2, "0") +
     now.getMinutes().toString().padStart(2, "0") +
