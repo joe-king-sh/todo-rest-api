@@ -191,13 +191,6 @@ export class ServerlessApi extends cdk.Construct {
               content: {
                 type: "string",
               },
-              dueDate: {
-                type: "string",
-                format: "date",
-              },
-              isImportant: {
-                type: "boolean",
-              },
             },
           },
           Error: {
@@ -295,15 +288,11 @@ export class ServerlessApi extends cdk.Construct {
                               todoId: "3894bd64-3061-4fa5-914a-b798b5f56bb9",
                               title: "今日のうちに終わらせること",
                               content: "swaggerの定義を実装する",
-                              dueDate: "2021-07-18",
-                              isImportant: true,
                             },
                             {
                               todoId: "933b923b-3238-4ec1-b3fb-1164e897d690",
                               title: "明日朝起きたらやること",
                               content: "DynamodbをCDKで立てる",
-                              dueDate: "2021-07-18",
-                              isImportant: false,
                             },
                           ],
                           nextToken: "eyJ2ZXJzaW9uIjoxLCJ0b...",
@@ -369,13 +358,6 @@ export class ServerlessApi extends cdk.Construct {
                       content: {
                         type: "string",
                       },
-                      dueDate: {
-                        type: "string",
-                        format: "date",
-                      },
-                      isImportant: {
-                        type: "boolean",
-                      },
                     },
                   },
                   examples: {
@@ -384,8 +366,6 @@ export class ServerlessApi extends cdk.Construct {
                       value: {
                         title: "今日やること",
                         content: "ゴミを捨てる",
-                        dueDate: "2021-07-18",
-                        isImportant: false,
                       },
                     },
                   },
@@ -407,8 +387,6 @@ export class ServerlessApi extends cdk.Construct {
                           todoId: "a5d93e28-180f-404e-b6fe-29972ca4b73c",
                           title: "今日やること",
                           content: "ゴミを捨てる",
-                          dueDate: "2021-07-18",
-                          isImportant: false,
                         },
                       },
                     },
@@ -497,15 +475,11 @@ export class ServerlessApi extends cdk.Construct {
                             todoId: "3e19c048-ecc8-45e3-86df-779b5e2e2304",
                             title: "今日中に実装するもの",
                             content: "swagger.yaml",
-                            dueDate: "2021-07-18",
-                            isImportant: true,
                           },
                           {
                             todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
                             title: "明日の自分にお願いすること",
                             content: "DynamodbをCDKで実装してもらう",
-                            dueDate: "2021-07-18",
-                            isImportant: false,
                           },
                         ],
                       },
@@ -587,8 +561,6 @@ export class ServerlessApi extends cdk.Construct {
                           todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
                           title: "冷蔵庫の整理",
                           content: "卵と納豆を食べる",
-                          dueDate: "",
-                          isImportant: false,
                         },
                       },
                     },
@@ -680,13 +652,6 @@ export class ServerlessApi extends cdk.Construct {
                       content: {
                         type: "string",
                       },
-                      dueDate: {
-                        type: "string",
-                        format: "date",
-                      },
-                      isImportant: {
-                        type: "boolean",
-                      },
                     },
                   },
                   examples: {
@@ -695,8 +660,6 @@ export class ServerlessApi extends cdk.Construct {
                       value: {
                         title: "new title",
                         content: "new content",
-                        dueDate: "2021-07-21",
-                        isImportant: true,
                       },
                     },
                   },
@@ -718,8 +681,6 @@ export class ServerlessApi extends cdk.Construct {
                           todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
                           title: "冷蔵庫の整理",
                           content: "卵と納豆を食べる",
-                          dueDate: "2021-07-21",
-                          isImportant: true,
                         },
                       },
                     },

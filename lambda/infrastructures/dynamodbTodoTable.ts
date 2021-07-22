@@ -41,28 +41,25 @@ export class DynamodbTodoTable {
    * @return {*}  {Promise<any>}
    * @memberof DynamodbTodoTable
    */
-  public static getTodoItem = (getTodoFromDdbProps: GetTodoFromDdbProps) =>
-    myPromisify((callback: any) =>
-      DYNAMO.get(
-        {
-          TableName: tableName,
-          Key: getTodoFromDdbProps.Key,
-          ConsistentRead: getTodoFromDdbProps.ConsistentRead,
-        },
-        callback
-      )
-    )
-      .then((response: any) => {
-        console.log(
-          `Retrieved todo from dynamodb: ${JSON.stringify(response)}`
-        );
-        return response.Item;
-      })
-      .catch((e) => {
-        console.log("Dynamodbからの get 処理で予期せぬエラー発生");
-        console.log(e);
-        throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+  public static getTodoItem = async (
+    getTodoFromDdbProps: GetTodoFromDdbProps
+  ) => {
+    try {
+      const getResponse: any = await DYNAMO.get({
+        TableName: tableName,
+        Key: getTodoFromDdbProps.Key,
+        ConsistentRead: getTodoFromDdbProps.ConsistentRead,
       });
+      console.log(
+        `Retrieved todo from dynamodb: ${JSON.stringify(getResponse)}`
+      );
+      return getResponse.Item;
+    } catch (e) {
+      console.log("Dynamodbからの get 処理で予期せぬエラー発生");
+      console.log(e);
+      throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+    }
+  };
 
   /**
    * DynamodbにTodoを1件Putする処理
@@ -71,27 +68,20 @@ export class DynamodbTodoTable {
    * @param {PutTodoInDynamodbProps} putTodoInDynamodbProps
    * @memberof DynamodbTodoTable
    */
-  public static putTodoItem = (
+  public static putTodoItem = async (
     putTodoInDynamodbProps: PutTodoInDynamodbProps
   ) => {
-    myPromisify((callback: any) =>
-      DYNAMO.put(
-        {
-          TableName: tableName,
-          Item: putTodoInDynamodbProps,
-        },
-        callback
-      )
-    )
-      .then((response: any) => {
-        console.log(`Dynamodbへの put 処理完了`);
-        console.log(`Response from dynamodb: ${JSON.stringify(response)}`);
-      })
-      .catch((e) => {
-        console.log("Dynamodbへの put 処理で予期せぬエラー発生");
-        console.log(e);
-        throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+    try {
+      await DYNAMO.put({
+        TableName: tableName,
+        Item: putTodoInDynamodbProps,
       });
+      console.log(`Dynamodbへの put 処理完了`);
+    } catch (e) {
+      console.log("Dynamodbへの put 処理で予期せぬエラー発生");
+      console.log(e);
+      throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+    }
   };
 
   /**
@@ -101,26 +91,22 @@ export class DynamodbTodoTable {
    * @param {DeleteTodoInDynamodbProps} deleteTodoInDynamodbProps
    * @memberof DynamodbTodoTable
    */
-  public static deleteTodoItem = (
+  public static deleteTodoItem = async (
     deleteTodoInDynamodbProps: DeleteTodoInDynamodbProps
   ) => {
-    myPromisify((callback: any) =>
-      DYNAMO.delete(
-        {
-          TableName: tableName,
-          Key: deleteTodoInDynamodbProps,
-        },
-        callback
-      )
-    )
-      .then((response: any) => {
-        console.log(`Response from dynamodb: ${JSON.stringify(response)}`);
-      })
-      .catch((e) => {
-        console.log("Dynamodbへの delete 処理で予期せぬエラー発生");
-        console.log(e);
-        throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+    try {
+      await DYNAMO.delete({
+        TableName: tableName,
+        Key: deleteTodoInDynamodbProps,
       });
+      console.log(
+        `Todo削除に成功 Key: ${JSON.stringify(deleteTodoInDynamodbProps)}`
+      );
+    } catch (e) {
+      console.log("Dynamodbへの delete 処理で予期せぬエラー発生");
+      console.log(e);
+      throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+    }
   };
 
   /*
@@ -130,7 +116,9 @@ export class DynamodbTodoTable {
    * @param {ListTodoProps} listTodoProps
    * @memberof DynamodbTodoTable
    */
-  public static listTodoItems = (listTodoProps: ListTodoInDynamodbProps) => {
+  public static listTodoItems = async (
+    listTodoProps: ListTodoInDynamodbProps
+  ) => {
     // 問い合わせの条件指定
     const queryProps: AWS.DynamoDB.DocumentClient.QueryInput = {
       TableName: tableName,
@@ -176,29 +164,25 @@ export class DynamodbTodoTable {
     }
 
     console.log(`query に渡す props: ${JSON.stringify(queryProps)}`);
+    try {
+      const response: any = await DYNAMO.query(queryProps);
+      console.log(`Query response from dynamodb: ${JSON.stringify(response)}`);
 
-    return myPromisify((callback: any) => DYNAMO.query(queryProps, callback))
-      .then((response: any) => {
-        console.log(
-          `Query response from dynamodb: ${JSON.stringify(response)}`
-        );
+      const listTodoOutput: ListTodoInDynamodbOutput = {
+        todos: response.Items,
+      };
 
-        const listTodoOutput: ListTodoInDynamodbOutput = {
-          todos: response.Items,
-        };
-
-        // 次の読み込み開始位置が返却されているときは、トークン化してレスポンスに追加する
-        if (response.LastEvaluatedKey) {
-          console.log(`LastEvaluatedKeyが返却されてきたのでトークン化する`);
-          listTodoOutput.nextToken = sign(response.LastEvaluatedKey, secret);
-        }
-        return listTodoOutput;
-      })
-      .catch((e) => {
-        console.log("Dynamodbへの queryによる問い合わせ で予期せぬエラー発生");
-        console.log(e);
-        throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
-      });
+      // 次の読み込み開始位置が返却されているときは、トークン化してレスポンスに追加する
+      if (response.LastEvaluatedKey) {
+        console.log(`LastEvaluatedKeyが返却されてきたのでトークン化する`);
+        listTodoOutput.nextToken = sign(response.LastEvaluatedKey, secret);
+      }
+      return listTodoOutput;
+    } catch (e) {
+      console.log("Dynamodbへの queryによる問い合わせ で予期せぬエラー発生");
+      console.log(e);
+      throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
+    }
   };
 }
 
@@ -227,8 +211,6 @@ export interface PutTodoInDynamodbProps {
   todoId: string;
   title: string;
   content: string;
-  dueDate?: string;
-  isImportant?: boolean;
 }
 
 /**
