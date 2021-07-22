@@ -5,6 +5,7 @@ import {
   ErrorMessage,
   NotFoundError,
   DynamodbError,
+  buildErrorMessage,
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
@@ -66,7 +67,9 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
+      ),
     };
 
     // THEN
@@ -93,7 +96,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
                 isImportant: false,
               },
             ],
-            nextToken: 'xxxxx'
+            nextToken: "xxxxx",
           };
           resolve(todoList);
         })
@@ -115,7 +118,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
             isImportant: false,
           },
         ],
-        nextToken: 'xxxxx'
+        nextToken: "xxxxx",
       }),
     };
 
@@ -143,7 +146,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
                 isImportant: false,
               },
             ],
-            nextToken: 'xxxxx'
+            nextToken: "xxxxx",
           };
           resolve(todoList);
         })
@@ -152,7 +155,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
-    event.queryStringParameters = {limit: '10', nextToken: 'aaaaaa'}
+    event.queryStringParameters = { limit: "10", nextToken: "aaaaaa" };
     const expected = {
       statusCode: 200,
       body: JSON.stringify({
@@ -166,14 +169,13 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
             isImportant: false,
           },
         ],
-        nextToken: 'xxxxx'
+        nextToken: "xxxxx",
       }),
     };
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
   });
-
 
   test("Case4: 予期せぬエラー発生", async () => {
     expect.assertions(1);
@@ -193,11 +195,10 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     event.headers = { Authorization: "XXX" };
     const expected = {
       statusCode: 500,
-      body: ErrorMessage.UNEXPECTED_ERROR(),
+      body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
     };
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
   });
-
 });

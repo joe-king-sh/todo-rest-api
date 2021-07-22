@@ -18,10 +18,10 @@ class BaseError extends Error {
  * @extends {BaseError}
  */
 export class DynamodbError extends BaseError {
-    public statusCode = 500;
-    constructor(e?: string) {
-      super(e);
-    }
+  public statusCode = 500;
+  constructor(e?: string) {
+    super(e);
+  }
 }
 
 /**
@@ -80,9 +80,13 @@ export class ErrorMessage {
   };
 
   static INVALID_TOKEN = () => {
-    return `指定された認証トークンが不正です`;
+    return `トークンが不正です`;
   };
   static TOKEN_EXPIRED = () => {
-    return `指定された認証トークンの有効期限が切れています`;
+    return `トークンの有効期限が切れています`;
   };
 }
+
+export const buildErrorMessage = (message: string): string => {
+  return JSON.stringify({ message: message });
+};

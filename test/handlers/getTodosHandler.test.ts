@@ -5,6 +5,7 @@ import {
   ErrorMessage,
   NotFoundError,
   DynamodbError,
+  buildErrorMessage,
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
@@ -66,7 +67,9 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
+      ),
     };
 
     // THEN
@@ -82,7 +85,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     event.headers = { Authorization: "XXX" };
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["todoId"]),
+      body: buildErrorMessage(ErrorMessage.PARAMETERS_NOT_FOUND(["todoId"])),
     };
 
     // THEN
@@ -149,7 +152,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
     const expected = {
       statusCode: 500,
-      body: ErrorMessage.UNEXPECTED_ERROR()
+      body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
     };
 
     // THEN
@@ -175,7 +178,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
     const expected = {
       statusCode: 500,
-      body: ErrorMessage.DYNAMODB_ERROR()
+      body: buildErrorMessage(ErrorMessage.DYNAMODB_ERROR()),
     };
 
     // THEN
@@ -191,7 +194,11 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
       .spyOn(TodoUseCase.prototype, "getSpecificTodo")
       .mockReturnValue(
         new Promise((resolve, reject) => {
-          throw new NotFoundError(ErrorMessage.NOT_FOUND(`todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`));
+          throw new NotFoundError(
+            ErrorMessage.NOT_FOUND(
+              `todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`
+            )
+          );
         })
       );
 
@@ -201,11 +208,12 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
     const expected = {
       statusCode: 404,
-      body: ErrorMessage.NOT_FOUND(`todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`)
+      body: buildErrorMessage(
+        ErrorMessage.NOT_FOUND(`todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`)
+      ),
     };
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
   });
-
 });

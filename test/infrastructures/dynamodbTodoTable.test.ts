@@ -70,7 +70,7 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
     };
 
     // THEN
-    const actual = await DynamodbTodoTable.getTodo(params);
+    const actual = await DynamodbTodoTable.getTodoItem(params);
     // 取得結果確認
     expect(actual).toEqual(expected);
     // 呼び出し回数確認
@@ -96,7 +96,7 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
     const expected = undefined;
 
     // THEN
-    const actual = await DynamodbTodoTable.getTodo(params);
+    const actual = await DynamodbTodoTable.getTodoItem(params);
     // 取得結果確認
     expect(actual).toEqual(expected);
     // 呼び出し回数確認
@@ -121,10 +121,10 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
     // THEN
     // エラーメッセージと Exceptionの種類を確認
     expect(async () => {
-      await DynamodbTodoTable.getTodo(params);
+      await DynamodbTodoTable.getTodoItem(params);
     }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
     expect(async () => {
-      await DynamodbTodoTable.getTodo(params);
+      await DynamodbTodoTable.getTodoItem(params);
     }).rejects.toThrowError(DynamodbError);
 
     // 呼び出し回数確認
@@ -158,7 +158,7 @@ describe("Dynamodb 操作用サービス データ登録/更新系のテスト",
     };
 
     // THEN
-    await DynamodbTodoTable.putTodo(params);
+    await DynamodbTodoTable.putTodoItem(params);
     // 呼び出し回数確認
     expect(DYNAMO.put).toHaveBeenCalledTimes(1);
   }, 5000);
@@ -185,10 +185,10 @@ describe("Dynamodb 操作用サービス データ登録/更新系のテスト",
     // THEN
     // エラーメッセージと Exceptionの種類を確認
     expect(async () => {
-      await DynamodbTodoTable.putTodo(params);
+      await DynamodbTodoTable.putTodoItem(params);
     }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
     expect(async () => {
-      await DynamodbTodoTable.putTodo(params);
+      await DynamodbTodoTable.putTodoItem(params);
     }).rejects.toThrowError(DynamodbError);
 
     // 呼び出し回数確認
@@ -219,7 +219,7 @@ describe("Dynamodb 操作用サービス データ削除系のテスト", (): vo
     };
 
     // THEN
-    await DynamodbTodoTable.deleteTodo(params);
+    await DynamodbTodoTable.deleteTodoItem(params);
     // 呼び出し回数確認
     expect(DYNAMO.delete).toHaveBeenCalledTimes(1);
   }, 5000);
@@ -242,10 +242,10 @@ describe("Dynamodb 操作用サービス データ削除系のテスト", (): vo
     // THEN
     // エラーメッセージと Exceptionの種類を確認
     expect(async () => {
-      await DynamodbTodoTable.deleteTodo(params);
+      await DynamodbTodoTable.deleteTodoItem(params);
     }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
     expect(async () => {
-      await DynamodbTodoTable.deleteTodo(params);
+      await DynamodbTodoTable.deleteTodoItem(params);
     }).rejects.toThrowError(DynamodbError);
 
     // 呼び出し回数確認
@@ -314,7 +314,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     };
 
     // THEN
-    const actual = await DynamodbTodoTable.listTodo(params);
+    const actual = await DynamodbTodoTable.listTodoItems(params);
 
     // 取得結果確認
     expect(actual).toEqual(expected);
@@ -363,7 +363,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     // WHEN
     const params = {
       userId: "my-unit-test-user",
-      limit: 2
+      limit: 2,
     };
     const expected = {
       todos: [
@@ -388,7 +388,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     };
 
     // THEN
-    const actual = await DynamodbTodoTable.listTodo(params);
+    const actual = await DynamodbTodoTable.listTodoItems(params);
 
     // 取得結果確認
     expect(actual).toEqual(expected);
@@ -396,7 +396,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     expect(DYNAMO.query).toHaveBeenCalledTimes(1);
   }, 5000);
 
-  test("Case3: Dynamodbへのqueryが正常に終了する場合(指定条件：nextTokenあり)", async () => {
+  test("Case3-1: Dynamodbへのqueryが正常に終了する場合(指定条件：nextTokenあり)", async () => {
     jest.resetAllMocks();
     expect.assertions(2);
 
@@ -411,7 +411,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     const mockResult = {
       Items: [
         {
-          userId: "my-unit-test-user",
+          userId: "unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
@@ -419,7 +419,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           isImportant: false,
         },
         {
-          userId: "my-unit-test-user",
+          userId: "unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
@@ -435,13 +435,13 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
 
     // WHEN
     const params = {
-      userId: "my-unit-test-user",
-      nextToken: mockToken
+      userId: "unit-test-user",
+      nextToken: mockToken,
     };
     const expected = {
       todos: [
         {
-          userId: "my-unit-test-user",
+          userId: "unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
@@ -449,7 +449,7 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           isImportant: false,
         },
         {
-          userId: "my-unit-test-user",
+          userId: "unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
@@ -460,20 +460,56 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     };
 
     // THEN
-    const actual = await DynamodbTodoTable.listTodo(params);
+    const actual = await DynamodbTodoTable.listTodoItems(params);
 
     // 取得結果確認
     expect(actual).toEqual(expected);
     // 呼び出し回数確認
     expect(DYNAMO.query).toHaveBeenCalledTimes(1);
   }, 5000);
+  test("Case3-2: Dynamodbへのqueryが正常に終了する場合(指定条件：nextTokenのユーザId不正)", async () => {
+    jest.resetAllMocks();
+    expect.assertions(3);
 
+    // LastEvaluateKey用にトークンを生成する
+    const mockLastEvaluatedKey = {
+      userId: "someones-token",
+      todoId: "9b1deb4d-3b7d-4bad-9bdd-2b883722213444",
+    };
+    const mockToken = sign(mockLastEvaluatedKey, secret);
+
+    // Dynamodbから返却される想定のモックレスポンス
+    mDynamoDb.query.mockImplementationOnce((_: any, callback: any) =>
+      callback(null, undefined)
+    );
+
+    // WHEN
+    const params = {
+      userId: "unit-test-user",
+      nextToken: mockToken,
+    };
+
+    // THEN
+    const expectedErrorMessage = ErrorMessage.INVALID_TOKEN();
+
+    // THEN
+    // エラーメッセージと Exceptionの種類を確認
+    expect(async () => {
+      await DynamodbTodoTable.listTodoItems(params);
+    }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
+    expect(async () => {
+      await DynamodbTodoTable.listTodoItems(params);
+    }).rejects.toThrowError(DynamodbError);
+
+    // 呼び出し回数確認
+    expect(DYNAMO.query).toHaveBeenCalledTimes(0);
+  }, 5000);
   test("Case4: Dynamodbへのqueryが異常終了する場合(指定条件：nextTokenあり->トークンが不正)", async () => {
     jest.resetAllMocks();
     expect.assertions(3);
 
     // LastEvaluateKey用にトークンを生成する
-    const mockInvalidToken = 'This is invalid token'
+    const mockInvalidToken = "This is invalid token";
 
     // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
     mDynamoDb.query.mockImplementationOnce((_: any, callback: any) =>
@@ -483,17 +519,17 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     // WHEN
     const params = {
       userId: "my-unit-test-user",
-      nextToken: mockInvalidToken
+      nextToken: mockInvalidToken,
     };
     const expectedErrorMessage = ErrorMessage.INVALID_TOKEN();
 
     // THEN
     // エラーメッセージと Exceptionの種類を確認
     expect(async () => {
-      await DynamodbTodoTable.listTodo(params);
+      await DynamodbTodoTable.listTodoItems(params);
     }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
     expect(async () => {
-      await DynamodbTodoTable.listTodo(params);
+      await DynamodbTodoTable.listTodoItems(params);
     }).rejects.toThrowError(DynamodbError);
 
     // 呼び出し回数確認
@@ -517,15 +553,13 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     // THEN
     // エラーメッセージと Exceptionの種類を確認
     expect(async () => {
-      await DynamodbTodoTable.listTodo(params);
+      await DynamodbTodoTable.listTodoItems(params);
     }).rejects.toThrowError(new DynamodbError(expectedErrorMessage));
     expect(async () => {
-      await DynamodbTodoTable.listTodo(params);
+      await DynamodbTodoTable.listTodoItems(params);
     }).rejects.toThrowError(DynamodbError);
 
     // 呼び出し回数確認
     expect(DYNAMO.query).toHaveBeenCalledTimes(2);
-    
   }, 5000);
-
 });

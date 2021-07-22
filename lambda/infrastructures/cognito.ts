@@ -22,7 +22,7 @@ export class CognitoUserPool {
       userName = payloadJson["cognito:username"];
     } catch (e) {
       console.log("トークンのデコードでエラーが発生");
-      console.log(JSON.stringify(e));
+      console.log(e);
       throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN());
     }
 

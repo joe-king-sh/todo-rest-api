@@ -5,6 +5,7 @@ import {
   ErrorMessage,
   NotFoundError,
   DynamodbError,
+  buildErrorMessage,
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
@@ -66,7 +67,9 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
+      ),
     };
 
     // THEN
@@ -82,7 +85,9 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.headers = { Authorization: "XXX" };
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Request Body"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Request Body"])
+      ),
     };
 
     // THEN
@@ -99,7 +104,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = "invalid_json";
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.INVALID_PARAMETER(),
+      body: buildErrorMessage(ErrorMessage.INVALID_PARAMETER()),
     };
 
     // THEN
@@ -119,7 +124,9 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     });
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"])
+      ),
     };
 
     // THEN
@@ -136,7 +143,9 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = JSON.stringify({ title: "todo title", dueDate: "2021-07-21" });
     const expected = {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"])
+      ),
     };
 
     // THEN
@@ -174,7 +183,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         title: "todo title",
         content: "content",
         dueDate: "",
-        isImportant: false
+        isImportant: false,
       }),
     };
 
@@ -247,7 +256,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = JSON.stringify({ title: "todo title", content: "content" });
     const expected = {
       statusCode: 500,
-      body: ErrorMessage.UNEXPECTED_ERROR(),
+      body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
     };
 
     // THEN
@@ -273,7 +282,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = JSON.stringify({ title: "todo title", content: "content" });
     const expected = {
       statusCode: 500,
-      body: ErrorMessage.DYNAMODB_ERROR(),
+      body: buildErrorMessage(ErrorMessage.DYNAMODB_ERROR()),
     };
 
     // THEN
@@ -304,8 +313,8 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
 
     const expected = {
       statusCode: 404,
-      body: ErrorMessage.NOT_FOUND(
-        `todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`
+      body: buildErrorMessage(
+        ErrorMessage.NOT_FOUND(`todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`)
       ),
     };
 

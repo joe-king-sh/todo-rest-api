@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { TodoUseCase } from "../domains/todoUseCase";
-import { ErrorMessage } from "../domains/errorUseCase";
+import { ErrorMessage, buildErrorMessage } from "../domains/errorUseCase";
 
 export const handler = async (
   event: APIGatewayEvent
@@ -18,21 +18,23 @@ export const handler = async (
     console.log("Authorization トークンが未指定");
     return {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
+      ),
     };
   }
   if (!todoId) {
     console.log("Authorization todoIdが未指定");
     return {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["todoId"]),
+      body: buildErrorMessage(ErrorMessage.PARAMETERS_NOT_FOUND(["todoId"])),
     };
   }
 
   // コアロジック呼び出し
   try {
     const todoUserCase = new TodoUseCase(token);
-    console.log("特定のTodo取得ユースケース呼び出し");
+    console.log("Todo一括取得のユースケース呼び出し");
     const todo = await todoUserCase.getSpecificTodo({ todoId: todoId });
     return { statusCode: 200, body: JSON.stringify(todo) };
   } catch (e) {
@@ -43,10 +45,13 @@ export const handler = async (
     );
 
     if (!e.statusCode) {
-      return { statusCode: 500, body: ErrorMessage.UNEXPECTED_ERROR() };
+      return {
+        statusCode: 500,
+        body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
+      };
     } else {
       // ユーザ定義エラーはstatusCodeとメッセージをthrow時にセットすること
-      return { statusCode: e.statusCode, body: e.message };
+      return { statusCode: e.statusCode, body: buildErrorMessage(e.message) };
     }
   }
 };

@@ -1,10 +1,8 @@
 import * as AWS from "aws-sdk";
-import {
-  DynamodbError,
-  ErrorMessage,
-} from "../domains/errorUseCase";
+import { DynamodbError, ErrorMessage } from "../domains/errorUseCase";
 import { Todo } from "../domains/todoUseCase";
 import * as jose from "node-jose";
+import { v4 as uuidv4 } from "uuid";
 
 const sign = require("jwt-encode");
 const secret = "This is not so secret.";
@@ -43,7 +41,7 @@ export class DynamodbTodoTable {
    * @return {*}  {Promise<any>}
    * @memberof DynamodbTodoTable
    */
-  public static getTodo = (getTodoFromDdbProps: GetTodoFromDdbProps) =>
+  public static getTodoItem = (getTodoFromDdbProps: GetTodoFromDdbProps) =>
     myPromisify((callback: any) =>
       DYNAMO.get(
         {
@@ -61,7 +59,7 @@ export class DynamodbTodoTable {
       })
       .catch((e) => {
         console.log("Dynamodbからの get 処理で予期せぬエラー発生");
-        console.log(JSON.stringify(e));
+        console.log(e);
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
 
@@ -72,7 +70,9 @@ export class DynamodbTodoTable {
    * @param {PutTodoInDynamodbProps} putTodoInDynamodbProps
    * @memberof DynamodbTodoTable
    */
-  public static putTodo = (putTodoInDynamodbProps: PutTodoInDynamodbProps) => {
+  public static putTodoItem = (
+    putTodoInDynamodbProps: PutTodoInDynamodbProps
+  ) => {
     myPromisify((callback: any) =>
       DYNAMO.put(
         {
@@ -87,7 +87,7 @@ export class DynamodbTodoTable {
       })
       .catch((e) => {
         console.log("Dynamodbへの put 処理で予期せぬエラー発生");
-        console.log(JSON.stringify(e));
+        console.log(e);
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
   };
@@ -99,7 +99,7 @@ export class DynamodbTodoTable {
    * @param {DeleteTodoInDynamodbProps} deleteTodoInDynamodbProps
    * @memberof DynamodbTodoTable
    */
-  public static deleteTodo = (
+  public static deleteTodoItem = (
     deleteTodoInDynamodbProps: DeleteTodoInDynamodbProps
   ) => {
     myPromisify((callback: any) =>
@@ -116,7 +116,7 @@ export class DynamodbTodoTable {
       })
       .catch((e) => {
         console.log("Dynamodbへの delete 処理で予期せぬエラー発生");
-        console.log(JSON.stringify(e));
+        console.log(e);
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
   };
@@ -128,35 +128,52 @@ export class DynamodbTodoTable {
    * @param {ListTodoProps} listTodoProps
    * @memberof DynamodbTodoTable
    */
-  public static listTodo = (listTodoProps: ListTodoInDynamodbProps) => {
+  public static listTodoItems = (listTodoProps: ListTodoInDynamodbProps) => {
     // 問い合わせの条件指定
     const queryProps: AWS.DynamoDB.DocumentClient.QueryInput = {
       TableName: tableName,
-      KeyConditionExpression: "userId = :userId",
+      KeyConditionExpression: "userId = :userId and todoId > :todoId",
+      ExpressionAttributeValues: {
+        ":userId": listTodoProps.userId,
+        // 投げたい問い合わせは、パーティションキーが一致の検索だけだが、ExclusiveStartKeyが使いたいので、ソートキーを指定する必要がある
+        // 日付+uuidで持つソートキーなので、一番初めから検索をかけるソートキーで固定にする
+        ":todoId": "19700101000000" + uuidv4(),
+      },
     };
 
-    // 前回開始位置の設定
+    // トークンが指定されている場合は、読み込み開始位置を指定する
     if (listTodoProps.nextToken) {
       try {
-        // トークンが指定されている場合は、読み込み開始位置を指定する
         const token = listTodoProps.nextToken;
         const sections = token.split(".");
         const payload = jose.util.base64url.decode(sections[1]);
         const LastEvaluatedKey = JSON.parse(payload as unknown as string);
+        const userId = LastEvaluatedKey.userId;
+
+        if (listTodoProps.userId !== userId) {
+          console.log(
+            `API実行ユーザ:${listTodoProps.userId} トークン内のユーザ:${userId}`
+          );
+          throw new Error(
+            "ユーザIDと指定されたnextTokenの中のUserIdが違うのでthrowする"
+          );
+        }
+
+        // 読み込み開始位置を設定
         queryProps.ExclusiveStartKey = LastEvaluatedKey;
       } catch (e) {
         console.log("トークンのデコードでエラーが発生");
-        console.log(JSON.stringify(e));
+        console.log(e);
         throw new DynamodbError(ErrorMessage.INVALID_TOKEN());
       }
-    } else {
-      queryProps.ExpressionAttributeValues = { userId: listTodoProps.userId };
     }
 
     // Limitが指定されている場合は条件に入れる
     if (listTodoProps.limit) {
       queryProps.Limit = listTodoProps.limit;
     }
+
+    console.log(`query に渡す props: ${JSON.stringify(queryProps)}`);
 
     return myPromisify((callback: any) => DYNAMO.query(queryProps, callback))
       .then((response: any) => {
@@ -168,18 +185,16 @@ export class DynamodbTodoTable {
           todos: response.Items,
         };
 
-        // 次の読み込み開始位置が指定されているときは、トークン化してレスポンスに追加する
+        // 次の読み込み開始位置が返却されているときは、トークン化してレスポンスに追加する
         if (response.LastEvaluatedKey) {
-          console.log(`LastEvaluatedKeyが指定されてきたのでトークン化する`);
+          console.log(`LastEvaluatedKeyが返却されてきたのでトークン化する`);
           listTodoOutput.nextToken = sign(response.LastEvaluatedKey, secret);
         }
-
-        console.log(`listTodoの取得結果 ${JSON.stringify(listTodoOutput)}`);
         return listTodoOutput;
       })
       .catch((e) => {
         console.log("Dynamodbへの queryによる問い合わせ で予期せぬエラー発生");
-        console.log(JSON.stringify(e));
+        console.log(e);
         throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
       });
   };

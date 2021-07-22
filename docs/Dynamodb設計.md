@@ -35,7 +35,7 @@
 | #   | 項目        | キー | 型     | 説明                           |
 | --- | ----------- | ---- | ------ | ------------------------------ |
 | 1   | userId      | PK   | 文字列 | Cognito ユーザプールのユーザ名 |
-| 2   | todoId      | SK   | 文字列 | データ登録時に発行する uuid    |
+| 2   | todoId      | SK   | 文字列 | yyyyMMddHHmmss-uuid    |
 | 3   | title       | -    | 文字列 | Todo の件名                    |
 | 4   | content     | -    | 文字列 | Todo の内容                    |
 | 5   | dueDate     | -    | 日付 | Todo の期日                    |

@@ -40,8 +40,8 @@ export class TodoUseCase {
     };
 
     if (!putTodoProps.todoId) {
-      // uuidでtodoIdを発番して新規登録する
-      todo.todoId = uuidv4();
+      // 現在時刻とuuidでtodoIdを発番して新規登録する
+      todo.todoId = issueTodoId();
     } else {
       todo.todoId = putTodoProps.todoId;
     }
@@ -61,7 +61,7 @@ export class TodoUseCase {
     }
 
     // Dynamodbへ追加で登録
-    await DynamodbTodoTable.putTodo(todo);
+    await DynamodbTodoTable.putTodoItem(todo);
 
     return todo;
   }
@@ -80,7 +80,7 @@ export class TodoUseCase {
       `指定したIdのTodo取得処理 開始 props: ${JSON.stringify(specifyTodoProps)}`
     );
     const todoId = specifyTodoProps.todoId;
-    const ddbReponse = await DynamodbTodoTable.getTodo({
+    const ddbReponse = await DynamodbTodoTable.getTodoItem({
       userId: this.userId,
       todoId: todoId,
     });
@@ -139,7 +139,7 @@ export class TodoUseCase {
     );
 
     const todoId = specifyTodoProps.todoId;
-    await DynamodbTodoTable.deleteTodo({
+    await DynamodbTodoTable.deleteTodoItem({
       userId: this.userId,
       todoId: todoId,
     });
@@ -154,14 +154,16 @@ export class TodoUseCase {
    * @return {*}  {Promise<ListTodoOutput>}
    * @memberof TodoUseCase
    */
-  public async listTodos(listTodosProps: listTodosProps): Promise<ListTodoInDynamodbOutput> {
+  public async listTodos(
+    listTodosProps: listTodosProps
+  ): Promise<ListTodoInDynamodbOutput> {
     console.log(
       `指定した件数のTodo一括取得処理 開始 props: ${JSON.stringify(
         listTodosProps
       )}`
     );
 
-    const todos = await DynamodbTodoTable.listTodo({
+    const todos = await DynamodbTodoTable.listTodoItems({
       userId: this.userId,
       ...listTodosProps,
     });
@@ -207,3 +209,18 @@ export interface listTodosProps {
   limit?: number;
   nextToken?: string;
 }
+
+const issueTodoId = (): string => {
+  const now = new Date();
+  const newTodoId =
+    now.getFullYear().toString().padStart(4, "0") +
+    now.getMonth().toString().padStart(2, "0") +
+    now.getDate().toString().padStart(2, "0") +
+    now.getHours().toString().padStart(2, "0") +
+    now.getMinutes().toString().padStart(2, "0") +
+    now.getSeconds().toString().padStart(2, "0") +
+    "-" +
+    uuidv4();
+
+  return newTodoId;
+};

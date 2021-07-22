@@ -1,6 +1,6 @@
 import { APIGatewayEvent, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
 import { TodoUseCase, PutTodoProps } from "../domains/todoUseCase";
-import { ErrorMessage } from "../domains/errorUseCase";
+import { ErrorMessage, buildErrorMessage } from "../domains/errorUseCase";
 
 export const handler = async (
   event: APIGatewayEvent
@@ -13,21 +13,24 @@ export const handler = async (
   // パラメータ受け取り
   const token = event.headers?.Authorization;
   const bodyJsonString = event.body;
-  const todoId = event.pathParameters?.todoId;　// 更新でPUT呼び出し想定
-
+  const todoId = event.pathParameters?.todoId; // 更新でPUT呼び出し想定
   // 入力チェック
   if (!token) {
     console.log("Authorization トークンが未指定");
     return {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
+      ),
     };
   }
   if (!bodyJsonString) {
     console.log("Request Body が未指定");
     return {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["Request Body"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["Request Body"])
+      ),
     };
   }
   try {
@@ -36,7 +39,7 @@ export const handler = async (
     console.log("BodyがJson Parseできない形式で指定されてきた");
     return {
       statusCode: 400,
-      body: ErrorMessage.INVALID_PARAMETER(),
+      body: buildErrorMessage(ErrorMessage.INVALID_PARAMETER()),
     };
   }
   // 必須チェック
@@ -44,15 +47,17 @@ export const handler = async (
     console.log("必須項目[title,content]どちらかが存在しない");
     return {
       statusCode: 400,
-      body: ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"]),
+      body: buildErrorMessage(
+        ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"])
+      ),
     };
   }
 
   // PathParameterにTodoIdがセットされていたら、更新モードでtodoUserCase.putTodoは動作する
   const putTodoProps = {
     ...body,
-    todoId: todoId
-  }
+    todoId: todoId,
+  };
 
   // コアロジック呼び出し
   try {
@@ -68,10 +73,13 @@ export const handler = async (
     );
 
     if (!e.statusCode) {
-      return { statusCode: 500, body: ErrorMessage.UNEXPECTED_ERROR() };
+      return {
+        statusCode: 500,
+        body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
+      };
     } else {
       // ユーザ定義エラーはstatusCodeとメッセージをthrow時にセットすること
-      return { statusCode: e.statusCode, body: e.message };
+      return { statusCode: e.statusCode, body: buildErrorMessage(e.message) };
     }
   }
 };

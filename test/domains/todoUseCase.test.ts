@@ -37,7 +37,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       isImportant: false,
     });
 
-    DynamodbTodoTable.getTodo = mockGetTodo.bind(DynamodbTodoTable);
+    DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
 
     // WHEN
     const params: SpecifyTodoProps = {
@@ -74,7 +74,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       isImportant: false,
     });
 
-    DynamodbTodoTable.getTodo = mockGetTodo.bind(DynamodbTodoTable);
+    DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
 
     // WHEN
     const params: SpecifyTodoProps = {
@@ -103,7 +103,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
     // Dynamodb関連処理をモック化する
     const mockGetTodo = jest.fn();
     mockGetTodo.mockReturnValue(undefined); // DBから返ってくる
-    DynamodbTodoTable.getTodo = mockGetTodo.bind(DynamodbTodoTable);
+    DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
 
     // WHEN
     const params: SpecifyTodoProps = {
@@ -120,7 +120,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
     const expectedErrorMessage = ErrorMessage.NOT_FOUND(
       "todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
     );
-
     // THEN
     const todoUseCase = new TodoUseCase("dummyToken");
     await expect(todoUseCase.getSpecificTodo(params)).rejects.toThrowError(
@@ -139,7 +138,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       // Dynamodb関連処理をモック化する
 
       const mockPutTodo = jest.fn();
-      DynamodbTodoTable.putTodo = mockPutTodo.bind(DynamodbTodoTable);
+      DynamodbTodoTable.putTodoItem = mockPutTodo.bind(DynamodbTodoTable);
 
       // WHEN
       const params: PutTodoProps = {
@@ -168,7 +167,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
 
       // Dynamodb関連処理をモック化する
       const mockPutTodo = jest.fn();
-      DynamodbTodoTable.putTodo = mockPutTodo.bind(DynamodbTodoTable);
+      DynamodbTodoTable.putTodoItem = mockPutTodo.bind(DynamodbTodoTable);
 
       // WHEN
       const params: PutTodoProps = {
@@ -198,7 +197,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       // Dynamodb関連処理をモック化する
 
       const mockPutTodo = jest.fn();
-      DynamodbTodoTable.putTodo = mockPutTodo.bind(DynamodbTodoTable);
+      DynamodbTodoTable.putTodoItem = mockPutTodo.bind(DynamodbTodoTable);
 
       // WHEN
       const params: PutTodoProps = {
@@ -232,7 +231,7 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
 
       const mockDeleteTodo = jest.fn();
       mockDeleteTodo.mockReturnValue(undefined);
-      DynamodbTodoTable.deleteTodo = mockDeleteTodo.bind(DynamodbTodoTable);
+      DynamodbTodoTable.deleteTodoItem = mockDeleteTodo.bind(DynamodbTodoTable);
 
       // WHEN
       const params: DeleteTodoInDynamodbProps = {
@@ -254,12 +253,12 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       // Dynamodb関連処理をモック化する
       const mockListTodo = jest.fn();
       mockListTodo.mockReturnValue(undefined);
-      DynamodbTodoTable.listTodo = mockListTodo.bind(DynamodbTodoTable);
+      DynamodbTodoTable.listTodoItems = mockListTodo.bind(DynamodbTodoTable);
 
       // WHEN
       const params = {
         limit: 10,
-        nextToken: 'next token like jwt',
+        nextToken: "next token like jwt",
       };
 
       // THEN
