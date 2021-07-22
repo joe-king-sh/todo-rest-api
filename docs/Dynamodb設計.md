@@ -6,6 +6,7 @@
 - Todo 情報には以下の項目が必須
   - タイトル
   - 内容
+
 ## 実装方針
 
 - 検索については ElasticSearch サービスを利用する
@@ -26,20 +27,17 @@
 | #   | 項目        | キー | 型     | 説明                           |
 | --- | ----------- | ---- | ------ | ------------------------------ |
 | 1   | userId      | PK   | 文字列 | Cognito ユーザプールのユーザ名 |
-| 2   | todoId      | SK   | 文字列 | yyyyMMddHHmmss-uuid    |
+| 2   | todoId      | SK   | 文字列 | yyyyMMddHHmmss-uuid            |
 | 3   | title       | -    | 文字列 | Todo の件名                    |
 | 4   | content     | -    | 文字列 | Todo の内容                    |
-| 5   | dueDate     | -    | 日付 | Todo の期日                    |
-| 6   | isImportant | -    | 真偽値 | 重要な Todo に立てるフラグ     |
-| 7   | updatedDate | -    | 文字列 | 更新日付     |
-
+| 5   | updatedDate | -    | 文字列 | 更新日付                       |
 
 ## 格納データイメージ
 
-| PrimaryKey     |                                      | Attributes |                          |             |                 |     |
-| -------------- | ------------------------------------ | ---------- | ------------------------ | ----------- | --------------- | --- |
-| **PK**         | **SK**                               | -          | -                        | -           | -               |
-| **userId**     | **todoId**                           | **title**  | **contents**             | **dueDate** | **isImportant** |
-| Angus Young    | b2f02b09-5d4b-4cb9-a72b-9f91713e3fe1 | ゴミ捨て   | 缶とペットボトルを捨てる | 2021-07-18  | false           |
-| Angus Young    | 2b80bd60-9f8c-4ba6-89d2-bfc76729a405 | 送迎       | 娘を保育園へ送る         | 2021-07-18  | true            |
-| Marty Friedman | cfb8dd5a-97e4-462c-b2f5-2233f1e6ce1b | 買い物     | 納豆、ゴミ袋、カップ麺   | 2021-07-18  | false           |
+| PrimaryKey     |                                      | Attributes |                          |                               |     |
+| -------------- | ------------------------------------ | ---------- | ------------------------ | ----------------------------- | --- |
+| **PK**         | **SK**                               | -          | -                        | -                             |
+| **userId**     | **todoId**                           | **title**  | **contents**             | **updatedDate**               |
+| Angus Young    | b2f02b09-5d4b-4cb9-a72b-9f91713e3fe1 | ゴミ捨て   | 缶とペットボトルを捨てる | Thu, 22 Jul 2021 14:22:37 GMT |
+| Angus Young    | 2b80bd60-9f8c-4ba6-89d2-bfc76729a405 | 送迎       | 娘を保育園へ送る         | Thu, 22 Jul 2021 14:22:56 GMT |
+| Marty Friedman | cfb8dd5a-97e4-462c-b2f5-2233f1e6ce1b | 買い物     | 納豆、ゴミ袋、カップ麺   | Thu, 22 Jul 2021 14:23:22 GMT |

@@ -39,8 +39,6 @@ export class TodoUseCase {
       todoId: "",
       title: "",
       content: "",
-      dueDate: "",
-      isImportant: false,
       updatedDate: new Date().toUTCString(),
     };
 
@@ -56,11 +54,6 @@ export class TodoUseCase {
     todo.userId = this.userId;
     todo.title = putTodoProps?.title;
     todo.content = putTodoProps?.content;
-    todo.dueDate = putTodoProps?.dueDate ? putTodoProps.dueDate : "";
-    todo.isImportant =
-      putTodoProps?.isImportant !== undefined
-        ? putTodoProps.isImportant
-        : false;
 
     // Dynamodbへ登録 or 更新
     await DynamodbTodoTable.putTodoItem(todo);
@@ -98,16 +91,12 @@ export class TodoUseCase {
       todoId: "",
       title: "",
       content: "",
-      dueDate: "",
-      isImportant: false,
       updatedDate: "",
     };
     resultTodo.userId = ddbReponse?.userId;
     resultTodo.todoId = ddbReponse?.todoId;
     resultTodo.title = ddbReponse?.title;
     resultTodo.content = ddbReponse?.content;
-    resultTodo.dueDate = ddbReponse?.dueDate;
-    resultTodo.isImportant = ddbReponse?.isImportant;
     resultTodo.updatedDate = ddbReponse?.updatedDate;
 
     console.log(
@@ -195,8 +184,6 @@ export interface Todo {
   todoId: string;
   title: string;
   content: string;
-  dueDate: string;
-  isImportant: boolean;
   updatedDate: string;
 }
 
@@ -204,8 +191,6 @@ export interface PutTodoProps {
   todoId?: string;
   title: string;
   content: string;
-  dueDate?: string;
-  isImportant?: boolean;
 }
 
 export interface SpecifyTodoProps {

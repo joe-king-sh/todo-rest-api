@@ -34,8 +34,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     });
 
     DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
@@ -49,8 +47,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     };
 
     // THEN
@@ -71,8 +67,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       todoId: "",
       title: "",
       content: "",
-      dueDate: "",
-      isImportant: false,
     });
 
     DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
@@ -86,8 +80,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       todoId: "",
       title: "",
       content: "",
-      dueDate: "",
-      isImportant: false,
     };
 
     // THEN
@@ -109,8 +101,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       todoId: undefined,
       title: undefined,
       content: undefined,
-      dueDate: undefined,
-      isImportant: undefined,
     });
 
     DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);
@@ -124,8 +114,6 @@ describe("特定のTodo取得ユースケースのテスト", (): void => {
       todoId: undefined,
       title: undefined,
       content: undefined,
-      dueDate: undefined,
-      isImportant: undefined,
     };
 
     // THEN
@@ -178,16 +166,12 @@ describe("Todo 登録/更新系ユースケースのテスト", (): void => {
     const params: PutTodoProps = {
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     };
     const expected = {
       userId: "my-unittest-user",
       todoId: expect.any(String),
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
       updatedDate: expect.any(String),
     };
 
@@ -211,16 +195,12 @@ describe("Todo 登録/更新系ユースケースのテスト", (): void => {
     const params: PutTodoProps = {
       title: "",
       content: "",
-      dueDate: "",
-      isImportant: undefined,
     };
     const expected = {
       userId: "my-unittest-user",
       todoId: expect.any(String),
       title: "",
       content: "",
-      dueDate: "",
-      isImportant: false,
       updatedDate: expect.any(String),
     };
 
@@ -245,16 +225,12 @@ describe("Todo 登録/更新系ユースケースのテスト", (): void => {
       todoId: "MyTodoId",
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     };
     const expected = {
       userId: "my-unittest-user",
       todoId: "MyTodoId",
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
       updatedDate: expect.any(String),
     };
 
@@ -279,8 +255,6 @@ describe("Todo 削除ユースケースのテスト", (): void => {
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       title: "タイトル",
       content: "Todo内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
       updatedDate: expect.any(String),
     });
     DynamodbTodoTable.getTodoItem = mockGetTodo.bind(DynamodbTodoTable);

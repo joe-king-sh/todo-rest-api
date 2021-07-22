@@ -46,8 +46,6 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
         todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
         title: "タイトル",
         content: "内容",
-        dueDate: "2019-05-31T18:24:00",
-        isImportant: false,
       },
     };
     // DynamoDB.DocumentClient.getのモックが、上記レスポンスを返すようセット
@@ -61,8 +59,6 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       title: "タイトル",
       content: "内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     };
     const params = {
       Key: {
@@ -162,8 +158,6 @@ describe("Dynamodb 操作用サービス データ登録/更新系のテスト",
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       title: "タイトル",
       content: "内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     };
 
     // THEN
@@ -187,8 +181,6 @@ describe("Dynamodb 操作用サービス データ登録/更新系のテスト",
       todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
       title: "タイトル",
       content: "内容",
-      dueDate: "2019-05-31T18:24:00",
-      isImportant: false,
     };
     const expectedErrorMessage = ErrorMessage.DYNAMODB_ERROR();
     // THEN
@@ -279,16 +271,12 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
         {
           userId: "my-unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
       ],
     };
@@ -308,16 +296,12 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
         {
           userId: "my-unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
       ],
     };
@@ -350,16 +334,12 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
         {
           userId: "my-unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
       ],
       LastEvaluatedKey: mockLastEvaluatedKey,
@@ -381,16 +361,12 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
         {
           userId: "my-unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
       ],
       nextToken: mockToken,
@@ -424,16 +400,12 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
         {
           userId: "unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
       ],
     };
@@ -454,16 +426,12 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
         {
           userId: "unit-test-user",
           todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
           title: "タイトル",
           content: "内容",
-          dueDate: "2019-05-31T18:24:00",
-          isImportant: false,
         },
       ],
     };

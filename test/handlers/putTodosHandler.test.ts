@@ -120,8 +120,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.body = JSON.stringify({
-      content: "owesome content",
-      dueDate: "2021-07-21",
+      content: "awesome content",
     });
     const expected = {
       statusCode: 400,
@@ -141,7 +140,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
-    event.body = JSON.stringify({ title: "todo title", dueDate: "2021-07-21" });
+    event.body = JSON.stringify({ title: "todo title" });
     const expected = {
       statusCode: 400,
       body: buildErrorMessage(
@@ -167,8 +166,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
             todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             title: "todo title",
             content: "content",
-            dueDate: "",
-            isImportant: false,
             updatedDate: mockUpdatedDate,
           };
           resolve(todo);
@@ -185,8 +182,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
         title: "todo title",
         content: "content",
-        dueDate: "",
-        isImportant: false,
         updatedDate: mockUpdatedDate,
       }),
     };
@@ -210,8 +205,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
             todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             title: "todo title",
             content: "content",
-            dueDate: "2021-07-21",
-            isImportant: true,
             updatedDate: mockUpdatedDate,
           };
           resolve(todo);
@@ -224,8 +217,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = JSON.stringify({
       title: "todo title",
       content: "content",
-      dueDate: "2021-07-21",
-      isImportant: true,
     });
     const expected = {
       statusCode: 200,
@@ -234,8 +225,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
         title: "todo title",
         content: "content",
-        dueDate: "2021-07-21",
-        isImportant: true,
         updatedDate: mockUpdatedDate,
       }),
     };
@@ -259,8 +248,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
             todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             title: "todo title",
             content: "content",
-            dueDate: "2021-07-21",
-            isImportant: true,
             updatedDate: mockUpdatedDate,
           };
           resolve(todo);
@@ -274,8 +261,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = JSON.stringify({
       title: "todo title",
       content: "content",
-      dueDate: "2021-07-21",
-      isImportant: true,
     });
     const expected = {
       statusCode: 200,
@@ -284,8 +269,6 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
         title: "todo title",
         content: "content",
-        dueDate: "2021-07-21",
-        isImportant: true,
         updatedDate: mockUpdatedDate,
       }),
     };
