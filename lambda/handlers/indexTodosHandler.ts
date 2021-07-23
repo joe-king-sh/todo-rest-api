@@ -17,7 +17,7 @@ export const handler = async (event: DynamoDBStreamEvent) => {
   const elasticSearchTodoDomain = new ElasticSearchTodoDomain(node);
 
   console.log("Index処理 開始..");
-  await elasticSearchTodoDomain.indexTodo(event["Records"], index);
+  await elasticSearchTodoDomain.indexTodo(event["Records"]);
   console.log("Index処理 終了..");
 
   return;

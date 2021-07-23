@@ -27,10 +27,7 @@ export class ElasticSearchTodoDomain {
    * @return {*}  {Promise<void>}
    * @memberof TodoUseCase
    */
-  public async indexTodo(
-    Records: DynamoDBRecord[],
-    index: string
-  ): Promise<void> {
+  public async indexTodo(Records: DynamoDBRecord[]): Promise<void> {
     for (const record of Records.filter((record: any) => record.dynamodb)) {
       try {
         let result;
@@ -56,7 +53,7 @@ export class ElasticSearchTodoDomain {
           console.log("削除処理を実行 document: " + id);
 
           result = await this.client.delete({
-            index,
+            userId,
             id,
           });
         } else {
@@ -73,7 +70,7 @@ export class ElasticSearchTodoDomain {
           });
           console.log("Indexする内容: ", convertedDocument);
           result = await this.client.index({
-            index,
+            userId,
             id,
             body: convertedDocument,
           });

@@ -77,10 +77,7 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     ];
 
     // THEN
-    await elasticSearchTodoDomain.indexTodo(
-      records as DynamoDBRecord[],
-      "test-index"
-    );
+    await elasticSearchTodoDomain.indexTodo(records as DynamoDBRecord[]);
     // 呼び出し回数確認
     expect(elasticSearchTodoDomain.client.index).toHaveBeenCalledTimes(1);
   }, 5000);
@@ -145,10 +142,7 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     // THEN
 
     // 取得結果確認
-    await elasticSearchTodoDomain.indexTodo(
-      records as DynamoDBRecord[],
-      "test-index"
-    );
+    await elasticSearchTodoDomain.indexTodo(records as DynamoDBRecord[]);
     // 呼び出し回数確認
     expect(elasticSearchTodoDomain.client.delete).toHaveBeenCalledTimes(1);
   }, 5000);
@@ -243,10 +237,7 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     // THEN
 
     // 取得結果確認
-    await elasticSearchTodoDomain.indexTodo(
-      records as DynamoDBRecord[],
-      "test-index"
-    );
+    await elasticSearchTodoDomain.indexTodo(records as DynamoDBRecord[]);
     // 呼び出し回数確認
     expect(elasticSearchTodoDomain.client.delete).toHaveBeenCalledTimes(0);
     expect(elasticSearchTodoDomain.client.index).toHaveBeenCalledTimes(0);
@@ -309,10 +300,7 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     ];
 
     // THEN
-    await elasticSearchTodoDomain.indexTodo(
-      records as DynamoDBRecord[],
-      "test-index"
-    );
+    await elasticSearchTodoDomain.indexTodo(records as DynamoDBRecord[]);
     // 呼び出し回数確認
     expect(elasticSearchTodoDomain.client.delete).toHaveBeenCalledTimes(0);
     expect(elasticSearchTodoDomain.client.index).toHaveBeenCalledTimes(0);
