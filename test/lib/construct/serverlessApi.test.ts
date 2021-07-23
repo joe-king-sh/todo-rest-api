@@ -80,7 +80,11 @@ for (const env of Object.values(environment.Environments)) {
          */
         expectCDK(stack).to(
           haveResource("AWS::Elasticsearch::Domain", {
-            DomainName: buildResourceName(projectName, "domain", env),
+            DomainName: buildResourceName(
+              projectName,
+              "domain",
+              env
+            ).toLowerCase(),
             ElasticsearchClusterConfig: {
               InstanceType: "t3.small.elasticsearch",
               DedicatedMasterEnabled: false,

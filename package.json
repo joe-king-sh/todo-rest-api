@@ -36,6 +36,7 @@
     "@aws-cdk/aws-lambda": "^1.114.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.114.0",
     "@aws-cdk/core": "1.114.0",
+    "@elastic/elasticsearch": "^7.13.0",
     "aws-sdk": "^2.948.0",
     "js-yaml": "^3.14.1",
     "node-jose": "^2.0.0",

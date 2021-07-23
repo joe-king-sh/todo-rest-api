@@ -98,3 +98,7 @@ npm test
 
 npm test -- --coverage
 ```
+
+# Deploy
+- node_modules elasticsearch配下のnode_modulesが邪魔をするので消す
+

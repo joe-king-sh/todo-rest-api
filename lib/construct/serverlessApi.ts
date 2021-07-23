@@ -15,6 +15,8 @@ import * as logs from "@aws-cdk/aws-logs";
 import * as apigw from "@aws-cdk/aws-apigateway";
 import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import * as es from "@aws-cdk/aws-elasticsearch";
+import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
+import { StartingPosition } from "@aws-cdk/aws-lambda";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
@@ -167,6 +169,13 @@ export class ServerlessApi extends cdk.Construct {
     todoTable.grantStreamRead(indexTodosLambda);
     todoTable.grantReadData(findTodosLambda);
 
+    // DynamodbStreamにLambdaをアタッチする
+    indexTodosLambda.addEventSource(
+      new DynamoEventSource(todoTable, {
+        startingPosition: StartingPosition.TRIM_HORIZON,
+      })
+    );
+
     /**
      * Elastic Searchの作成
      */
@@ -175,17 +184,24 @@ export class ServerlessApi extends cdk.Construct {
       buildResourceName(projectName, "es-domain", env),
       {
         version: es.ElasticsearchVersion.V7_10,
-        domainName: buildResourceName(projectName, "domain", env),
+        domainName: buildResourceName(projectName, "domain", env).toLowerCase(),
         capacity: {
           dataNodeInstanceType: "t3.small.elasticsearch",
         },
         removalPolicy: cdk.RemovalPolicy.DESTROY,
       }
     );
+    todoESDomain.grantReadWrite(indexTodosLambda);
+    // todoESDomain.grantIndexWrite("todos", indexTodosLambda);
+    todoESDomain.grantRead(indexTodosLambda);
 
-    todoESDomain.grantIndexWrite("todos", indexTodosLambda);
-    todoESDomain.grantIndexWrite("todos", indexTodosLambda);
-    todoESDomain.grantIndexRead("todos", findTodosLambda);
+    // Index用Lambdaの環境変数にDynamodbとESのエンドポイントを渡す
+    indexTodosLambda.addEnvironment("ES_DOMAIN", todoESDomain.domainEndpoint);
+    indexTodosLambda.addEnvironment("ES_INDEX", todoTable.tableName);
+    //   indexTodosLambda.addToRolePolicy(new PolicyStatement({
+    //     actions: ["es:*"],
+    //     resources: ["*"]
+    //  }))
 
     /**
      * API Gateway の作成
