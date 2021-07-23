@@ -45,6 +45,9 @@ for (const env of Object.values(environment.Environments)) {
         });
 
         // THEN
+        /***
+         * Dynamodb
+         */
         expectCDK(stack).to(
           haveResource("AWS::DynamoDB::Table", {
             TableName: buildResourceName(projectName, "Todo", env),
@@ -71,6 +74,32 @@ for (const env of Object.values(environment.Environments)) {
             )
           );
         }
+
+        /***
+         * ElasticSearch
+         */
+        expectCDK(stack).to(
+          haveResource("AWS::Elasticsearch::Domain", {
+            DomainName: buildResourceName(projectName, "domain", env),
+            ElasticsearchClusterConfig: {
+              InstanceType: "t3.small.elasticsearch",
+              DedicatedMasterEnabled: false,
+              InstanceCount: 1,
+              ZoneAwarenessEnabled: false,
+            },
+          })
+        );
+
+        expectCDK(stack).to(
+          haveResource(
+            "AWS::Elasticsearch::Domain",
+            {
+              // Indexは再作成効くので、本番であろうとDeleteする
+              DeletionPolicy: "Delete",
+            },
+            ResourcePart.CompleteDefinition
+          )
+        );
       });
     }
   );

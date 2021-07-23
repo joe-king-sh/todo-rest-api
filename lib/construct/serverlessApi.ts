@@ -3,11 +3,18 @@ import { buildResourceName } from "../utility";
 import * as environment from "../environment";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as nodeLambda from "@aws-cdk/aws-lambda-nodejs";
-import { ServicePrincipal } from "@aws-cdk/aws-iam";
+import {
+  Effect,
+  IGrantable,
+  IPrincipal,
+  PolicyStatement,
+  ServicePrincipal,
+} from "@aws-cdk/aws-iam";
 import * as logs from "@aws-cdk/aws-logs";
 
 import * as apigw from "@aws-cdk/aws-apigateway";
 import * as dynamodb from "@aws-cdk/aws-dynamodb";
+import * as es from "@aws-cdk/aws-elasticsearch";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
@@ -37,7 +44,7 @@ export class ServerlessApi extends cdk.Construct {
     /**
      * Dynamodb Table の作成
      */
-    const removalPolicy =
+    const dynamodbRemovalPolicy =
       env == environment.Environments.PROD
         ? cdk.RemovalPolicy.RETAIN // 本番はテーブルの削除ポリシーをRETAINに
         : cdk.RemovalPolicy.DESTROY;
@@ -49,7 +56,8 @@ export class ServerlessApi extends cdk.Construct {
         sortKey: { name: "todoId", type: dynamodb.AttributeType.STRING },
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableName: buildResourceName(projectName, "Todo", env),
-        removalPolicy: removalPolicy,
+        removalPolicy: dynamodbRemovalPolicy,
+        stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
       }
     );
 
@@ -132,6 +140,52 @@ export class ServerlessApi extends cdk.Construct {
         description: "Dynamodbに格納されたTodo情報を1件削除する",
       }
     );
+
+    const indexTodosLambda = new nodeLambda.NodejsFunction(
+      this,
+      buildResourceName(projectName, "indexTodos", env),
+      {
+        entry: "lambda/handlers/indexTodosHandler.ts",
+        handler: "handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          DYNAMODB_TABLE_NAME: todoTable.tableName,
+          REGION: region,
+        },
+        functionName: buildResourceName(projectName, "indexTodos", env),
+        description:
+          "Dynamodbに格納された情報をElasticSearchにインデックスする",
+      }
+    );
+
+    // DynamodbにLambdaがアクセス可能にする
+    todoTable.grantReadData(listTodosLambda);
+    todoTable.grantReadData(getTodosLambda);
+    todoTable.grantWriteData(putTodosLambda);
+    todoTable.grantReadData(putTodosLambda);
+    todoTable.grantWriteData(deleteTodosLambda);
+    todoTable.grantStreamRead(indexTodosLambda);
+    todoTable.grantReadData(findTodosLambda);
+
+    /**
+     * Elastic Searchの作成
+     */
+    const todoESDomain = new es.Domain(
+      this,
+      buildResourceName(projectName, "es-domain", env),
+      {
+        version: es.ElasticsearchVersion.V7_10,
+        domainName: buildResourceName(projectName, "domain", env),
+        capacity: {
+          dataNodeInstanceType: "t3.small.elasticsearch",
+        },
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      }
+    );
+
+    todoESDomain.grantIndexWrite("todos", indexTodosLambda);
+    todoESDomain.grantIndexWrite("todos", indexTodosLambda);
+    todoESDomain.grantIndexRead("todos", findTodosLambda);
 
     /**
      * API Gateway の作成
@@ -854,13 +908,6 @@ export class ServerlessApi extends cdk.Construct {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
-
-    // DynamodbにLambdaがアクセス可能にする
-    todoTable.grantReadData(listTodosLambda);
-    todoTable.grantReadData(getTodosLambda);
-    todoTable.grantWriteData(putTodosLambda);
-    todoTable.grantReadData(putTodosLambda);
-    todoTable.grantWriteData(deleteTodosLambda);
 
     // TODO  API ドキュメント公開用 S3Bucketの作成
     // const fs = require("fs");

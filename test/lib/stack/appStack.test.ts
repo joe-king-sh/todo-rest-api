@@ -44,10 +44,11 @@ for (const env of Object.values(environment.Environments)) {
           );
 
           expectCDK(stack).to(countResources("AWS::DynamoDB::Table", 1));
-          expectCDK(stack).to(countResources("AWS::Lambda::Function", 5));
+          expectCDK(stack).to(countResources("AWS::Lambda::Function", 6));
           expectCDK(stack).to(countResources("AWS::ApiGateway::RestApi", 1));
           expectCDK(stack).to(countResources("AWS::ApiGateway::Deployment", 1));
           expectCDK(stack).to(countResources("AWS::ApiGateway::Stage", 1));
+          expectCDK(stack).to(countResources("AWS::Elasticsearch::Domain", 1));
         }
       );
     }
