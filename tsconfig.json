@@ -24,6 +24,7 @@
     ]
   },
   "exclude": [
+    "lib/my_node_modules",
     "node_modules",
     "cdk.out"
   ]
