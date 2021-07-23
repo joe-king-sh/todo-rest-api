@@ -3,6 +3,7 @@ import { DynamodbError, ErrorMessage } from "../domains/errorUseCase";
 import { Todo } from "../domains/todoUseCase";
 import * as jose from "node-jose";
 import { v4 as uuidv4 } from "uuid";
+const { decycle, encycle } = require("json-cyclic");
 
 const sign = require("jwt-encode");
 const secret = "This is not so secret.";
@@ -155,7 +156,9 @@ export class DynamodbTodoTable {
     console.log(`query に渡す props: ${JSON.stringify(queryProps)}`);
     try {
       const response: any = await DYNAMO.query(queryProps);
-      console.log(`Query response from dynamodb: ${JSON.stringify(response)}`);
+      console.log(
+        `Query response from dynamodb: ${JSON.stringify(decycle(response))}`
+      );
 
       const listTodoOutput: ListTodoInDynamodbOutput = {
         todos: response.Items,
