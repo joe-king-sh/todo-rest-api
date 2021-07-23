@@ -49,11 +49,14 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
       },
     };
     // DynamoDB.DocumentClient.getのモックが、上記レスポンスを返すようセット
-    mDynamoDb.get.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(mockResult);
-      })
-    );
+    mDynamoDb.get.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(mockResult);
+          })
+      ),
+    });
 
     // WHEN
     const expected = {
@@ -85,11 +88,14 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
     // Dynamodbから返却される想定のモックレスポンス
     const mockResult = {};
     // DynamoDB.DocumentClient.getのモックが、上記レスポンスを返すようセット
-    mDynamoDb.get.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(mockResult);
-      })
-    );
+    mDynamoDb.get.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(mockResult);
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -114,11 +120,14 @@ describe("Dynamodb 操作用サービス データ取得系のテスト", (): vo
     expect.assertions(3);
 
     // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
-    mDynamoDb.get.mockReturnValue(
-      new Promise((resolve, reject) => {
-        throw new Error();
-      })
-    );
+    mDynamoDb.get.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            throw new Error();
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -153,12 +162,15 @@ describe("Dynamodb 操作用サービス データ登録/更新系のテスト",
     expect.assertions(1);
 
     // Dynamodbから返却される想定のモックレスポンス
-    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
-    mDynamoDb.put.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(null);
-      })
-    );
+    // DynamoDB.DocumentClient.putのモックが、nullを返すようセット
+    mDynamoDb.put.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(null);
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -178,12 +190,15 @@ describe("Dynamodb 操作用サービス データ登録/更新系のテスト",
     jest.resetAllMocks();
     expect.assertions(3);
 
-    // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
-    mDynamoDb.put.mockReturnValue(
-      new Promise((resolve, reject) => {
-        throw new Error();
-      })
-    );
+    // DynamoDB.DocumentClient.putのモックがExceptionをthrowするようにセット
+    mDynamoDb.put.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            throw new Error();
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -217,12 +232,15 @@ describe("Dynamodb 操作用サービス データ削除系のテスト", (): vo
     expect.assertions(1);
 
     // Dynamodbから返却される想定のモックレスポンス
-    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
-    mDynamoDb.delete.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(null);
-      })
-    );
+    // DynamoDB.DocumentClient.deleteのモックが、nullを返すようセット
+    mDynamoDb.delete.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(null);
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -240,12 +258,15 @@ describe("Dynamodb 操作用サービス データ削除系のテスト", (): vo
     jest.resetAllMocks();
     expect.assertions(3);
 
-    // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
-    mDynamoDb.delete.mockReturnValue(
-      new Promise((resolve, reject) => {
-        throw Error();
-      })
-    );
+    // DynamoDB.DocumentClient.deleteのモックがExceptionをthrowするようにセット
+    mDynamoDb.delete.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            throw new Error();
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -293,12 +314,15 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
         },
       ],
     };
-    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
-    mDynamoDb.query.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(mockResult);
-      })
-    );
+    // DynamoDB.DocumentClient.queryのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(mockResult);
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -359,13 +383,15 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
       ],
       LastEvaluatedKey: mockLastEvaluatedKey,
     };
-    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
-    mDynamoDb.query.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(mockResult);
-      })
-    );
-
+    // DynamoDB.DocumentClient.queryのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(mockResult);
+          })
+      ),
+    });
     // WHEN
     const params = {
       userId: "my-unit-test-user",
@@ -426,12 +452,15 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
         },
       ],
     };
-    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
-    mDynamoDb.query.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(mockResult);
-      })
-    );
+    // DynamoDB.DocumentClient.queryのモックが、上記レスポンスを返すようセット
+    mDynamoDb.query.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(mockResult);
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -509,12 +538,15 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     // LastEvaluateKey用にトークンを生成する
     const mockInvalidToken = "This is invalid token";
 
-    // DynamoDB.DocumentClient.putのモックが、上記レスポンスを返すようセット
-    mDynamoDb.query.mockReturnValue(
-      new Promise((resolve, reject) => {
-        resolve(null);
-      })
-    );
+    // DynamoDB.DocumentClient.queryのモックが、nullを返すようセット
+    mDynamoDb.query.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            resolve(null);
+          })
+      ),
+    });
 
     // WHEN
     const params = {
@@ -540,12 +572,15 @@ describe("Dynamodb 操作用サービス データ一括取得系(listTodo)の�
     jest.resetAllMocks();
     expect.assertions(3);
 
-    // DynamoDB.DocumentClient.getのモックがExceptionをthrowするようにセット
-    mDynamoDb.query.mockReturnValue(
-      new Promise((resolve, reject) => {
-        throw new Error();
-      })
-    );
+    // DynamoDB.DocumentClient.queryのモックがExceptionをthrowするようにセット
+    mDynamoDb.query.mockReturnValue({
+      promise: jest.fn(
+        () =>
+          new Promise((resolve, reject) => {
+            throw new Error();
+          })
+      ),
+    });
 
     // WHEN
     const params = {

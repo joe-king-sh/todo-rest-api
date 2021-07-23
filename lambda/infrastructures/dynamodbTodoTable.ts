@@ -39,9 +39,9 @@ export class DynamodbTodoTable {
         TableName: tableName,
         Key: getTodoFromDdbProps.Key,
         ConsistentRead: getTodoFromDdbProps.ConsistentRead,
-      });
+      }).promise();
       console.log(
-        `Retrieved todo from dynamodb: ${JSON.stringify(getResponse)}`
+        `Retrieved todo from dynamodb: ${JSON.stringify(decycle(getResponse))}`
       );
       return getResponse.Item;
     } catch (e) {
@@ -65,7 +65,7 @@ export class DynamodbTodoTable {
       await DYNAMO.put({
         TableName: tableName,
         Item: putTodoInDynamodbProps,
-      });
+      }).promise();
       console.log(`Dynamodbへの put 処理完了`);
     } catch (e) {
       console.log("Dynamodbへの put 処理で予期せぬエラー発生");
@@ -88,7 +88,7 @@ export class DynamodbTodoTable {
       await DYNAMO.delete({
         TableName: tableName,
         Key: deleteTodoInDynamodbProps,
-      });
+      }).promise();
       console.log(
         `Todo削除に成功 Key: ${JSON.stringify(deleteTodoInDynamodbProps)}`
       );
@@ -155,7 +155,7 @@ export class DynamodbTodoTable {
 
     console.log(`query に渡す props: ${JSON.stringify(queryProps)}`);
     try {
-      const response: any = await DYNAMO.query(queryProps);
+      const response: any = await DYNAMO.query(queryProps).promise();
       console.log(
         `Query response from dynamodb: ${JSON.stringify(decycle(response))}`
       );
