@@ -107,8 +107,6 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
             todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
             title: "タイトル",
             content: "Todo内容",
-            dueDate: "2019-05-31T18:24:00",
-            isImportant: false,
             updatedDate: mockUpdatedDate,
           };
           resolve(todo);
@@ -126,8 +124,6 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
         todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
         title: "タイトル",
         content: "Todo内容",
-        dueDate: "2019-05-31T18:24:00",
-        isImportant: false,
         updatedDate: mockUpdatedDate,
       }),
     };

@@ -1,5 +1,5 @@
 import * as cdk from "@aws-cdk/core";
-import { generateResourceName } from "../utility";
+import { buildResourceName } from "../utility";
 import cognito = require("@aws-cdk/aws-cognito");
 import * as environment from "../environment";
 import { Z_ASCII } from "zlib";
@@ -11,7 +11,7 @@ interface AuthenticationProps {
 export class Authentication extends cdk.Construct {
   userPool: cognito.IUserPool;
   userPoolDomain: cognito.IUserPoolDomain;
-  domainName:string;
+  domainName: string;
 
   constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
     super(scope, id);
@@ -21,9 +21,9 @@ export class Authentication extends cdk.Construct {
 
     //Cognitoのユーザプールを作成
     const removalPolicy =
-    env == environment.Environments.PROD
-      ? cdk.RemovalPolicy.RETAIN // 本番はユーザプールの削除ポリシーをRETAINに
-      : cdk.RemovalPolicy.DESTROY;
+      env == environment.Environments.PROD
+        ? cdk.RemovalPolicy.RETAIN // 本番はユーザプールの削除ポリシーをRETAINに
+        : cdk.RemovalPolicy.DESTROY;
     this.userPool = new cognito.UserPool(this, "UserPool", {
       selfSignUpEnabled: true,
       signInCaseSensitive: false,
@@ -31,23 +31,26 @@ export class Authentication extends cdk.Construct {
         username: true,
         email: true,
       },
-      userPoolName: generateResourceName(projectName, "UserPool", env),
+      userPoolName: buildResourceName(projectName, "UserPool", env),
       removalPolicy: removalPolicy,
     });
     // アプリクライアントをユーザプールに追加
     this.userPool.addClient("UserPoolClient", {
-      authFlows: { adminUserPassword: true, userSrp: true, custom: true},
+      authFlows: { adminUserPassword: true, userSrp: true, custom: true },
       generateSecret: false,
-      userPoolClientName: generateResourceName(projectName, "Client", env),
+      userPoolClientName: buildResourceName(projectName, "Client", env),
       preventUserExistenceErrors: true,
-      
     });
     // 認証用UIのためドメイン名を追加する
-    this.domainName  = generateResourceName(projectName.toLowerCase(), "domain", env)
+    this.domainName = buildResourceName(
+      projectName.toLowerCase(),
+      "domain",
+      env
+    );
 
-    this.userPoolDomain = new cognito.UserPoolDomain(this,"Domain", {
-      userPool: this.userPool ,
-      cognitoDomain: {domainPrefix: this.domainName}
-    })
+    this.userPoolDomain = new cognito.UserPoolDomain(this, "Domain", {
+      userPool: this.userPool,
+      cognitoDomain: { domainPrefix: this.domainName },
+    });
   }
 }

@@ -1,5 +1,5 @@
 import * as cdk from "@aws-cdk/core";
-import { generateResourceName } from "../utility";
+import { buildResourceName } from "../utility";
 import * as environment from "../environment";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as nodeLambda from "@aws-cdk/aws-lambda-nodejs";
@@ -43,12 +43,12 @@ export class ServerlessApi extends cdk.Construct {
         : cdk.RemovalPolicy.DESTROY;
     const todoTable = new dynamodb.Table(
       this,
-      generateResourceName(projectName, "Todo", env),
+      buildResourceName(projectName, "Todo", env),
       {
         partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
         sortKey: { name: "todoId", type: dynamodb.AttributeType.STRING },
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-        tableName: generateResourceName(projectName, "Todo", env),
+        tableName: buildResourceName(projectName, "Todo", env),
         removalPolicy: removalPolicy,
       }
     );
@@ -58,7 +58,7 @@ export class ServerlessApi extends cdk.Construct {
      */
     const listTodosLambda = new nodeLambda.NodejsFunction(
       this,
-      generateResourceName(projectName, "listTodos", env),
+      buildResourceName(projectName, "listTodos", env),
       {
         entry: "lambda/handlers/listTodosHandler.ts",
         handler: "handler",
@@ -67,13 +67,13 @@ export class ServerlessApi extends cdk.Construct {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
           REGION: region,
         },
-        functionName: generateResourceName(projectName, "listTodos", env),
+        functionName: buildResourceName(projectName, "listTodos", env),
         description: "Dynamodbに格納されたTodo情報を一括で取得する",
       }
     );
     const putTodosLambda = new nodeLambda.NodejsFunction(
       this,
-      generateResourceName(projectName, "putTodos", env),
+      buildResourceName(projectName, "putTodos", env),
       {
         entry: "lambda/handlers/putTodosHandler.ts",
         handler: "handler",
@@ -82,13 +82,13 @@ export class ServerlessApi extends cdk.Construct {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
           REGION: region,
         },
-        functionName: generateResourceName(projectName, "putTodos", env),
+        functionName: buildResourceName(projectName, "putTodos", env),
         description: "Todo情報をDynamodbに登録更新する",
       }
     );
     const findTodosLambda = new nodeLambda.NodejsFunction(
       this,
-      generateResourceName(projectName, "findTodos", env),
+      buildResourceName(projectName, "findTodos", env),
       {
         entry: "lambda/handlers/findTodosHandler.ts",
         handler: "handler",
@@ -97,13 +97,13 @@ export class ServerlessApi extends cdk.Construct {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
           REGION: region,
         },
-        functionName: generateResourceName(projectName, "findTodos", env),
+        functionName: buildResourceName(projectName, "findTodos", env),
         description: "Dynamodbに格納されたTodo情報を検索する",
       }
     );
     const getTodosLambda = new nodeLambda.NodejsFunction(
       this,
-      generateResourceName(projectName, "getTodos", env),
+      buildResourceName(projectName, "getTodos", env),
       {
         entry: "lambda/handlers/getTodosHandler.ts",
         handler: "handler",
@@ -112,14 +112,14 @@ export class ServerlessApi extends cdk.Construct {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
           REGION: region,
         },
-        functionName: generateResourceName(projectName, "getTodos", env),
+        functionName: buildResourceName(projectName, "getTodos", env),
         description: "Dynamodbに格納されたTodo情報を1件取得する",
       }
     );
 
     const deleteTodosLambda = new nodeLambda.NodejsFunction(
       this,
-      generateResourceName(projectName, "deleteTodos", env),
+      buildResourceName(projectName, "deleteTodos", env),
       {
         entry: "lambda/handlers/deleteTodosHandler.ts",
         handler: "handler",
@@ -128,7 +128,7 @@ export class ServerlessApi extends cdk.Construct {
           DYNAMODB_TABLE_NAME: todoTable.tableName,
           REGION: region,
         },
-        functionName: generateResourceName(projectName, "deleteTodos", env),
+        functionName: buildResourceName(projectName, "deleteTodos", env),
         description: "Dynamodbに格納されたTodo情報を1件削除する",
       }
     );
@@ -815,18 +815,18 @@ export class ServerlessApi extends cdk.Construct {
     // API Gateway本体の作成
     const api = new apigw.SpecRestApi(
       this,
-      generateResourceName(projectName, "SpecRestApi", env),
+      buildResourceName(projectName, "SpecRestApi", env),
       {
-        restApiName: generateResourceName(projectName, "Api", env),
+        restApiName: buildResourceName(projectName, "Api", env),
         apiDefinition: apigw.ApiDefinition.fromInline(this.swagger),
         deployOptions: {
           stageName: env,
           accessLogDestination: new apigw.LogGroupLogDestination(
             new logs.LogGroup(
               this,
-              generateResourceName(projectName, "ApiLog", env),
+              buildResourceName(projectName, "ApiLog", env),
               {
-                logGroupName: generateResourceName(projectName, "ApiLog", env),
+                logGroupName: buildResourceName(projectName, "ApiLog", env),
                 removalPolicy: cdk.RemovalPolicy.DESTROY,
               }
             )
