@@ -1,6 +1,7 @@
 import * as cdk from "@aws-cdk/core";
 import { buildResourceName } from "../utility";
 import * as environment from "../environment";
+import * as iam from "@aws-cdk/aws-iam";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as nodeLambda from "@aws-cdk/aws-lambda-nodejs";
 import {
@@ -163,9 +164,8 @@ export class ServerlessApi extends cdk.Construct {
     // DynamodbにLambdaがアクセス可能にする
     todoTable.grantReadData(listTodosLambda);
     todoTable.grantReadData(getTodosLambda);
-    todoTable.grantWriteData(putTodosLambda);
-    todoTable.grantReadData(putTodosLambda);
-    todoTable.grantWriteData(deleteTodosLambda);
+    todoTable.grantReadWriteData(putTodosLambda);
+    todoTable.grantReadWriteData(deleteTodosLambda);
     todoTable.grantStreamRead(indexTodosLambda);
     todoTable.grantReadData(findTodosLambda);
 
@@ -189,19 +189,25 @@ export class ServerlessApi extends cdk.Construct {
           dataNodeInstanceType: "t3.small.elasticsearch",
         },
         removalPolicy: cdk.RemovalPolicy.DESTROY,
+        accessPolicies: [
+          new iam.PolicyStatement({
+            actions: ["es:*"],
+            effect: Effect.ALLOW,
+            principals: [
+              new iam.ArnPrincipal(indexTodosLambda.role?.roleArn as string),
+              new iam.ArnPrincipal(findTodosLambda.role?.roleArn as string),
+            ],
+          }),
+        ],
       }
     );
+    // LambdaのRoleにESへのアクセスポリシーを権限を追加(GrandだけではLambda側のロールにしかつかないので、DomainのaccessPoliciesでも指定が必要)
     todoESDomain.grantReadWrite(indexTodosLambda);
-    // todoESDomain.grantIndexWrite("todos", indexTodosLambda);
-    todoESDomain.grantRead(indexTodosLambda);
+    todoESDomain.grantRead(findTodosLambda);
 
     // Index用Lambdaの環境変数にDynamodbとESのエンドポイントを渡す
     indexTodosLambda.addEnvironment("ES_DOMAIN", todoESDomain.domainEndpoint);
     indexTodosLambda.addEnvironment("ES_INDEX", todoTable.tableName);
-    //   indexTodosLambda.addToRolePolicy(new PolicyStatement({
-    //     actions: ["es:*"],
-    //     resources: ["*"]
-    //  }))
 
     /**
      * API Gateway の作成

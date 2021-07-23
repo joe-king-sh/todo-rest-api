@@ -8,6 +8,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
+    "test:coverage": "npm test -- --coverage",
+    "test:badges": "npm run test:coverage  && jest-coverage-badges",
     "cdk": "cdk"
   },
   "devDependencies": {
@@ -31,13 +33,14 @@
     "@aws-cdk/aws-apigateway": "^1.114.0",
     "@aws-cdk/aws-cognito": "^1.114.0",
     "@aws-cdk/aws-dynamodb": "^1.114.0",
-
     "@aws-cdk/aws-iam": "^1.114.0",
     "@aws-cdk/aws-lambda": "^1.114.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.114.0",
     "@aws-cdk/core": "1.114.0",
     "@elastic/elasticsearch": "^7.13.0",
+    "aws-elasticsearch-connector": "^9.0.3",
     "aws-sdk": "^2.948.0",
+    "jest-coverage-badges": "^1.1.2",
     "js-yaml": "^3.14.1",
     "json-cyclic": "^1.0.2",
     "node-jose": "^2.0.0",

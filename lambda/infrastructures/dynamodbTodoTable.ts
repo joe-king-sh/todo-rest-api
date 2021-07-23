@@ -238,3 +238,9 @@ export interface ListTodoInDynamodbOutput {
   todos: Todo[];
   nextToken?: string;
 }
+
+export const convertDynamodbObjectToJSON = (
+  dynamodbRecord: AWS.DynamoDB.AttributeValue
+) => {
+  return AWS.DynamoDB.Converter.output(dynamodbRecord);
+};

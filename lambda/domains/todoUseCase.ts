@@ -1,9 +1,9 @@
 import { CognitoUserPool } from "../infrastructures/cognito";
 import {
   DynamodbTodoTable,
-  PutTodoInDynamodbProps,
   ListTodoInDynamodbOutput,
 } from "../infrastructures/dynamodbTodoTable";
+
 import {
   NotFoundError,
   ErrorMessage,

@@ -24,5 +24,5 @@ module.exports = {
     "!**/**/*.d.ts",
   ],
   // coverageReporters: ["text"],
-  coverageReporters: ["text", "json", "html"],
+  coverageReporters: ["text", "json", "html","lcov"],
 };
