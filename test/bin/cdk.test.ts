@@ -25,7 +25,7 @@ describe("CDKエントリポイントのテスト", (): void => {
       .spyOn(cdk.ConstructNode.prototype as any, "tryGetContext")
       .mockReturnValue("unknown");
 
-    // エラーにならないこと
+    // エラーになること
     expect(() => createCdkStack()).toThrow(Error);
   });
 
