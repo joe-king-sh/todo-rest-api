@@ -27,12 +27,18 @@ jobs:
       - name: Installs dependencies
         run: npm install
 
+      - name: Explore current dir
+        run: ls -lrta
+
+        - name: tree current dir
+        run: tree
+
       # Runs unittest
       - name: Run unittest
         run: npm run test
 
       # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      # - name: Run a multi-line script
+      #   run: |
+      #     echo Add other actions to build,
+      #     echo test, and deploy your project.
