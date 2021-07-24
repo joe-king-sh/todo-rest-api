@@ -3,7 +3,6 @@ import { buildResourceName } from "../utility";
 import * as environment from "../environment";
 import { Authentication } from "../construct/authentication";
 import { ServerlessApi } from "../construct/serverlessApi";
-import { Server } from "http";
 
 export class AppStack extends cdk.Stack {
   constructor(

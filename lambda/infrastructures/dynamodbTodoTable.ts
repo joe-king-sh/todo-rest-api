@@ -1,12 +1,6 @@
 import * as AWS from "aws-sdk";
 import { DynamodbError, ErrorMessage } from "../domains/errorUseCase";
-import { Todo } from "../domains/todoUseCase";
-import * as jose from "node-jose";
-import { v4 as uuidv4 } from "uuid";
-const { decycle, encycle } = require("json-cyclic");
-
-const sign = require("jwt-encode");
-const secret = "This is not so secret.";
+const { decycle } = require("json-cyclic");
 
 const tableName = process.env.DYNAMODB_TABLE_NAME || "MOCK_DYNAMODB_TABLE";
 const region = process.env.REGION || "";

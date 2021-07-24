@@ -9,7 +9,6 @@ import {
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
-import { Environments } from "../../lib/environment";
 
 // 認証関連は全てモック化しておく
 jest.mock("../../lambda/infrastructures/cognito");

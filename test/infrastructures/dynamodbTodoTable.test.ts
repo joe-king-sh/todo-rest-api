@@ -3,14 +3,7 @@ import {
   DynamodbTodoTable,
   DYNAMO,
 } from "../../lambda/infrastructures/dynamodbTodoTable";
-import {
-  DynamodbError,
-  ErrorMessage,
-  NotFoundError,
-} from "../../lambda/domains/errorUseCase";
-
-const sign = require("jwt-encode");
-const secret = "This is not so secret.";
+import { DynamodbError, ErrorMessage } from "../../lambda/domains/errorUseCase";
 
 process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";
 process.env.REGION = "ap-northeast-1";

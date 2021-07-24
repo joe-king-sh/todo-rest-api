@@ -344,7 +344,7 @@ export class ServerlessApi extends cdk.Construct {
                 },
                 examples: {
                   size: {
-                    summary: "2",
+                    summary: "読み込み開始位置指定例",
                     value: 2,
                   },
                 },
@@ -519,86 +519,6 @@ export class ServerlessApi extends cdk.Construct {
             },
           },
         },
-
-        // "/todos/findByText": {
-        //   get: {
-        //     operationId: "findTodos",
-        //     tags: ["Todo"],
-        //     summary: "Todo情報 検索API",
-        //     description: "ユーザーのTodoを指定したワードで検索し返却する",
-        //     security: [
-        //       {
-        //         CognitoAuth: [],
-        //       },
-        //     ],
-        //     parameters: [
-
-        //     ],
-        //     responses: {
-        //       200: {
-        //         description: "Todo情報のjsonリストを返却する",
-        //         content: {
-        //           "application/json": {
-        //             schema: {
-        //               type: "array",
-        //               items: {
-        //                 $ref: "#/components/schemas/Todo",
-        //               },
-        //             },
-        //             examples: {
-        //               findTodo: {
-        //                 summary: "Todo情報 検索結果例",
-        //                 value: [
-        //                   {
-        //                     todoId: "3e19c048-ecc8-45e3-86df-779b5e2e2304",
-        //                     title: "今日中に実装するもの",
-        //                     content: "swagger.yaml",
-        //                   },
-        //                   {
-        //                     todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
-        //                     title: "明日の自分にお願いすること",
-        //                     content: "DynamodbをCDKで実装してもらう",
-        //                   },
-        //                 ],
-        //               },
-        //             },
-        //           },
-        //         },
-        //       },
-        //       default: {
-        //         description: "予期せぬエラーが発生",
-        //         content: {
-        //           "application/json": {
-        //             schema: {
-        //               $ref: "#/components/schemas/Error",
-        //             },
-        //             examples: {
-        //               unexpected: {
-        //                 $ref: "#/components/examples/ErrorExample",
-        //               },
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //     "x-amazon-apigateway-integration": {
-        //       uri:
-        //         "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-        //         findTodosLambda.functionName +
-        //         "/invocations",
-        //       responses: {
-        //         default: {
-        //           statusCode: "200",
-        //         },
-        //       },
-        //       passthroughBehavior: "when_no_match",
-        //       httpMethod: "POST",
-        //       contentHandling: "CONVERT_TO_TEXT",
-        //       type: "aws_proxy",
-        //     },
-        //   },
-        // },
-
         "/todos/{todoId}": {
           get: {
             operationId: "showTodoById",

@@ -3,7 +3,6 @@ import { handler } from "../../lambda/handlers/findTodosHandler";
 import { APIGatewayEvent } from "aws-lambda";
 import {
   ErrorMessage,
-  DynamodbError,
   buildErrorMessage,
   ElasticsearchError,
 } from "../../lambda/domains/errorUseCase";

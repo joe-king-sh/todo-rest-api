@@ -1,9 +1,3 @@
-import {
-  expect as expectCDK,
-  haveResource,
-  countResources,
-  ResourcePart,
-} from "@aws-cdk/assert";
 import * as cdk from "@aws-cdk/core";
 import * as environment from "../../lib/environment";
 import { createCdkStack } from "../../bin/cdk";

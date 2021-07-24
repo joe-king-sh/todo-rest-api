@@ -2,7 +2,6 @@ import * as cdk from "@aws-cdk/core";
 import { buildResourceName } from "../utility";
 import cognito = require("@aws-cdk/aws-cognito");
 import * as environment from "../environment";
-import { Z_ASCII } from "zlib";
 
 interface AuthenticationProps {
   environmentVariables: environment.EnvironmentVariables;

@@ -1,9 +1,6 @@
 const aws = require("aws-sdk");
-import {
-  ElasticSearchTodoDomain,
-  SearchByUserIdAndByQueryProps,
-} from "../../lambda/infrastructures/elasticSearchTodoDomain";
-import { Client, ApiResponse } from "@elastic/elasticsearch";
+import { ElasticSearchTodoDomain } from "../../lambda/infrastructures/elasticSearchTodoDomain";
+import { Client } from "@elastic/elasticsearch";
 import { DynamoDBRecord } from "aws-lambda";
 
 process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";

@@ -16,7 +16,7 @@ export const handler = async (
   const queryStringParameters = event.queryStringParameters;
   const q = queryStringParameters?.q;
   const size = queryStringParameters?.size;
-  const from = queryStringParameters?.nextStart;
+  const from = queryStringParameters?.from;
 
   // 入力チェック
   if (!token) {
