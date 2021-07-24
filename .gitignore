@@ -10,7 +10,7 @@ coverage/
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-
+cdk-outputs.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

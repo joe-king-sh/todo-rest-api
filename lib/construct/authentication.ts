@@ -11,6 +11,7 @@ export class Authentication extends cdk.Construct {
   userPool: cognito.IUserPool;
   userPoolDomain: cognito.IUserPoolDomain;
   domainName: string;
+  userPoolClientId: string;
 
   constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
     super(scope, id);
@@ -33,13 +34,20 @@ export class Authentication extends cdk.Construct {
       userPoolName: buildResourceName(projectName, "UserPool", env),
       removalPolicy: removalPolicy,
     });
-    // アプリクライアントをユーザプールに追加
-    this.userPool.addClient("UserPoolClient", {
-      authFlows: { adminUserPassword: true, userSrp: true, custom: true },
-      generateSecret: false,
-      userPoolClientName: buildResourceName(projectName, "Client", env),
-      preventUserExistenceErrors: true,
-    });
+    // アプリクライアントをユーザプールに作成
+    const userPoolClient = new cognito.UserPoolClient(
+      this,
+      buildResourceName(projectName.toLowerCase(), "userPoolClient", env),
+      {
+        userPool: this.userPool,
+        authFlows: { adminUserPassword: true, userSrp: true, custom: true },
+        generateSecret: false,
+        userPoolClientName: buildResourceName(projectName, "Client", env),
+        preventUserExistenceErrors: true,
+      }
+    );
+    this.userPoolClientId = userPoolClient.userPoolClientId;
+
     // 認証用UIのためドメイン名を追加する
     this.domainName = buildResourceName(
       projectName.toLowerCase(),
@@ -50,6 +58,13 @@ export class Authentication extends cdk.Construct {
     this.userPoolDomain = new cognito.UserPoolDomain(this, "Domain", {
       userPool: this.userPool,
       cognitoDomain: { domainPrefix: this.domainName },
+    });
+
+    new cdk.CfnOutput(this, "user-pool-id", {
+      value: this.userPool.userPoolId,
+    });
+    new cdk.CfnOutput(this, "user-pool-client-id", {
+      value: this.userPoolClientId,
     });
   }
 }

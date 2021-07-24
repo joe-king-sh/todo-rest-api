@@ -103,6 +103,10 @@ export class ErrorMessage {
   static TOKEN_EXPIRED = () => {
     return `トークンの有効期限が切れています`;
   };
+
+  static INVALID_USERID_OR_PASSWORD = () => {
+    return `ユーザIOまたはパスワードが不正です`;
+  };
 }
 
 export const buildErrorMessage = (message: string): string => {

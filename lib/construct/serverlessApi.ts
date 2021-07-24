@@ -4,13 +4,7 @@ import * as environment from "../environment";
 import * as iam from "@aws-cdk/aws-iam";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as nodeLambda from "@aws-cdk/aws-lambda-nodejs";
-import {
-  Effect,
-  IGrantable,
-  IPrincipal,
-  PolicyStatement,
-  ServicePrincipal,
-} from "@aws-cdk/aws-iam";
+import { Effect, ServicePrincipal } from "@aws-cdk/aws-iam";
 import * as logs from "@aws-cdk/aws-logs";
 
 import * as apigw from "@aws-cdk/aws-apigateway";
@@ -18,17 +12,17 @@ import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import * as es from "@aws-cdk/aws-elasticsearch";
 import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
+import { CfnOutput } from "@aws-cdk/core";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
   userPoolDomainName: string;
   userPoolArn: string;
   userPoolId: string;
+  userPoolClientId: string;
 }
 
 export class ServerlessApi extends cdk.Construct {
-  // serverlessApi:
-
   swagger: {
     openapi: string;
     info: {};
@@ -146,6 +140,23 @@ export class ServerlessApi extends cdk.Construct {
       }
     );
 
+    const createIdTokenLambda = new nodeLambda.NodejsFunction(
+      this,
+      buildResourceName(projectName, "createIdToken", env),
+      {
+        entry: "lambda/handlers/createIdTokenHandler.ts",
+        handler: "handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          REGION: region,
+          USER_POOL_ID: props.userPoolId,
+          CLIENT_ID: props.userPoolClientId,
+        },
+        functionName: buildResourceName(projectName, "createIdToken", env),
+        description: "CognitoUserPoolからAPIアクセス用のIDTokenを発行する",
+      }
+    );
+
     // DynamodbにLambdaがアクセス可能にする
     todoTable.grantReadData(getTodosLambda);
     todoTable.grantReadWriteData(putTodosLambda);
@@ -216,7 +227,7 @@ export class ServerlessApi extends cdk.Construct {
       // TODO このAPI＿IDだけ、デプロイ完了後Swagger.ymlだけ入れ替えてから、仕様書をS３へアップする。もしくはデプロイされた後の仕様書を抜いてきて、入れ替える
       servers: [
         {
-          url: `https://$API_ID.execute-api.${props.environmentVariables.region}.amazonaws.com/${env}/`,
+          url: `https://$API_ID.execute-api.${props.environmentVariables.region}.amazonaws.com/${env}`,
           description: "",
         },
       ],
@@ -291,6 +302,101 @@ export class ServerlessApi extends cdk.Construct {
       },
       // 各APIのリソースを以下で定義していく
       paths: {
+        "/auth/token": {
+          post: {
+            operationId: "createToken",
+            tags: ["Auth"],
+            summary: "認証トークン発行API",
+            description: "APIにアクセスするためのIDトークンを発行する",
+            security: [],
+            requestBody: {
+              description: "認証情報",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["userId", "password"],
+                    properties: {
+                      userId: {
+                        type: "string",
+                      },
+                      password: {
+                        type: "string",
+                      },
+                    },
+                  },
+                  examples: {
+                    Todo: {
+                      summary: "認証情報 例",
+                      value: {
+                        userId: "my-user-id",
+                        password: "my-password",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              200: {
+                description: "認証成功 トークンを発行する",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      required: ["idToken"],
+                      properties: {
+                        idToken: {
+                          type: "string",
+                        },
+                      },
+                    },
+                    examples: {
+                      Todo: {
+                        summary: "認証結果 トークン発行の例",
+                        value: {
+                          idToken:
+                            "eyJraWQiOiJpV3RidzNaXC9WbFVyUWhCaGp..(省略)",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              default: {
+                description: "予期せぬエラーが発生",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              uri:
+                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+                createIdTokenLambda.functionName +
+                "/invocations",
+              responses: {
+                default: {
+                  statusCode: "200",
+                },
+              },
+              passthroughBehavior: "when_no_match",
+              httpMethod: "POST",
+              contentHandling: "CONVERT_TO_TEXT",
+              type: "aws_proxy",
+            },
+          },
+        },
+
         "/todos": {
           get: {
             operationId: "findTodos",
@@ -637,7 +743,7 @@ export class ServerlessApi extends cdk.Construct {
               },
             ],
             requestBody: {
-              description: "更新する項目だけをリクエストボディに指定する",
+              description: "指定した値で登録されているTodoを更新する",
               content: {
                 "application/json": {
                   schema: {
@@ -852,29 +958,33 @@ export class ServerlessApi extends cdk.Construct {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
+    createIdTokenLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    createIdTokenLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        resources: [props.userPoolArn],
+        actions: ["cognito-idp:*"],
+        effect: Effect.ALLOW,
+      })
+    );
 
-    // TODO  API ドキュメント公開用 S3Bucketの作成
-    // const fs = require("fs");
-    // const yaml = require("js-yaml");
+    // Outputを定義
+    new CfnOutput(this, "api-id", {
+      value: api.restApiId,
+    });
 
-    // const yamlText = yaml.dump(this.swagger);
-    // fs.writeFile("./cdk.out/swagger.yaml", yamlText, "utf8", (err: any) => {
-    //   if (err) {
-    //     console.error(err.message);
-    //     process.exit(1);
-    //   }
-    //   console.log("SwaggerファイルをYamlで出力しました");
-    // });
-    // TODO ドキュメントを各環境毎のS3へアップロードするやつ。Synthで動いてしまうから、S３Put自体は、テスト通った後の方がいいかも　ここではcdk.outに吐くまで
+    // swagger.ymlをdocsフォルダに吐いておく
+    const fs = require("fs");
+    const yaml = require("js-yaml");
 
-    // APIキーとかも作られるまでは、わからないので、それを事前にSwaggerに入れることはできない。
-    // Deploy完了後のoutputから取得してスクリプトで埋め込むことにする。
-    // // swaggerにサーバー情報を追加
-    // this.swagger.servers = [
-    //   {
-    //     url: api.arnForExecuteApi,
-    //     description: `${env} 環境`,
-    //   },
-    // ];
+    const yamlText = yaml.dump(this.swagger);
+    fs.writeFile("./docs/api/swagger.yaml", yamlText, "utf8", (err: any) => {
+      if (err) {
+        console.error(err.message);
+        process.exit(1);
+      }
+    });
   }
 }
