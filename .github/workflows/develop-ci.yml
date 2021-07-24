@@ -30,7 +30,7 @@ jobs:
       - name: Explore current dir
         run: ls -lrta
 
-        - name: tree current dir
+      - name: tree current dir
         run: tree
 
       # Runs unittest
