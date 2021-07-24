@@ -35,21 +35,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Run cdk doctor
-        run: npm run cdk:doctor
-        env:
-          AWS_DEFAULT_REGION: "ap-northeast-1"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Check aws credentials
-        run: |
-          echo ${AWS_SECRET_ACCESS_KEY}
-        env:
-          AWS_DEFAULT_REGION: "ap-northeast-1"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       - name: Run cdk deploy
         run: npm run cdk:deploy target=dev
         env:
