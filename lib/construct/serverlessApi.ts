@@ -67,21 +67,6 @@ export class ServerlessApi extends cdk.Construct {
     /**
      * Lambda Function の作成
      */
-    const listTodosLambda = new nodeLambda.NodejsFunction(
-      this,
-      buildResourceName(projectName, "listTodos", env),
-      {
-        entry: "lambda/handlers/listTodosHandler.ts",
-        handler: "handler",
-        runtime: lambda.Runtime.NODEJS_14_X,
-        environment: {
-          DYNAMODB_TABLE_NAME: todoTable.tableName,
-          REGION: region,
-        },
-        functionName: buildResourceName(projectName, "listTodos", env),
-        description: "Dynamodbに格納されたTodo情報を一括で取得する",
-      }
-    );
     const putTodosLambda = new nodeLambda.NodejsFunction(
       this,
       buildResourceName(projectName, "putTodos", env),
@@ -162,7 +147,6 @@ export class ServerlessApi extends cdk.Construct {
     );
 
     // DynamodbにLambdaがアクセス可能にする
-    todoTable.grantReadData(listTodosLambda);
     todoTable.grantReadData(getTodosLambda);
     todoTable.grantReadWriteData(putTodosLambda);
     todoTable.grantReadWriteData(deleteTodosLambda);
@@ -309,7 +293,7 @@ export class ServerlessApi extends cdk.Construct {
       paths: {
         "/todos": {
           get: {
-            operationId: "listTodos",
+            operationId: "findTodos",
             tags: ["Todo"],
             summary: "Todo情報 検索API",
             description: "指定したワードでTodoを検索し返却する",
@@ -932,10 +916,6 @@ export class ServerlessApi extends cdk.Construct {
     );
 
     // API GatewayからLambdaをInovokeできるようにリソースベースポリシーを追加
-    listTodosLambda.addPermission(`LambdaPermission`, {
-      principal: new ServicePrincipal("apigateway.amazonaws.com"),
-      sourceArn: api.arnForExecuteApi(),
-    });
     putTodosLambda.addPermission(`LambdaPermission`, {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
