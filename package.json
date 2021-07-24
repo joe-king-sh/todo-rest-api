@@ -5,12 +5,13 @@
     "cdk": "bin/cdk.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "jest",
+    "prebuild": "./script/delete_conflict_package.sh",
+    "build": "npm run prebuild && tsc",
+    "watch": "npm run prebuild && tsc -w",
+    "test": "npm run prebuild && jest",
     "test:coverage": "npm test -- --coverage",
     "test:badges": "npm run test:coverage  && jest-coverage-badges",
-    "cdk": "cdk"
+    "cdk": "npm run prebuild && cdk"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.114.0",
@@ -33,6 +34,7 @@
     "@aws-cdk/aws-apigateway": "^1.114.0",
     "@aws-cdk/aws-cognito": "^1.114.0",
     "@aws-cdk/aws-dynamodb": "^1.114.0",
+    "@aws-cdk/aws-elasticsearch": "^1.115.0",
     "@aws-cdk/aws-iam": "^1.114.0",
     "@aws-cdk/aws-lambda": "^1.114.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.114.0",
