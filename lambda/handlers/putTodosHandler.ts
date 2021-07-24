@@ -16,7 +16,7 @@ export const handler = async (
   const todoId = event.pathParameters?.todoId; // 更新でPUT呼び出し想定
   // 入力チェック
   if (!token) {
-    console.log("Authorization トークンが未指定");
+    console.warn("Authorization トークンが未指定");
     return {
       statusCode: 400,
       body: buildErrorMessage(
@@ -25,7 +25,7 @@ export const handler = async (
     };
   }
   if (!bodyJsonString) {
-    console.log("Request Body が未指定");
+    console.warn("Request Body が未指定");
     return {
       statusCode: 400,
       body: buildErrorMessage(
@@ -36,7 +36,7 @@ export const handler = async (
   try {
     body = JSON.parse(bodyJsonString) as PutTodoProps;
   } catch (e) {
-    console.log("BodyがJson Parseできない形式で指定されてきた");
+    console.error("BodyがJson Parseできない形式で指定されてきた");
     return {
       statusCode: 400,
       body: buildErrorMessage(ErrorMessage.INVALID_PARAMETER()),
@@ -44,7 +44,7 @@ export const handler = async (
   }
   // 必須チェック
   if (!body.title || !body.content) {
-    console.log("必須項目[title,content]どちらかが存在しない");
+    console.error("必須項目[title,content]どちらかが存在しない");
     return {
       statusCode: 400,
       body: buildErrorMessage(
@@ -66,7 +66,7 @@ export const handler = async (
     const todo = await todoUserCase.putTodo(putTodoProps);
     return { statusCode: 200, body: JSON.stringify(todo) };
   } catch (e) {
-    console.log(
+    console.error(
       `特定のTodo登録/更新ユースケース呼び出しでエラー発生 エラー内容: ${JSON.stringify(
         e
       )}`

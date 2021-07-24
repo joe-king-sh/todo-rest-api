@@ -20,11 +20,11 @@ export const handler = async (
   const queryStringParameters = event.queryStringParameters;
   const q = queryStringParameters?.q;
   const size = queryStringParameters?.size;
-  const from = queryStringParameters?.from;
+  const from = queryStringParameters?.nextStart;
 
   // 入力チェック
   if (!token) {
-    console.log("Authorization トークンが未指定");
+    console.warn("Authorization トークンが未指定");
     return {
       statusCode: 400,
       body: buildErrorMessage(
@@ -57,7 +57,7 @@ export const handler = async (
     const findTodosOutput = await todoUserCase.findTodos(findTodosPrpos);
     return { statusCode: 200, body: JSON.stringify(findTodosOutput) };
   } catch (e) {
-    console.log(`Todo検索ユースケース呼び出しでエラー発生 エラー内容:`, e);
+    console.error(`Todo検索ユースケース呼び出しでエラー発生 エラー内容:`, e);
 
     if (!e.statusCode) {
       return {

@@ -15,7 +15,7 @@ export const handler = async (
 
   // 入力チェック
   if (!token) {
-    console.log("Authorization トークンが未指定");
+    console.warn("Authorization トークンが未指定");
     return {
       statusCode: 400,
       body: buildErrorMessage(
@@ -24,7 +24,7 @@ export const handler = async (
     };
   }
   if (!todoId) {
-    console.log("Authorization todoIdが未指定");
+    console.warn("Authorization todoIdが未指定");
     return {
       statusCode: 400,
       body: buildErrorMessage(ErrorMessage.PARAMETERS_NOT_FOUND(["todoId"])),
@@ -38,7 +38,7 @@ export const handler = async (
     await todoUserCase.deleteTodo({ todoId: todoId });
     return { statusCode: 200, body: undefined };
   } catch (e) {
-    console.log(
+    console.error(
       `特定のTodo 削除 ユースケース呼び出しでエラー発生 エラー内容: ${JSON.stringify(
         e
       )}`

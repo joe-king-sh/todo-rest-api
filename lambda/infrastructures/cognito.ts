@@ -21,14 +21,14 @@ export class CognitoUserPool {
       issuedAt = payloadJson["iat"];
       userName = payloadJson["cognito:username"];
     } catch (e) {
-      console.log("トークンのデコードでエラーが発生");
-      console.log(e);
+      console.error("トークンのデコードでエラーが発生");
+      console.error(e);
       throw new UnauthorizedError(ErrorMessage.INVALID_TOKEN());
     }
 
     // 有効期限の検証
     if (expireAt < issuedAt) {
-      console.log("トークンの有効期限が切れている");
+      console.info("トークンの有効期限が切れている");
       throw new UnauthorizedError(ErrorMessage.TOKEN_EXPIRED());
     }
 
