@@ -46,6 +46,8 @@ TODOリストを管理するアプリケーションのバックエンド用REST
     # 使用するAWSアカウントのリージョンで初めてCDKを使用する場合のみ以下を実行
     $ cdk bootstrap aws://{ACCOUNT-NUMBER}/{REGION}
     ```
+# 設計
+- [API仕様書](https://joe-king-sh.github.io/todo-rest-api/api/api-spec.html)
 
 # Test
 ```

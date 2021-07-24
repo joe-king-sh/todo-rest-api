@@ -10,7 +10,7 @@ info:
     name: MIT
     url: 'https://opensource.org/licenses/mit-license.php'
 servers:
-  - url: 'https://$API_ID.execute-api.ap-northeast-1.amazonaws.com/stg'
+  - url: 'https://$API_ID.execute-api.ap-northeast-1.amazonaws.com/dev'
     description: ''
 components:
   securitySchemes:
@@ -22,7 +22,7 @@ components:
       x-amazon-apigateway-authorizer:
         providerARNs:
           - >-
-            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.402]}
+            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.733]}
         type: cognito_user_pools
   schemas:
     Todo:
@@ -114,7 +114,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.574]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.905]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -202,7 +202,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.470]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.801]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -263,7 +263,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.444]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.775]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -324,7 +324,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.496]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.827]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -404,7 +404,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.444]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.775]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -453,7 +453,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.522]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.853]}/invocations
         responses:
           default:
             statusCode: '200'
