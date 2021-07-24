@@ -45,8 +45,8 @@ export class DynamodbTodoTable {
       );
       return getResponse.Item;
     } catch (e) {
-      console.log("Dynamodbからの get 処理で予期せぬエラー発生");
-      console.log(e);
+      console.error("Dynamodbからの get 処理で予期せぬエラー発生");
+      console.error(e);
       throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
     }
   };
@@ -68,8 +68,8 @@ export class DynamodbTodoTable {
       }).promise();
       console.log(`Dynamodbへの put 処理完了`);
     } catch (e) {
-      console.log("Dynamodbへの put 処理で予期せぬエラー発生");
-      console.log(e);
+      console.error("Dynamodbへの put 処理で予期せぬエラー発生");
+      console.error(e);
       throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
     }
   };
@@ -93,86 +93,8 @@ export class DynamodbTodoTable {
         `Todo削除に成功 Key: ${JSON.stringify(deleteTodoInDynamodbProps)}`
       );
     } catch (e) {
-      console.log("Dynamodbへの delete 処理で予期せぬエラー発生");
-      console.log(e);
-      throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
-    }
-  };
-
-  /*
-   * DynamodbのTodoを指定件数分する処理
-   *
-   * @static
-   * @param {ListTodoProps} listTodoProps
-   * @memberof DynamodbTodoTable
-   */
-  public static listTodoItems = async (
-    listTodoProps: ListTodoInDynamodbProps
-  ) => {
-    // 問い合わせの条件指定
-    const queryProps: AWS.DynamoDB.DocumentClient.QueryInput = {
-      TableName: tableName,
-      KeyConditionExpression: "userId = :userId and todoId > :todoId",
-      ExpressionAttributeValues: {
-        ":userId": listTodoProps.userId,
-        // 投げたい問い合わせは、パーティションキーが一致の検索だけだが、ExclusiveStartKeyが使いたいので、ソートキーを指定する必要がある
-        // 日付+uuidで持つソートキーなので、一番初めから検索をかけるソートキーで固定にする
-        ":todoId": "19700101000000" + uuidv4(),
-      },
-    };
-
-    // トークンが指定されている場合は、読み込み開始位置を指定する
-    if (listTodoProps.nextToken) {
-      try {
-        const token = listTodoProps.nextToken;
-        const sections = token.split(".");
-        const payload = jose.util.base64url.decode(sections[1]);
-        const LastEvaluatedKey = JSON.parse(payload as unknown as string);
-        const userId = LastEvaluatedKey.userId;
-
-        if (listTodoProps.userId !== userId) {
-          console.log(
-            `API実行ユーザ:${listTodoProps.userId} トークン内のユーザ:${userId}`
-          );
-          throw new Error(
-            "ユーザIDと指定されたnextTokenの中のUserIdが違うのでthrowする"
-          );
-        }
-
-        // 読み込み開始位置を設定
-        queryProps.ExclusiveStartKey = LastEvaluatedKey;
-      } catch (e) {
-        console.log("トークンのデコードでエラーが発生");
-        console.log(e);
-        throw new DynamodbError(ErrorMessage.INVALID_TOKEN());
-      }
-    }
-
-    // Limitが指定されている場合は条件に入れる
-    if (listTodoProps.limit) {
-      queryProps.Limit = listTodoProps.limit;
-    }
-
-    console.log(`query に渡す props: ${JSON.stringify(queryProps)}`);
-    try {
-      const response: any = await DYNAMO.query(queryProps).promise();
-      console.log(
-        `Query response from dynamodb: ${JSON.stringify(decycle(response))}`
-      );
-
-      const listTodoOutput: ListTodoInDynamodbOutput = {
-        todos: response.Items,
-      };
-
-      // 次の読み込み開始位置が返却されているときは、トークン化してレスポンスに追加する
-      if (response.LastEvaluatedKey) {
-        console.log(`LastEvaluatedKeyが返却されてきたのでトークン化する`);
-        listTodoOutput.nextToken = sign(response.LastEvaluatedKey, secret);
-      }
-      return listTodoOutput;
-    } catch (e) {
-      console.log("Dynamodbへの queryによる問い合わせ で予期せぬエラー発生");
-      console.log(e);
+      console.error("Dynamodbへの delete 処理で予期せぬエラー発生");
+      console.error(e);
       throw new DynamodbError(ErrorMessage.DYNAMODB_ERROR());
     }
   };
@@ -214,29 +136,6 @@ export interface PutTodoInDynamodbProps {
 export interface DeleteTodoInDynamodbProps {
   userId: string;
   todoId: string;
-}
-
-/**
- * Dynamodbから指定した件数Todoを取得する際に使用するProps
- *
- * @export
- * @interface ListTodoInDynamodbProps
- */
-export interface ListTodoInDynamodbProps {
-  userId: string;
-  limit?: number;
-  nextToken?: string;
-}
-
-/**
- * Dynamodbから指定した件数Todoを取得する際に使用するProps
- *
- * @export
- * @interface ListTodoInDynamodbOutput
- */
-export interface ListTodoInDynamodbOutput {
-  todos: Todo[];
-  nextToken?: string;
 }
 
 export const convertDynamodbObjectToJSON = (

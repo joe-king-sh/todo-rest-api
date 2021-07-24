@@ -4,11 +4,7 @@ import {
   PutTodoProps,
 } from "../../lambda/domains/todoUseCase";
 
-import {
-  ErrorMessage,
-  NotFoundError,
-  DynamodbError,
-} from "../../lambda/domains/errorUseCase";
+import { ErrorMessage, NotFoundError } from "../../lambda/domains/errorUseCase";
 import {
   DeleteTodoInDynamodbProps,
   DynamodbTodoTable,
@@ -296,28 +292,6 @@ describe("Todo 削除ユースケースのテスト", (): void => {
     expect(
       async () => await todoUseCase.deleteTodo(params)
     ).rejects.toThrowError(NotFoundError);
-  });
-});
-
-describe("Todo Todo一括取得のユースケースのテスト", (): void => {
-  test("Case1: Todoが正常に指定した件数取得できる", async () => {
-    jest.resetAllMocks();
-    expect.assertions(1);
-
-    // Dynamodb関連処理をモック化する
-    const mockListTodo = jest.fn();
-    mockListTodo.mockReturnValue(undefined);
-    DynamodbTodoTable.listTodoItems = mockListTodo.bind(DynamodbTodoTable);
-
-    // WHEN
-    const params = {
-      limit: 10,
-      nextToken: "next token like jwt",
-    };
-
-    // THEN
-    const todoUseCase = new TodoUseCase("dummyToken");
-    await expect(todoUseCase.listTodos(params)).resolves.toEqual(undefined);
   });
 });
 

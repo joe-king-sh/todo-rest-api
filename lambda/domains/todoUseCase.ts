@@ -1,8 +1,5 @@
 import { CognitoUserPool } from "../infrastructures/cognito";
-import {
-  DynamodbTodoTable,
-  ListTodoInDynamodbOutput,
-} from "../infrastructures/dynamodbTodoTable";
+import { DynamodbTodoTable } from "../infrastructures/dynamodbTodoTable";
 
 import { ElasticSearchTodoDomain } from "../infrastructures/elasticSearchTodoDomain";
 
@@ -141,38 +138,6 @@ export class TodoUseCase {
   }
 
   /**
-   * 指定した件数のTodoを一括で取得する
-   *
-   * @param {listTodosProps} listTodosProps
-   * @return {*}  {Promise<ListTodoOutput>}
-   * @memberof TodoUseCase
-   */
-  public async listTodos(
-    listTodosProps: listTodosProps
-  ): Promise<ListTodoInDynamodbOutput> {
-    console.log(
-      `指定した件数のTodo一括取得処理 開始 props: ${JSON.stringify(
-        listTodosProps
-      )}`
-    );
-
-    const todos = await DynamodbTodoTable.listTodoItems({
-      userId: this.userId,
-      ...listTodosProps,
-    });
-
-    console.log(`Dynamodbからのレスポンス: ${JSON.stringify(todos)}`);
-
-    console.log(
-      `指定した件数のTodo一括取得処理 終了 Retreved todos : ${JSON.stringify(
-        todos
-      )}`
-    );
-
-    return todos;
-  }
-
-  /**
    * 指定したワード、件数上限で、Todoの検索処理を実行する
    *
    * @param {FindTodosProps} findTodosProps
@@ -238,11 +203,6 @@ export interface PutTodoProps {
 
 export interface SpecifyTodoProps {
   todoId: string;
-}
-
-export interface listTodosProps {
-  limit?: number;
-  nextToken?: string;
 }
 
 const issueTodoId = (): string => {

@@ -1,9 +1,5 @@
 import { APIGatewayEvent, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import {
-  TodoUseCase,
-  listTodosProps,
-  FindTodosProps,
-} from "../domains/todoUseCase";
+import { TodoUseCase, FindTodosProps } from "../domains/todoUseCase";
 import { ErrorMessage, buildErrorMessage } from "../domains/errorUseCase";
 
 export const handler = async (
