@@ -13,7 +13,7 @@
     "test:badges": "npm run test:coverage  && jest-coverage-badges",
     "cdk:synth": "npm run prebuild && cdk synth -c ",
     "cdk:diff": "npm run prebuild && cdk diff -c ",
-    "cdk:deploy": "npm run prebuild && cdk deploy --require-approval never -c ",
+    "cdk:deploy": "npm run prebuild && cdk deploy -v --require-approval never -c ",
     "cdk:destroy": "npm run prebuild && cdk destroy --require-approval never -c ",
     "cdk:doctor": "cdk doctor"
 
