@@ -13,9 +13,10 @@
     "test:badges": "npm run test:coverage  && jest-coverage-badges",
     "cdk:synth": "npm run prebuild && cdk synth -c ",
     "cdk:diff": "npm run prebuild && cdk diff -c ",
-    "cdk:deploy": "npm run prebuild && cdk deploy -v --require-approval never -c ",
+    "cdk:deploy": "npm run prebuild && cdk deploy -v --require-approval never --outputs-file ./cdk-outputs.json -c ",
     "cdk:destroy": "npm run prebuild && cdk destroy --force --require-approval never -c ",
-    "cdk:doctor": "cdk doctor"
+    "cdk:doctor": "cdk doctor",
+    "docs:api": "./script/generate_api_doc.sh"
 
   },
   "devDependencies": {
@@ -31,6 +32,7 @@
     "esbuild": "^0.12.15",
     "jest": "^26.4.2",
     "jwt-encode": "^1.0.1",
+    "redoc-cli": "^0.12.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"

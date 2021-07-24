@@ -59,5 +59,12 @@ export class Authentication extends cdk.Construct {
       userPool: this.userPool,
       cognitoDomain: { domainPrefix: this.domainName },
     });
+
+    new cdk.CfnOutput(this, "user-pool-id", {
+      value: this.userPool.userPoolId,
+    });
+    new cdk.CfnOutput(this, "user-pool-client-id", {
+      value: this.userPoolClientId,
+    });
   }
 }

@@ -12,7 +12,7 @@ import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import * as es from "@aws-cdk/aws-elasticsearch";
 import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
-import cognito = require("@aws-cdk/aws-cognito");
+import { CfnOutput } from "@aws-cdk/core";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
@@ -23,8 +23,6 @@ interface ServerlessApiProps {
 }
 
 export class ServerlessApi extends cdk.Construct {
-  // serverlessApi:
-
   swagger: {
     openapi: string;
     info: {};
@@ -229,7 +227,7 @@ export class ServerlessApi extends cdk.Construct {
       // TODO このAPI＿IDだけ、デプロイ完了後Swagger.ymlだけ入れ替えてから、仕様書をS３へアップする。もしくはデプロイされた後の仕様書を抜いてきて、入れ替える
       servers: [
         {
-          url: `https://$API_ID.execute-api.${props.environmentVariables.region}.amazonaws.com/${env}/`,
+          url: `https://$API_ID.execute-api.${props.environmentVariables.region}.amazonaws.com/${env}`,
           description: "",
         },
       ],
@@ -745,7 +743,7 @@ export class ServerlessApi extends cdk.Construct {
               },
             ],
             requestBody: {
-              description: "更新する項目だけをリクエストボディに指定する",
+              description: "指定した値で登録されているTodoを更新する",
               content: {
                 "application/json": {
                   schema: {
@@ -960,29 +958,33 @@ export class ServerlessApi extends cdk.Construct {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });
+    createIdTokenLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    createIdTokenLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        resources: [props.userPoolArn],
+        actions: ["cognito-idp:*"],
+        effect: Effect.ALLOW,
+      })
+    );
 
-    // TODO  API ドキュメント公開用 S3Bucketの作成
-    // const fs = require("fs");
-    // const yaml = require("js-yaml");
+    // Outputを定義
+    new CfnOutput(this, "api-id", {
+      value: api.restApiId,
+    });
 
-    // const yamlText = yaml.dump(this.swagger);
-    // fs.writeFile("./cdk.out/swagger.yaml", yamlText, "utf8", (err: any) => {
-    //   if (err) {
-    //     console.error(err.message);
-    //     process.exit(1);
-    //   }
-    //   console.log("SwaggerファイルをYamlで出力しました");
-    // });
-    // TODO ドキュメントを各環境毎のS3へアップロードするやつ。Synthで動いてしまうから、S３Put自体は、テスト通った後の方がいいかも　ここではcdk.outに吐くまで
+    // swagger.ymlをdocsフォルダに吐いておく
+    const fs = require("fs");
+    const yaml = require("js-yaml");
 
-    // APIキーとかも作られるまでは、わからないので、それを事前にSwaggerに入れることはできない。
-    // Deploy完了後のoutputから取得してスクリプトで埋め込むことにする。
-    // // swaggerにサーバー情報を追加
-    // this.swagger.servers = [
-    //   {
-    //     url: api.arnForExecuteApi,
-    //     description: `${env} 環境`,
-    //   },
-    // ];
+    const yamlText = yaml.dump(this.swagger);
+    fs.writeFile("./docs/api/swagger.yaml", yamlText, "utf8", (err: any) => {
+      if (err) {
+        console.error(err.message);
+        process.exit(1);
+      }
+    });
   }
 }
