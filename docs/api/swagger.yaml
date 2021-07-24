@@ -5,13 +5,13 @@ info:
   version: 1.0.0
   contact:
     name: API Support
-    url: 'https://twitter.com/joe_king_sh'
+    url: "https://twitter.com/joe_king_sh"
   license:
     name: MIT
-    url: 'https://opensource.org/licenses/mit-license.php'
+    url: "https://opensource.org/licenses/mit-license.php"
 servers:
-  - url: 'https://$API_ID.execute-api.ap-northeast-1.amazonaws.com/stg'
-    description: ''
+  - url: "https://14mjw1p7x3.execute-api.ap-northeast-1.amazonaws.com/dev"
+    description: ""
 components:
   securitySchemes:
     CognitoAuth:
@@ -22,7 +22,7 @@ components:
       x-amazon-apigateway-authorizer:
         providerARNs:
           - >-
-            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.402]}
+            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.731]}
         type: cognito_user_pools
   schemas:
     Todo:
@@ -87,7 +87,7 @@ paths:
                   userId: my-user-id
                   password: my-password
       responses:
-        '200':
+        "200":
           description: 認証成功 トークンを発行する
           content:
             application/json:
@@ -108,16 +108,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 unexpected:
-                  $ref: '#/components/examples/ErrorExample'
+                  $ref: "#/components/examples/ErrorExample"
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.574]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.903]}/invocations
         responses:
           default:
-            statusCode: '200'
+            statusCode: "200"
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -163,7 +163,7 @@ paths:
               summary: 読み込み開始位置指定例
               value: 2
       responses:
-        '200':
+        "200":
           description: 全体の件数、取得したTodo情報、次回読み込み開始位置を返却する
           content:
             application/json:
@@ -175,7 +175,7 @@ paths:
                   todos:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Todo'
+                      $ref: "#/components/schemas/Todo"
                   nextStartKey:
                     type: number
               examples:
@@ -196,16 +196,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 unexpected:
-                  $ref: '#/components/examples/ErrorExample'
+                  $ref: "#/components/examples/ErrorExample"
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.470]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.799]}/invocations
         responses:
           default:
-            statusCode: '200'
+            statusCode: "200"
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -239,12 +239,12 @@ paths:
                   title: 今日やること
                   content: ゴミを捨てる
       responses:
-        '200':
+        "200":
           description: Todo情報の登録が正常に完了
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Todo'
+                $ref: "#/components/schemas/Todo"
               examples:
                 Todo:
                   summary: Todo情報 登録例
@@ -257,21 +257,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 unexpected:
-                  $ref: '#/components/examples/ErrorExample'
+                  $ref: "#/components/examples/ErrorExample"
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.444]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.773]}/invocations
         responses:
           default:
-            statusCode: '200'
+            statusCode: "200"
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
         type: aws_proxy
-  '/todos/{todoId}':
+  "/todos/{todoId}":
     get:
       operationId: showTodoById
       tags:
@@ -289,14 +289,14 @@ paths:
             type: string
           examples:
             todoId:
-              $ref: '#/components/examples/TodoId'
+              $ref: "#/components/examples/TodoId"
       responses:
-        '200':
+        "200":
           description: Todoを正常に取得完了
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Todo'
+                $ref: "#/components/schemas/Todo"
               examples:
                 getTodo:
                   summary: Todo情報 1件取得結果例
@@ -304,30 +304,30 @@ paths:
                     todoId: 111aac0e-eb29-41c3-b377-05e14102942d
                     title: 冷蔵庫の整理
                     content: 卵と納豆を食べる
-        '404':
+        "404":
           description: 指定したTodoIdが存在しない
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 TodoNotFound:
-                  $ref: '#/components/examples/ErrorNotFoundExample'
+                  $ref: "#/components/examples/ErrorNotFoundExample"
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 unexpected:
-                  $ref: '#/components/examples/ErrorExample'
+                  $ref: "#/components/examples/ErrorExample"
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.496]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.825]}/invocations
         responses:
           default:
-            statusCode: '200'
+            statusCode: "200"
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -349,7 +349,7 @@ paths:
             type: string
           examples:
             todoId:
-              $ref: '#/components/examples/TodoId'
+              $ref: "#/components/examples/TodoId"
       requestBody:
         description: 指定した値で登録されているTodoを更新する
         content:
@@ -371,12 +371,12 @@ paths:
                   title: new title
                   content: new content
       responses:
-        '200':
+        "200":
           description: Todo情報の更新が正常に完了
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Todo'
+                $ref: "#/components/schemas/Todo"
               examples:
                 updateTodo:
                   summary: Todo情報 更新結果例
@@ -384,30 +384,30 @@ paths:
                     todoId: 111aac0e-eb29-41c3-b377-05e14102942d
                     title: 冷蔵庫の整理
                     content: 卵と納豆を食べる
-        '404':
+        "404":
           description: 指定したTodoIdが存在しない
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 TodoNotFound:
-                  $ref: '#/components/examples/ErrorNotFoundExample'
+                  $ref: "#/components/examples/ErrorNotFoundExample"
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 unexpected:
-                  $ref: '#/components/examples/ErrorExample'
+                  $ref: "#/components/examples/ErrorExample"
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.444]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.773]}/invocations
         responses:
           default:
-            statusCode: '200'
+            statusCode: "200"
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -429,34 +429,34 @@ paths:
             type: string
           examples:
             todoId:
-              $ref: '#/components/examples/TodoId'
+              $ref: "#/components/examples/TodoId"
       responses:
-        '200':
+        "200":
           description: Todoを正常に削除完了
-        '404':
+        "404":
           description: 指定したTodoIdが存在しない
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 TodoNotFound:
-                  $ref: '#/components/examples/ErrorNotFoundExample'
+                  $ref: "#/components/examples/ErrorNotFoundExample"
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               examples:
                 unexpected:
-                  $ref: '#/components/examples/ErrorExample'
+                  $ref: "#/components/examples/ErrorExample"
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.522]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.851]}/invocations
         responses:
           default:
-            statusCode: '200'
+            statusCode: "200"
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
