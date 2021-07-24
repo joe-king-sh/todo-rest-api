@@ -1,18 +1,20 @@
-name: develop-deploy
+name: common-ci
 
 on:
-  push:
-    branches: [develop]
+  pull_request:
 
   workflow_dispatch:
 
 jobs:
-  build_and_deploy:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          # PullRequest元のHEADブランチを取得
+          ref: ${{github.event.pull_request.head.ref}}
 
       - name: Confirm git status
         run: git status
@@ -30,13 +32,6 @@ jobs:
 
       - name: Run cdk diff check
         run: npm run cdk:synth target=dev
-        env:
-          AWS_DEFAULT_REGION: "ap-northeast-1"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: Run cdk deploy
-        run: npm run cdk:deploy target=dev
         env:
           AWS_DEFAULT_REGION: "ap-northeast-1"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
