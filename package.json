@@ -5,12 +5,18 @@
     "cdk": "bin/cdk.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "jest",
+    "prebuild": "./script/delete_conflict_package.sh",
+    "build": "npm run prebuild && tsc",
+    "watch": "npm run prebuild && tsc -w",
+    "test": "npm run prebuild && jest",
     "test:coverage": "npm test -- --coverage",
     "test:badges": "npm run test:coverage  && jest-coverage-badges",
-    "cdk": "cdk"
+    "cdk:synth": "npm run prebuild && cdk synth -c ",
+    "cdk:diff": "npm run prebuild && cdk diff -c ",
+    "cdk:deploy": "npm run prebuild && cdk deploy --require-approval never -c ",
+    "cdk:destroy": "npm run prebuild && cdk destroy --require-approval never -c ",
+    "cdk:doctor": "cdk doctor"
+
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.114.0",
@@ -20,7 +26,7 @@
     "@types/node": "10.17.27",
     "@types/node-jose": "^1.1.8",
     "@types/uuid": "^8.3.1",
-    "aws-cdk": "1.114.0",
+    "aws-cdk": "^1.114.0",
     "aws-sdk-mock": "^5.2.1",
     "esbuild": "^0.12.15",
     "jest": "^26.4.2",
@@ -33,6 +39,7 @@
     "@aws-cdk/aws-apigateway": "^1.114.0",
     "@aws-cdk/aws-cognito": "^1.114.0",
     "@aws-cdk/aws-dynamodb": "^1.114.0",
+    "@aws-cdk/aws-elasticsearch": "^1.115.0",
     "@aws-cdk/aws-iam": "^1.114.0",
     "@aws-cdk/aws-lambda": "^1.114.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.114.0",

@@ -1,8 +1,8 @@
-name: develop-deploy
+name: production-deploy
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
 
   workflow_dispatch:
 
@@ -28,22 +28,30 @@ jobs:
       - name: Run unittest
         run: npm run test
 
-      - name: Run cdk diff check
-        run: npm run cdk:synth target=dev
+      - name: Run cdk deploy to staging
+        run: npm run cdk:deploy target=stg
         env:
           AWS_DEFAULT_REGION: "ap-northeast-1"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Run cdk doctor
-        run: npm run cdk:doctor
+      - name: Run E2E test
+        run: echo run e2e test in here
         env:
           AWS_DEFAULT_REGION: "ap-northeast-1"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Run cdk deploy
-        run: npm run cdk:deploy target=dev
+      - name: Run cdk destroy staging
+        if: ${{ always() }}
+        run: npm run cdk:destroy target=stg
+        env:
+          AWS_DEFAULT_REGION: "ap-northeast-1"
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Run cdk deploy to production
+        run: npm run cdk:deploy target=prod
         env:
           AWS_DEFAULT_REGION: "ap-northeast-1"
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -99,6 +99,9 @@ npm test
 npm test -- --coverage
 ```
 
-# Deploy
-- node_modules elasticsearch配下のnode_modulesが邪魔をするので消す
+# デプロイ方法
+```
+# 開発環境
+$ npm run cdk:deploy target=dev
+```
 

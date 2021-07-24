@@ -15,7 +15,7 @@ import * as logs from "@aws-cdk/aws-logs";
 
 import * as apigw from "@aws-cdk/aws-apigateway";
 import * as dynamodb from "@aws-cdk/aws-dynamodb";
-import * as es from "../my_node_modules/@aws-cdk/aws-elasticsearch";
+import * as es from "@aws-cdk/aws-elasticsearch";
 import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
 

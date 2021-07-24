@@ -19,7 +19,7 @@ module.exports = {
     "**/*.{ts,tsx}",
     "**/**/*.{ts,tsx}",
     "!**/node_modules/**",
-    "!**/my_node_modules/**",
+    "!**/my_modules/**",
     "!**/test/**",
     "!**/**/*.d.ts",
   ],
