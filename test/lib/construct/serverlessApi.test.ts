@@ -27,7 +27,6 @@ for (const env of Object.values(environment.Environments)) {
        * テストの粒度：
        * 　生成したCfnテンプレートに意図したプロパティが存在するかをテストする
        */
-
       test(buildTestCaseName(env, "Construct case2: API関連のテスト"), () => {
         const stack = new cdk.Stack();
 

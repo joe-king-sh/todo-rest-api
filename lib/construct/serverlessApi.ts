@@ -205,9 +205,10 @@ export class ServerlessApi extends cdk.Construct {
     todoESDomain.grantReadWrite(indexTodosLambda);
     todoESDomain.grantRead(findTodosLambda);
 
-    // Index用Lambdaの環境変数にDynamodbとESのエンドポイントを渡す
+    // Index用Lambdaの環境変数にESのエンドポイントを渡す
     indexTodosLambda.addEnvironment("ES_DOMAIN", todoESDomain.domainEndpoint);
-    indexTodosLambda.addEnvironment("ES_INDEX", todoTable.tableName);
+    // 検索用Lambdaの環境変数にESのエンドポイントを渡す
+    findTodosLambda.addEnvironment("ES_DOMAIN", todoESDomain.domainEndpoint);
 
     /**
      * API Gateway の作成
@@ -258,6 +259,9 @@ export class ServerlessApi extends cdk.Construct {
           Todo: {
             type: "object",
             properties: {
+              userId: {
+                type: "string",
+              },
               todoId: {
                 type: "string",
               },
@@ -265,6 +269,9 @@ export class ServerlessApi extends cdk.Construct {
                 type: "string",
               },
               content: {
+                type: "string",
+              },
+              updatedDate: {
                 type: "string",
               },
             },
@@ -304,8 +311,8 @@ export class ServerlessApi extends cdk.Construct {
           get: {
             operationId: "listTodos",
             tags: ["Todo"],
-            summary: "Todo情報 一括取得API",
-            description: "ユーザーのTodoを指定した件数分返却する",
+            summary: "Todo情報 検索API",
+            description: "指定したワードでTodoを検索し返却する",
             security: [
               {
                 CognitoAuth: [],
@@ -313,52 +320,78 @@ export class ServerlessApi extends cdk.Construct {
             ],
             parameters: [
               {
-                name: "limit",
+                name: "q",
                 in: "query",
-                description: "取得するTodoの件数を指定する(最大 100件)",
-                required: false,
-                schema: {
-                  type: "integer",
-                  format: "int32",
-                },
-                examples: {
-                  limit: {
-                    summary: "limit 指定例",
-                    value: 5,
-                  },
-                },
-              },
-              {
-                name: "nextToken",
-                in: "query",
-                description: "次のページを取得する場合に指定する",
+                description:
+                  "指定したワードで、Todoのタイトル、内容を全文検索する",
                 required: false,
                 schema: {
                   type: "string",
                 },
                 examples: {
-                  nextToken: {
-                    summary: "nextToken 指定例",
-                    value: "eyJ2ZXJzaW9uIjoxLCJ0b2...",
+                  q: {
+                    summary: "検索指定ワード例",
+                    value: "実装",
+                  },
+                },
+              },
+              {
+                name: "size",
+                in: "query",
+                description: "検索するワードのサイズ",
+                required: false,
+                schema: {
+                  type: "number",
+                },
+                examples: {
+                  size: {
+                    summary: "サイズ指定例",
+                    value: 2,
+                  },
+                },
+              },
+              {
+                name: "from",
+                in: "query",
+                description: "読み込み開始位置指定",
+                required: false,
+                schema: {
+                  type: "number",
+                },
+                examples: {
+                  size: {
+                    summary: "2",
+                    value: 2,
                   },
                 },
               },
             ],
             responses: {
               200: {
-                description: "Todo情報のjsonリストを返却する",
+                description:
+                  "全体の件数、取得したTodo情報、次回読み込み開始位置を返却する",
                 content: {
                   "application/json": {
                     schema: {
                       type: "object",
-                      items: {
-                        $ref: "#/components/schemas/Todo",
+                      properties: {
+                        totalCount: {
+                          type: "number",
+                        },
+                        todos: {
+                          type: "array",
+                          items: { $ref: "#/components/schemas/Todo" },
+                        },
+                        nextStartKey: {
+                          type: "number",
+                        },
                       },
                     },
                     examples: {
                       listTodo: {
-                        summary: "Todo情報 一括取得結果例",
+                        summary: "Todo情報 検索結果例",
                         value: {
+                          totalCount: 9,
                           todos: [
                             {
                               todoId: "3894bd64-3061-4fa5-914a-b798b5f56bb9",
@@ -371,7 +404,7 @@ export class ServerlessApi extends cdk.Construct {
                               content: "DynamodbをCDKで立てる",
                             },
                           ],
-                          nextToken: "eyJ2ZXJzaW9uIjoxLCJ0b...",
+                          nextStartKey: 2,
                         },
                       },
                     },
@@ -397,7 +430,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                listTodosLambda.functionName +
+                findTodosLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -503,99 +536,84 @@ export class ServerlessApi extends cdk.Construct {
           },
         },
 
-        "/todos/findByText": {
-          get: {
-            operationId: "findTodos",
-            tags: ["Todo"],
-            summary: "Todo情報 検索API",
-            description: "ユーザーのTodoを指定したワードで検索し返却する",
-            security: [
-              {
-                CognitoAuth: [],
-              },
-            ],
-            parameters: [
-              {
-                name: "q",
-                in: "query",
-                description:
-                  "指定したワードで、Todoのタイトル、内容を全文検索する",
-                required: true,
-                schema: {
-                  type: "string",
-                },
-                examples: {
-                  q: {
-                    summary: "検索指定ワード例",
-                    value: "実装",
-                  },
-                },
-              },
-            ],
-            responses: {
-              200: {
-                description: "Todo情報のjsonリストを返却する",
-                content: {
-                  "application/json": {
-                    schema: {
-                      type: "array",
-                      items: {
-                        $ref: "#/components/schemas/Todo",
-                      },
-                    },
-                    examples: {
-                      findTodo: {
-                        summary: "Todo情報 検索結果例",
-                        value: [
-                          {
-                            todoId: "3e19c048-ecc8-45e3-86df-779b5e2e2304",
-                            title: "今日中に実装するもの",
-                            content: "swagger.yaml",
-                          },
-                          {
-                            todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
-                            title: "明日の自分にお願いすること",
-                            content: "DynamodbをCDKで実装してもらう",
-                          },
-                        ],
-                      },
-                    },
-                  },
-                },
-              },
-              default: {
-                description: "予期せぬエラーが発生",
-                content: {
-                  "application/json": {
-                    schema: {
-                      $ref: "#/components/schemas/Error",
-                    },
-                    examples: {
-                      unexpected: {
-                        $ref: "#/components/examples/ErrorExample",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            "x-amazon-apigateway-integration": {
-              uri:
-                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                findTodosLambda.functionName +
-                "/invocations",
-              responses: {
-                default: {
-                  statusCode: "200",
-                },
-              },
-              passthroughBehavior: "when_no_match",
-              httpMethod: "POST",
-              contentHandling: "CONVERT_TO_TEXT",
-              type: "aws_proxy",
-            },
-          },
-        },
+        // "/todos/findByText": {
+        //   get: {
+        //     operationId: "findTodos",
+        //     tags: ["Todo"],
+        //     summary: "Todo情報 検索API",
+        //     description: "ユーザーのTodoを指定したワードで検索し返却する",
+        //     security: [
+        //       {
+        //         CognitoAuth: [],
+        //       },
+        //     ],
+        //     parameters: [
+
+        //     ],
+        //     responses: {
+        //       200: {
+        //         description: "Todo情報のjsonリストを返却する",
+        //         content: {
+        //           "application/json": {
+        //             schema: {
+        //               type: "array",
+        //               items: {
+        //                 $ref: "#/components/schemas/Todo",
+        //               },
+        //             },
+        //             examples: {
+        //               findTodo: {
+        //                 summary: "Todo情報 検索結果例",
+        //                 value: [
+        //                   {
+        //                     todoId: "3e19c048-ecc8-45e3-86df-779b5e2e2304",
+        //                     title: "今日中に実装するもの",
+        //                     content: "swagger.yaml",
+        //                   },
+        //                   {
+        //                     todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
+        //                     title: "明日の自分にお願いすること",
+        //                     content: "DynamodbをCDKで実装してもらう",
+        //                   },
+        //                 ],
+        //               },
+        //             },
+        //           },
+        //         },
+        //       },
+        //       default: {
+        //         description: "予期せぬエラーが発生",
+        //         content: {
+        //           "application/json": {
+        //             schema: {
+        //               $ref: "#/components/schemas/Error",
+        //             },
+        //             examples: {
+        //               unexpected: {
+        //                 $ref: "#/components/examples/ErrorExample",
+        //               },
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //     "x-amazon-apigateway-integration": {
+        //       uri:
+        //         "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+        //         findTodosLambda.functionName +
+        //         "/invocations",
+        //       responses: {
+        //         default: {
+        //           statusCode: "200",
+        //         },
+        //       },
+        //       passthroughBehavior: "when_no_match",
+        //       httpMethod: "POST",
+        //       contentHandling: "CONVERT_TO_TEXT",
+        //       type: "aws_proxy",
+        //     },
+        //   },
+        // },
 
         "/todos/{todoId}": {
           get: {
@@ -927,6 +945,10 @@ export class ServerlessApi extends cdk.Construct {
       sourceArn: api.arnForExecuteApi(),
     });
     deleteTodosLambda.addPermission(`LambdaPermission`, {
+      principal: new ServicePrincipal("apigateway.amazonaws.com"),
+      sourceArn: api.arnForExecuteApi(),
+    });
+    findTodosLambda.addPermission(`LambdaPermission`, {
       principal: new ServicePrincipal("apigateway.amazonaws.com"),
       sourceArn: api.arnForExecuteApi(),
     });

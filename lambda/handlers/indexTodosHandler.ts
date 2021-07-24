@@ -3,11 +3,9 @@ import { ElasticSearchTodoDomain } from "./../infrastructures/elasticSearchTodoD
 
 export const handler = async (event: DynamoDBStreamEvent) => {
   const node = process.env.ES_DOMAIN as string;
-  const index = (process.env.ES_INDEX as string).toLowerCase();
 
   console.log("トリガーされたEvent内容", event);
   console.log("ES domain to use:", node);
-  console.log("ES index to use:", index);
 
   if (!event["Records"]) {
     console.log("処理するレコードがないので終了");

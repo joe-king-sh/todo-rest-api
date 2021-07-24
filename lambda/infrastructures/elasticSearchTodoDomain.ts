@@ -1,4 +1,4 @@
-const { Client } = require("@elastic/elasticsearch");
+import { Client, ApiResponse } from "@elastic/elasticsearch";
 const createAwsElasticsearchConnector = require("aws-elasticsearch-connector");
 import { Config } from "aws-sdk";
 import { DynamoDBRecord } from "aws-lambda";
@@ -11,7 +11,7 @@ import { convertDynamodbObjectToJSON } from "../infrastructures/dynamodbTodoTabl
  * @class ElasticSearchTodoDomain
  */
 export class ElasticSearchTodoDomain {
-  client: any;
+  client: Client;
 
   constructor(node: string) {
     this.client = new Client({
@@ -21,7 +21,7 @@ export class ElasticSearchTodoDomain {
   }
 
   /**
-   * 検索エンジンにTodoを反映させるユースケース
+   * 検索エンジンにTodoを反映させる処理
    *
    * @param {DynamoDBRecord[]} Records
    * @return {*}  {Promise<void>}
@@ -48,12 +48,14 @@ export class ElasticSearchTodoDomain {
 
         // パーティションキー、ソートキーを合体させたものをESのidとする
         const id = userId + todoId;
+        // indexはuserId毎に作る
+        const index = userId;
 
         if (record.eventName === "REMOVE") {
           console.log("削除処理を実行 document: " + id);
 
           result = await this.client.delete({
-            userId,
+            index,
             id,
           });
         } else {
@@ -70,7 +72,7 @@ export class ElasticSearchTodoDomain {
           });
           console.log("Indexする内容: ", convertedDocument);
           result = await this.client.index({
-            userId,
+            index,
             id,
             body: convertedDocument,
           });
@@ -84,4 +86,58 @@ export class ElasticSearchTodoDomain {
       }
     }
   }
+
+  /**
+   * ElasticsearchからTodoを検索する処理
+   *
+   * @param {SearchByUserIdAndByQueryProps} searchByUserIdAndByQueryProps
+   * @return {*}  {Promise<ApiResponse<Record<string, any>, unknown>>}
+   * @memberof ElasticSearchTodoDomain
+   */
+  public async searchByUserIdAndByQuery(
+    searchByUserIdAndByQueryProps: SearchByUserIdAndByQueryProps
+  ): Promise<ApiResponse<Record<string, any>, unknown>> {
+    let requestBody: { query: {}; size?: number; from?: number } = {
+      query: {},
+    };
+
+    if (searchByUserIdAndByQueryProps.q) {
+      //指定されたワードで検索
+      requestBody["query"] = {
+        multi_match: {
+          query: searchByUserIdAndByQueryProps.q,
+          fields: ["title", "content"],
+        },
+      };
+    } else {
+      // 全件検索
+      requestBody["query"] = {
+        match_all: {},
+      };
+    }
+
+    if (searchByUserIdAndByQueryProps.size) {
+      // 上限が指定されている場合sizeをつけて検索
+      requestBody["size"] = searchByUserIdAndByQueryProps.size;
+    }
+    if (searchByUserIdAndByQueryProps.from) {
+      // 上限が指定されている場合sizeをつけて検索
+      requestBody["from"] = searchByUserIdAndByQueryProps.from;
+    }
+
+    const searchResponse = await this.client.search({
+      index: searchByUserIdAndByQueryProps.userId,
+      body: requestBody,
+    });
+
+    console.log(`es response: ${JSON.stringify(searchResponse)}`);
+    return searchResponse;
+  }
+}
+
+export interface SearchByUserIdAndByQueryProps {
+  userId: string;
+  q?: string;
+  size?: number;
+  from?: number;
 }

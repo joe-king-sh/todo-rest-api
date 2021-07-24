@@ -1,5 +1,9 @@
 import { APIGatewayEvent, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
-import { TodoUseCase, listTodosProps } from "../domains/todoUseCase";
+import {
+  TodoUseCase,
+  listTodosProps,
+  FindTodosProps,
+} from "../domains/todoUseCase";
 import { ErrorMessage, buildErrorMessage } from "../domains/errorUseCase";
 
 export const handler = async (
@@ -8,10 +12,15 @@ export const handler = async (
   console.log("listTodoHandler 処理開始");
   console.log(`Input parameters: ${JSON.stringify(event)}`);
 
+  const node = process.env.ES_DOMAIN as string;
+  console.log("ES domain to use:", node);
+
   // パラメータ受け取り
   const token = event.headers?.Authorization;
   const queryStringParameters = event.queryStringParameters;
   const q = queryStringParameters?.q;
+  const size = queryStringParameters?.size;
+  const from = queryStringParameters?.from;
 
   // 入力チェック
   if (!token) {
@@ -24,32 +33,31 @@ export const handler = async (
     };
   }
 
-  const listTodoProps: listTodosProps = {};
-  if (!q) {
-    console.log("検索条件が未指定");
-    return {
-      statusCode: 400,
-      body: buildErrorMessage(
-        ErrorMessage.PARAMETERS_NOT_FOUND(["検索条件 q"])
-      ),
-    };
-  }
-
   // コアロジック呼び出し
   try {
     const todoUserCase = new TodoUseCase(token);
-    console.log("特定のTodo取得ユースケース呼び出し");
+    console.log("Todo検索ユースケース呼び出し");
 
-    // const todos = await todoUserCase.findTodos(findTodoProps);
+    // 検索条件の指定
+    const findTodosPrpos: FindTodosProps = {
+      node: node,
+    };
+    if (size) {
+      findTodosPrpos.size = parseInt(size);
+    }
+    if (q) {
+      findTodosPrpos.q = q;
+    }
+    if (from) {
+      findTodosPrpos.nextStartKey = parseInt(from);
+    }
 
-    const todos = [{}, {}];
-    return { statusCode: 200, body: JSON.stringify(todos) };
+    // 検索実行
+    console.log("Todo検索条件:", JSON.stringify(findTodosPrpos));
+    const findTodosOutput = await todoUserCase.findTodos(findTodosPrpos);
+    return { statusCode: 200, body: JSON.stringify(findTodosOutput) };
   } catch (e) {
-    console.log(
-      `特定のTodo取得ユースケース呼び出しでエラー発生 エラー内容: ${JSON.stringify(
-        e
-      )}`
-    );
+    console.log(`Todo検索ユースケース呼び出しでエラー発生 エラー内容:`, e);
 
     if (!e.statusCode) {
       return {

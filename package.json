@@ -38,6 +38,7 @@
     "@aws-cdk/aws-lambda-event-sources": "^1.114.0",
     "@aws-cdk/core": "1.114.0",
     "@elastic/elasticsearch": "^7.13.0",
+    "@types/elasticsearch": "^5.0.38",
     "aws-elasticsearch-connector": "^9.0.3",
     "aws-sdk": "^2.948.0",
     "jest-coverage-badges": "^1.1.2",

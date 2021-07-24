@@ -1,9 +1,7 @@
 import { handler } from "../../lambda/handlers/indexTodosHandler";
 import { DynamoDBStreamEvent } from "aws-lambda";
-import { ElasticSearchTodoDomain } from "../../lambda/infrastructures/elasticSearchTodoDomain";
 
 process.env.ES_DOMAIN = "unit-test-es-domain";
-process.env.ES_INDEX = "unit-test-ec-index";
 
 // ElasticSearchアクセスクラスはモック化しておく
 jest.mock("../../lambda/infrastructures/elasticSearchTodoDomain");

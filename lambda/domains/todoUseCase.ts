@@ -4,11 +4,9 @@ import {
   ListTodoInDynamodbOutput,
 } from "../infrastructures/dynamodbTodoTable";
 
-import {
-  NotFoundError,
-  ErrorMessage,
-  DynamodbError,
-} from "../domains/errorUseCase";
+import { ElasticSearchTodoDomain } from "../infrastructures/elasticSearchTodoDomain";
+
+import { NotFoundError, ErrorMessage } from "../domains/errorUseCase";
 import { v4 as uuidv4 } from "uuid";
 
 /**
@@ -174,9 +172,54 @@ export class TodoUseCase {
     return todos;
   }
 
-  // public async findTodo() {
+  /**
+   * 指定したワード、件数上限で、Todoの検索処理を実行する
+   *
+   * @param {FindTodosProps} findTodosProps
+   * @return {*}
+   * @memberof TodoUseCase
+   */
+  public async findTodos(findTodosProps: FindTodosProps) {
+    const elasticSearchTodoDomain = new ElasticSearchTodoDomain(
+      findTodosProps.node
+    );
 
-  // }
+    // Elasticsearchに対して検索実行
+    const response = await elasticSearchTodoDomain.searchByUserIdAndByQuery({
+      userId: this.userId,
+      q: findTodosProps.q,
+      size: findTodosProps.size,
+      from: findTodosProps.nextStartKey,
+    });
+    const hits = response.body.hits.hits;
+    const totalCount = response.body.hits.total.value;
+
+    // 返却値を設定
+    const findTodoOutput: FindTodosOutput = {
+      todos: [],
+      totalCount: totalCount,
+    };
+    // 返却値に取得したTodoをセット
+    for (const hit of hits) {
+      findTodoOutput.todos.push(hit._source);
+    }
+
+    // sizeが指定されているときだけ、次ページの開始位置を返す処理が必要
+    if (findTodosProps.size) {
+      const readStartPoint =
+        findTodosProps?.nextStartKey == undefined
+          ? 0
+          : findTodosProps.nextStartKey;
+      //今回読み込み完了位置
+      const readEndPoint = +findTodosProps.size + readStartPoint;
+      //今回読み込み完了した位置が、Todoのトータル件数を上回っていなければ、次回読み込み開始位置を設定する
+      if (readEndPoint < totalCount) {
+        findTodoOutput["nextStartKey"] = readEndPoint;
+      }
+    }
+
+    return findTodoOutput;
+  }
 }
 
 export interface Todo {
@@ -216,3 +259,15 @@ const issueTodoId = (): string => {
 
   return newTodoId;
 };
+
+export interface FindTodosProps {
+  q?: string;
+  node: string;
+  size?: number;
+  nextStartKey?: number;
+}
+export interface FindTodosOutput {
+  todos: Todo[];
+  nextStartKey?: number;
+  totalCount: number;
+}

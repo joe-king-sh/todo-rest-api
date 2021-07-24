@@ -1,17 +1,27 @@
 const aws = require("aws-sdk");
-import { ElasticSearchTodoDomain } from "../../lambda/infrastructures/elasticSearchTodoDomain";
 import {
-  DynamodbError,
-  ErrorMessage,
-  NotFoundError,
-} from "../../lambda/domains/errorUseCase";
+  ElasticSearchTodoDomain,
+  SearchByUserIdAndByQueryProps,
+} from "../../lambda/infrastructures/elasticSearchTodoDomain";
+import { Client, ApiResponse } from "@elastic/elasticsearch";
 import { DynamoDBRecord } from "aws-lambda";
 
 process.env.DYNAMODB_TABLE_NAME = "MOCK_DYNAMODB_TABLE";
 process.env.REGION = "ap-northeast-1";
 
 jest.mock("aws-sdk");
-jest.mock("@elastic/elasticsearch");
+jest.mock("@elastic/elasticsearch", () => {
+  const mClient = {
+    search: jest.fn(),
+    delete: jest.fn(),
+    index: jest.fn(),
+  };
+  return { Client: jest.fn(() => mClient) };
+});
+const mElaticsearchClient = new Client({ node: "my-test-node" });
+const elasticSearchTodoDomain = new ElasticSearchTodoDomain(`test-node`);
+elasticSearchTodoDomain.client = mElaticsearchClient;
+
 jest.mock("aws-elasticsearch-connector");
 
 describe("ElasticSearch 共通アクセスクラス インデックス登録のテスト", (): void => {
@@ -23,9 +33,6 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     jest.resetAllMocks();
 
     expect.assertions(1);
-
-    const testNode = "search-my-test-app-xxx.ap-northeast-1.es.amazonaws.com";
-    const elasticSearchTodoDomain = new ElasticSearchTodoDomain(testNode);
 
     // WHEN
     const records = [
@@ -86,9 +93,6 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     jest.resetAllMocks();
 
     expect.assertions(1);
-
-    const testNode = "search-my-test-app-xxx.ap-northeast-1.es.amazonaws.com";
-    const elasticSearchTodoDomain = new ElasticSearchTodoDomain(testNode);
 
     // WHEN
     const records = [
@@ -151,9 +155,6 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     jest.resetAllMocks();
 
     expect.assertions(2);
-
-    const testNode = "search-my-test-app-xxx.ap-northeast-1.es.amazonaws.com";
-    const elasticSearchTodoDomain = new ElasticSearchTodoDomain(testNode);
 
     // WHEN
     const records = [
@@ -247,9 +248,6 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
 
     expect.assertions(2);
 
-    const testNode = "search-my-test-app-xxx.ap-northeast-1.es.amazonaws.com";
-    const elasticSearchTodoDomain = new ElasticSearchTodoDomain(testNode);
-
     // WHEN
     const records = [
       {
@@ -305,4 +303,249 @@ describe("ElasticSearch 共通アクセスクラス インデックス登録の�
     expect(elasticSearchTodoDomain.client.delete).toHaveBeenCalledTimes(0);
     expect(elasticSearchTodoDomain.client.index).toHaveBeenCalledTimes(0);
   }, 5000);
+
+  describe("ElasticSearch 共通アクセスクラス 検索のテスト", (): void => {
+    afterAll(() => {
+      jest.resetAllMocks();
+    });
+
+    test("Case1: 検索条件指定なし 全件を返す", async () => {
+      jest.resetAllMocks();
+
+      expect.assertions(1);
+
+      // モックのセット
+      mElaticsearchClient.search = jest.fn().mockReturnValue(
+        new Promise((resolve, reject) => {
+          const response = {
+            took: 4,
+            timed_out: false,
+            _shards: {
+              total: 5,
+              successful: 5,
+              skipped: 0,
+              failed: 0,
+            },
+            hits: {
+              total: {
+                value: 2,
+                relation: "eq",
+              },
+              max_score: 1.0,
+              hits: [
+                {
+                  _index: "my-unit-test-user",
+                  _type: "_doc",
+                  _id: "my-unit-test-user20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+                  _score: 1.0,
+                  _source: {
+                    updatedDate: "Fri, 23 Jul 2021 15:29:23 GMT",
+                    title: "title1",
+                    todoId:
+                      "20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+                    userId: "my-unit-test-user",
+                    content: "test contents",
+                  },
+                },
+                {
+                  _index: "my-unit-test-user",
+                  _type: "_doc",
+                  _id: "my-unit-test-user20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+                  _score: 1.0,
+                  _source: {
+                    updatedDate: "Fri, 23 Jul 2021 15:12:56 GMT",
+                    title: "title2",
+                    todoId:
+                      "20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+                    userId: "my-unit-test-user",
+                    content: "testcontents",
+                  },
+                },
+              ],
+            },
+          };
+          resolve(response);
+        })
+      );
+
+      // WHEN
+      const searchByUserIdAndByQueryProps = {
+        userId: "my-unit-test-user",
+      };
+      const expected = {
+        took: 4,
+        timed_out: false,
+        _shards: {
+          total: 5,
+          successful: 5,
+          skipped: 0,
+          failed: 0,
+        },
+        hits: {
+          total: {
+            value: 2,
+            relation: "eq",
+          },
+          max_score: 1.0,
+          hits: [
+            {
+              _index: "my-unit-test-user",
+              _type: "_doc",
+              _id: "my-unit-test-user20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+              _score: 1.0,
+              _source: {
+                updatedDate: "Fri, 23 Jul 2021 15:29:23 GMT",
+                title: "title1",
+                todoId: "20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+                userId: "my-unit-test-user",
+                content: "test contents",
+              },
+            },
+            {
+              _index: "my-unit-test-user",
+              _type: "_doc",
+              _id: "my-unit-test-user20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+              _score: 1.0,
+              _source: {
+                updatedDate: "Fri, 23 Jul 2021 15:12:56 GMT",
+                title: "title2",
+                todoId: "20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+                userId: "my-unit-test-user",
+                content: "testcontents",
+              },
+            },
+          ],
+        },
+      };
+
+      // THEN
+      // 戻り値確認
+      await expect(
+        elasticSearchTodoDomain.searchByUserIdAndByQuery(
+          searchByUserIdAndByQueryProps
+        )
+      ).resolves.toEqual(expected);
+    }, 5000);
+
+    test("Case2: 検索条件(s、from、size)あり", async () => {
+      jest.resetAllMocks();
+
+      expect.assertions(1);
+
+      // モックのセット
+      mElaticsearchClient.search = jest.fn().mockReturnValue(
+        new Promise((resolve, reject) => {
+          const response = {
+            took: 4,
+            timed_out: false,
+            _shards: {
+              total: 5,
+              successful: 5,
+              skipped: 0,
+              failed: 0,
+            },
+            hits: {
+              total: {
+                value: 2,
+                relation: "eq",
+              },
+              max_score: 1.0,
+              hits: [
+                {
+                  _index: "my-unit-test-user",
+                  _type: "_doc",
+                  _id: "my-unit-test-user20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+                  _score: 1.0,
+                  _source: {
+                    updatedDate: "Fri, 23 Jul 2021 15:29:23 GMT",
+                    title: "title1",
+                    todoId:
+                      "20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+                    userId: "my-unit-test-user",
+                    content: "test contents",
+                  },
+                },
+                {
+                  _index: "my-unit-test-user",
+                  _type: "_doc",
+                  _id: "my-unit-test-user20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+                  _score: 1.0,
+                  _source: {
+                    updatedDate: "Fri, 23 Jul 2021 15:12:56 GMT",
+                    title: "title2",
+                    todoId:
+                      "20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+                    userId: "my-unit-test-user",
+                    content: "testcontents",
+                  },
+                },
+              ],
+            },
+          };
+          resolve(response);
+        })
+      );
+
+      // WHEN
+      const searchByUserIdAndByQueryProps = {
+        userId: "my-unit-test-user",
+        size: 5,
+        from: 5,
+        q: "Find this text",
+      };
+      const expected = {
+        took: 4,
+        timed_out: false,
+        _shards: {
+          total: 5,
+          successful: 5,
+          skipped: 0,
+          failed: 0,
+        },
+        hits: {
+          total: {
+            value: 2,
+            relation: "eq",
+          },
+          max_score: 1.0,
+          hits: [
+            {
+              _index: "my-unit-test-user",
+              _type: "_doc",
+              _id: "my-unit-test-user20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+              _score: 1.0,
+              _source: {
+                updatedDate: "Fri, 23 Jul 2021 15:29:23 GMT",
+                title: "title1",
+                todoId: "20210723152923-a13d54f8-6308-45c3-a27b-046d0d547fd4",
+                userId: "my-unit-test-user",
+                content: "test contents",
+              },
+            },
+            {
+              _index: "my-unit-test-user",
+              _type: "_doc",
+              _id: "my-unit-test-user20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+              _score: 1.0,
+              _source: {
+                updatedDate: "Fri, 23 Jul 2021 15:12:56 GMT",
+                title: "title2",
+                todoId: "20210723151256-4d211798-ff8f-4a97-9c35-7bc9edce2b9d",
+                userId: "my-unit-test-user",
+                content: "testcontents",
+              },
+            },
+          ],
+        },
+      };
+
+      // THEN
+      // 戻り値確認
+      await expect(
+        elasticSearchTodoDomain.searchByUserIdAndByQuery(
+          searchByUserIdAndByQueryProps
+        )
+      ).resolves.toEqual(expected);
+    }, 5000);
+  });
 });
