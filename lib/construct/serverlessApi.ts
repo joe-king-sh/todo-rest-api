@@ -18,7 +18,7 @@ import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
 
-const es = require("../my_node_modules/@aws-cdk/aws-elasticsearch");
+const es = require("../my_modules/@aws-cdk/aws-elasticsearch");
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
   userPoolDomainName: string;
