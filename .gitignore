@@ -12,6 +12,8 @@ coverage/
 cdk.out
 cdk-outputs.json
 
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

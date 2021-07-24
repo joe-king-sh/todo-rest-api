@@ -16,8 +16,7 @@
     "cdk:deploy": "npm run prebuild && cdk deploy -v --require-approval never --outputs-file ./cdk-outputs.json -c ",
     "cdk:destroy": "npm run prebuild && cdk destroy --force --require-approval never -c ",
     "cdk:doctor": "cdk doctor",
-    "docs:api": "./script/generate_api_doc.sh"
-
+    "docs:api": "./script/generate_api_doc.ts"
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.114.0",
@@ -32,7 +31,6 @@
     "esbuild": "^0.12.15",
     "jest": "^26.4.2",
     "jwt-encode": "^1.0.1",
-    "redoc-cli": "^0.12.2",
     "ts-jest": "^26.2.0",
     "ts-node": "^9.0.0",
     "typescript": "~3.9.7"
