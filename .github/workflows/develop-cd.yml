@@ -44,7 +44,6 @@ jobs:
 
       - name: Check aws credentials
         run: |
-          cat ~/.aws/credentials
           echo ${AWS_SECRET_ACCESS_KEY}
         env:
           AWS_DEFAULT_REGION: "ap-northeast-1"
