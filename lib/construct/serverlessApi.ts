@@ -142,7 +142,7 @@ export class ServerlessApi extends cdk.Construct {
       }
     );
 
-    const createIdToken = new nodeLambda.NodejsFunction(
+    const createIdTokenLambda = new nodeLambda.NodejsFunction(
       this,
       buildResourceName(projectName, "createIdToken", env),
       {
@@ -384,7 +384,7 @@ export class ServerlessApi extends cdk.Construct {
             "x-amazon-apigateway-integration": {
               uri:
                 "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
-                putTodosLambda.functionName +
+                createIdTokenLambda.functionName +
                 "/invocations",
               responses: {
                 default: {
@@ -962,17 +962,17 @@ export class ServerlessApi extends cdk.Construct {
     });
 
     // TODO  API ドキュメント公開用 S3Bucketの作成
-    // const fs = require("fs");
-    // const yaml = require("js-yaml");
+    const fs = require("fs");
+    const yaml = require("js-yaml");
 
-    // const yamlText = yaml.dump(this.swagger);
-    // fs.writeFile("./cdk.out/swagger.yaml", yamlText, "utf8", (err: any) => {
-    //   if (err) {
-    //     console.error(err.message);
-    //     process.exit(1);
-    //   }
-    //   console.log("SwaggerファイルをYamlで出力しました");
-    // });
+    const yamlText = yaml.dump(this.swagger);
+    fs.writeFile("./cdk.out/swagger.yaml", yamlText, "utf8", (err: any) => {
+      if (err) {
+        console.error(err.message);
+        process.exit(1);
+      }
+      console.log("SwaggerファイルをYamlで出力しました");
+    });
     // TODO ドキュメントを各環境毎のS3へアップロードするやつ。Synthで動いてしまうから、S３Put自体は、テスト通った後の方がいいかも　ここではcdk.outに吐くまで
 
     // APIキーとかも作られるまでは、わからないので、それを事前にSwaggerに入れることはできない。
