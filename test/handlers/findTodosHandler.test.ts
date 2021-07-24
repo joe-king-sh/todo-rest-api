@@ -5,6 +5,7 @@ import {
   ErrorMessage,
   DynamodbError,
   buildErrorMessage,
+  ElasticsearchError,
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
@@ -170,6 +171,56 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
         ],
         totalCount: 1,
       }),
+    };
+
+    // THEN
+    await expect(handler(event)).resolves.toEqual(expected);
+  });
+  test("Case4: 予期せぬエラー発生", async () => {
+    expect.assertions(1);
+    jest.resetAllMocks();
+
+    // モックをセット
+    const findTodosSpy = jest
+      .spyOn(TodoUseCase.prototype, "findTodos")
+      .mockReturnValue(
+        new Promise((resolve, reject) => {
+          throw Error(ErrorMessage.UNEXPECTED_ERROR());
+        })
+      );
+
+    // WHEN
+    const event: APIGatewayEvent = { ...baseApiGatewayEvent };
+    event.headers = { Authorization: "XXX" };
+    event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
+    const expected = {
+      statusCode: 500,
+      body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
+    };
+
+    // THEN
+    await expect(handler(event)).resolves.toEqual(expected);
+  });
+  test("Case4: Elasticsearchアクセス時にエラー発生", async () => {
+    expect.assertions(1);
+    jest.resetAllMocks();
+
+    // モックをセット
+    const findTodosSpy = jest
+      .spyOn(TodoUseCase.prototype, "findTodos")
+      .mockReturnValue(
+        new Promise((resolve, reject) => {
+          throw new ElasticsearchError(ErrorMessage.ELASTIC_SEARCH_ERROR());
+        })
+      );
+
+    // WHEN
+    const event: APIGatewayEvent = { ...baseApiGatewayEvent };
+    event.headers = { Authorization: "XXX" };
+    event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
+    const expected = {
+      statusCode: 500,
+      body: buildErrorMessage(ErrorMessage.ELASTIC_SEARCH_ERROR()),
     };
 
     // THEN

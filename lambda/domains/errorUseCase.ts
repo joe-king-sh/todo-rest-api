@@ -25,6 +25,20 @@ export class DynamodbError extends BaseError {
 }
 
 /**
+ * Elasticsearchでエラー発生時にthrowするException
+ *
+ * @export
+ * @class ElasticsearchError
+ * @extends {BaseError}
+ */
+export class ElasticsearchError extends BaseError {
+  public statusCode = 500;
+  constructor(e?: string) {
+    super(e);
+  }
+}
+
+/**
  * 何か見つからないエラー発生時にthrowするException
  *
  * @export
@@ -65,6 +79,10 @@ export class ErrorMessage {
 
   static DYNAMODB_ERROR = () => {
     return `Dynamodbアクセス中にエラーが発生しました`;
+  };
+
+  static ELASTIC_SEARCH_ERROR = () => {
+    return `Elasticsearchアクセス中にエラーが発生しました`;
   };
 
   static UNEXPECTED_ERROR = () => {
