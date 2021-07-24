@@ -11,7 +11,7 @@
     "test": "npm run prebuild && jest",
     "test:coverage": "npm test -- --coverage",
     "test:badges": "npm run test:coverage  && jest-coverage-badges",
-    "cdk": "npm run prebuild && cdk"
+    "cdk:synth": "npm run prebuild && cdk synth -c "
   },
   "devDependencies": {
     "@aws-cdk/assert": "1.114.0",
