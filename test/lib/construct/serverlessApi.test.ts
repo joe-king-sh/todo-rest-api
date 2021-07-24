@@ -40,6 +40,7 @@ for (const env of Object.values(environment.Environments)) {
           userPoolDomainName: auth.domainName,
           userPoolArn: auth.userPool.userPoolArn,
           userPoolId: auth.userPool.userPoolId,
+          userPoolClientId: auth.userPoolClientId,
         });
 
         // THEN

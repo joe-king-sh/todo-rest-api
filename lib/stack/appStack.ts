@@ -32,6 +32,7 @@ export class AppStack extends cdk.Stack {
         userPoolDomainName: auth.domainName,
         userPoolArn: auth.userPool.userPoolArn,
         userPoolId: auth.userPool.userPoolId,
+        userPoolClientId: auth.userPoolClientId,
       }
     );
   }

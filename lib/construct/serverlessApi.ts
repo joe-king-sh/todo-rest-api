@@ -4,13 +4,7 @@ import * as environment from "../environment";
 import * as iam from "@aws-cdk/aws-iam";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as nodeLambda from "@aws-cdk/aws-lambda-nodejs";
-import {
-  Effect,
-  IGrantable,
-  IPrincipal,
-  PolicyStatement,
-  ServicePrincipal,
-} from "@aws-cdk/aws-iam";
+import { Effect, ServicePrincipal } from "@aws-cdk/aws-iam";
 import * as logs from "@aws-cdk/aws-logs";
 
 import * as apigw from "@aws-cdk/aws-apigateway";
@@ -18,12 +12,14 @@ import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import * as es from "@aws-cdk/aws-elasticsearch";
 import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
+import cognito = require("@aws-cdk/aws-cognito");
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
   userPoolDomainName: string;
   userPoolArn: string;
   userPoolId: string;
+  userPoolClientId: string;
 }
 
 export class ServerlessApi extends cdk.Construct {
@@ -143,6 +139,23 @@ export class ServerlessApi extends cdk.Construct {
         functionName: buildResourceName(projectName, "indexTodos", env),
         description:
           "Dynamodbに格納された情報をElasticSearchにインデックスする",
+      }
+    );
+
+    const createIdToken = new nodeLambda.NodejsFunction(
+      this,
+      buildResourceName(projectName, "createIdToken", env),
+      {
+        entry: "lambda/handlers/createIdTokenHandler.ts",
+        handler: "handler",
+        runtime: lambda.Runtime.NODEJS_14_X,
+        environment: {
+          REGION: region,
+          USER_POOL_ID: props.userPoolId,
+          CLIENT_ID: props.userPoolClientId,
+        },
+        functionName: buildResourceName(projectName, "createIdToken", env),
+        description: "CognitoUserPoolからAPIアクセス用のIDTokenを発行する",
       }
     );
 
@@ -291,6 +304,101 @@ export class ServerlessApi extends cdk.Construct {
       },
       // 各APIのリソースを以下で定義していく
       paths: {
+        "/auth/token": {
+          post: {
+            operationId: "createToken",
+            tags: ["Auth"],
+            summary: "認証トークン発行API",
+            description: "APIにアクセスするためのIDトークンを発行する",
+            security: [],
+            requestBody: {
+              description: "認証情報",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["userId", "password"],
+                    properties: {
+                      userId: {
+                        type: "string",
+                      },
+                      password: {
+                        type: "string",
+                      },
+                    },
+                  },
+                  examples: {
+                    Todo: {
+                      summary: "認証情報 例",
+                      value: {
+                        userId: "my-user-id",
+                        password: "my-password",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              200: {
+                description: "認証成功 トークンを発行する",
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      required: ["idToken"],
+                      properties: {
+                        idToken: {
+                          type: "string",
+                        },
+                      },
+                    },
+                    examples: {
+                      Todo: {
+                        summary: "認証結果 トークン発行の例",
+                        value: {
+                          idToken:
+                            "eyJraWQiOiJpV3RidzNaXC9WbFVyUWhCaGp..(省略)",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              default: {
+                description: "予期せぬエラーが発生",
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/Error",
+                    },
+                    examples: {
+                      unexpected: {
+                        $ref: "#/components/examples/ErrorExample",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              uri:
+                "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:" +
+                putTodosLambda.functionName +
+                "/invocations",
+              responses: {
+                default: {
+                  statusCode: "200",
+                },
+              },
+              passthroughBehavior: "when_no_match",
+              httpMethod: "POST",
+              contentHandling: "CONVERT_TO_TEXT",
+              type: "aws_proxy",
+            },
+          },
+        },
+
         "/todos": {
           get: {
             operationId: "findTodos",
