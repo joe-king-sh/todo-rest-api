@@ -1,4 +1,4 @@
-import {Environments} from './environment'
+import { Environments } from "./environment";
 
 /**
  * CDKでデプロイするリソース名をつける共通関数
@@ -8,6 +8,10 @@ import {Environments} from './environment'
  * @param env デプロイする環境
  * @returns `${projectName}-${resourceName}-${env}`
  */
-export const generateResourceName = (projectName: string, resourceName: string, env: Environments) => {
-    return `${projectName}-${resourceName}-${env}`
+export const buildResourceName = (
+  projectName: string,
+  resourceName: string,
+  env: Environments
+) => {
+  return `${projectName}-${resourceName}-${env}`;
 };

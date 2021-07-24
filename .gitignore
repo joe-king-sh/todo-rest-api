@@ -1,8 +1,11 @@
 
 *.js
 !jest.config.js
+!jest-dynalite-config.js
 *.d.ts
 node_modules
+
+coverage/
 
 # CDK asset staging directory
 .cdk.staging
