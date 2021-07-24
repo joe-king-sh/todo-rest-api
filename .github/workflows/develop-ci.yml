@@ -1,9 +1,10 @@
-name: CI in develop
+name: CI-in-develop
 
 on:
   pull_request:
     branches: [develop]
-
+  push:
+    branches: [develop]
   workflow_dispatch: ci-in-develop
 
 jobs:
