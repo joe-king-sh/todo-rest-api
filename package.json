@@ -10,7 +10,6 @@
     "watch": "npm run prebuild && tsc -w",
     "test": "npm run prebuild && jest",
     "test:coverage": "npm test -- --coverage",
-    "test:badges": "npm run test:coverage  && jest-coverage-badges",
     "cdk:synth": "npm run prebuild && cdk synth -c ",
     "cdk:diff": "npm run prebuild && cdk diff -c ",
     "cdk:deploy": "npm run prebuild && cdk deploy -v --require-approval never --outputs-file ./cdk-outputs.json -c ",

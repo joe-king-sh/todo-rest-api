@@ -1,5 +1,6 @@
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
-![](https://github.com/joe-king-sh/todo-rest-api/workflows/unittest/badge.svg)
+![](https://github.com/joe-king-sh/todo-rest-api/workflows/CI/badge.svg)
+
 # TODO リスト用 REST API
 TODOリストを管理するWebやモバイルアプリケーションを想定したバックエンド用のREST API
 
@@ -46,19 +47,20 @@ TODOリストを管理するWebやモバイルアプリケーションを想定�
 - [API仕様書](https://joe-king-sh.github.io/todo-rest-api/api/)(API実行可能)
 ## ビルド
 ```bash
-# トランスコンパイル
 $ npm run build
+
 # CDKからCloudFormation生成
 $ npm run cdk:synth target=dev
 ```
-## テスト実行
+## テスト
 ```bash
 # 単体テスト
 $ npm run test
 # E2Eテスト
 $ npm run e2e
 ```
-※ E2Eテストを実行するためには、後述のcdk:deployを直前に実行している必要があります。
+※ E2Eテストを実行するためには、後述のcdk:deployを直前に実行している必要があり、
+  その環境に対してE2Eテストを実行します。
 
 ## デプロイ
 - 手動デプロイ
@@ -76,3 +78,10 @@ $ npm run e2e
     ※ フォークしてCICDを実行する場合、GithubのSecretsに以下の設定が必要
     - AWS_ACCESS_KEY
     - AWS_SECRET_ACCESS_KEY
+
+## その他
+```bash
+# swagger.ymlからAPI仕様書の作成
+$ npm run docs:api
+
+```
