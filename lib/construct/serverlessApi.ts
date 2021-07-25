@@ -229,7 +229,7 @@ export class ServerlessApi extends cdk.Construct {
       // この$API_IDだけ、デプロイ完了後sedで置換する
       servers: [
         {
-          url: `https://$API_ID.execute-api.${props.environmentVariables.region}.amazonaws.com/${env}`,
+          url: `API_ENDPOINT`,
           description: "",
         },
       ],
@@ -1307,12 +1307,6 @@ export class ServerlessApi extends cdk.Construct {
           loggingLevel: apigw.MethodLoggingLevel.INFO,
         },
         cloudWatchRole: true,
-
-        // TODO このCORS設定してデプロイして、Github Pageに載せるところから。Readmeからの仕様書のリンク先も
-        // TODO 別アカウントでgit cloneしてきてデプロイの確認
-        // TODO E2Eテスト実装
-        // TODO リポジトリの説明、仕様書、ドキュメントの整備
-        // TODO あとは、ソースにコメント書いたりとか。最終チェック
       }
     );
 
