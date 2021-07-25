@@ -1,4 +1,4 @@
-name: common-ci
+name: CI
 
 on:
   pull_request:
@@ -27,8 +27,12 @@ jobs:
       - name: Installs dependencies
         run: npm ci
 
-      - name: Run unittest
-        run: npm run test
+      - name: Run unit test with coverage
+        uses: mattallty/jest-github-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          test-command: "npm run test"
 
       - name: Run cdk diff check
         run: npm run cdk:synth target=dev

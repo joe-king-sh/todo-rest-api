@@ -8,6 +8,7 @@ import {
   buildErrorMessage,
   UnauthorizedError,
 } from "../../lambda/domains/errorUseCase";
+import { buildResponseWithCorsHeader } from "../../lambda/infrastructures/apiGateway";
 
 // 認証関連は全てモック化しておく
 jest.mock("../../lambda/domains/authUserCase");
@@ -64,12 +65,12 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
 
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["Request Body"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -82,10 +83,10 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.body = "invalid_json";
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(ErrorMessage.INVALID_PARAMETER()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -100,12 +101,12 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
     event.body = JSON.stringify({
       password: "my-password",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["userId", "password"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -118,12 +119,12 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.body = JSON.stringify({ userId: "my-unit-test-user" });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["userId", "password"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -145,12 +146,12 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
       userId: "my-unit-test-user",
       password: "password",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 200,
       body: JSON.stringify({
         idToken: "my-access-token",
       }),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -173,10 +174,10 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
       userId: "my-unit-test-user",
       password: "password",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 500,
       body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -199,10 +200,10 @@ describe("IDトークン発行のハンドラのテスト", (): void => {
       userId: "my-unit-test-user",
       password: "password",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 401,
       body: buildErrorMessage(ErrorMessage.NOT_FOUND("指定されたユーザ")),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);

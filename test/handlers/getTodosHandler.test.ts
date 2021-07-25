@@ -9,6 +9,7 @@ import {
 } from "../../lambda/domains/errorUseCase";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
+import { buildResponseWithCorsHeader } from "../../lambda/infrastructures/apiGateway";
 
 // 認証関連は全てモック化しておく
 jest.mock("../../lambda/infrastructures/cognito");
@@ -65,12 +66,12 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
 
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -83,10 +84,10 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(ErrorMessage.PARAMETERS_NOT_FOUND(["todoId"])),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -117,7 +118,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 200,
       body: JSON.stringify({
         userId: "my-unit-test-user",
@@ -126,7 +127,7 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
         content: "Todo内容",
         updatedDate: mockUpdatedDate,
       }),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -149,10 +150,10 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 500,
       body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -175,10 +176,10 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 500,
       body: buildErrorMessage(ErrorMessage.DYNAMODB_ERROR()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -205,12 +206,12 @@ describe("Todo取得処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.pathParameters = { todoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d" };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 404,
       body: buildErrorMessage(
         ErrorMessage.NOT_FOUND(`todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`)
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);

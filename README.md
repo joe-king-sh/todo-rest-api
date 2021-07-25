@@ -1,29 +1,28 @@
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+![](https://github.com/joe-king-sh/todo-rest-api/workflows/unittest/badge.svg)
 # TODO リスト用 REST API
-TODOリストを管理するアプリケーションのバックエンド用REST API
+TODOリストを管理するWebやモバイルアプリケーションを想定したバックエンド用のREST API
 
+## アーキテクチャ
+![アーキテクチャ](./docs/アーキテクト設計.drawio.png)
 ## 環境
 - AWS CDK 1.114.0 
-- Docker version 20.10.5
 - OS: Mac Big Sur 11.1
+- nodejs v14.15.0
 
 ## 前提条件
-1. npmがインストール済み
-    ```zsh
+1. 以下がインストール済みであること
+    ```bash
+    # npm
     $ npm --version
     7.20.0
-    ```
-2. Dockerがインストール済み
-    ```zsh
-    $ docker --version
-    Docker version 20.10.5, build 55c4c88
-    ```
-3. AWS CLIがインストール済み
-    ```
+
+    # aws-cli
     $ aws --version
     aws-cli/2.0.17 Python/3.7.3 Linux/5.10.25-linuxkit botocore/2.0.0dev21
     ```
-4. AWSのクレデンシャルを設定済み
-    ```
+2. AWSのクレデンシャルを設定済みであること
+    ```bash
     $ aws configure
     AWS Access Key ID [****************ABCD]: 
     AWS Secret Access Key [****************EFGH]: 
@@ -31,36 +30,49 @@ TODOリストを管理するアプリケーションのバックエンド用REST
     Default output format [json]: 
     ```
 ## 環境構築
-
-3. npm依存パッケージをインストール
-    ```zsh
+1. npm依存パッケージをインストール
+    ```bash
     $ npm install
     ```
 
 4. AWS CDKのブートストラップ
-    ```zsh
-    $ npm install -g aws-cdk
-    $ cdk --version
-    1.114.0 (build 7e41b6b)
-
-    # 使用するAWSアカウントのリージョンで初めてCDKを使用する場合のみ以下を実行
-    $ cdk bootstrap aws://{ACCOUNT-NUMBER}/{REGION}
+    ```bash
+    # 初めてCDKを使用する場合のみ以下を実行
+    $ npm run cdk:bootstrap target=dev
     ```
-# 設計
-- [API仕様書](https://joe-king-sh.github.io/todo-rest-api/api/api-spec.html)
-
-# Test
+## ドキュメント
+- [要件整理](./docs/要件整理.md)
+- [DB設計](./docs/Dynamodb設計.md)
+- [API仕様書](https://joe-king-sh.github.io/todo-rest-api/api/)(API実行可能)
+## ビルド
+```bash
+# トランスコンパイル
+$ npm run build
+# CDKからCloudFormation生成
+$ npm run cdk:synth target=dev
 ```
-npm test
-
-npm test -- --coverage
+## テスト実行
+```bash
+# 単体テスト
+$ npm run test
+# E2Eテスト
+$ npm run e2e
 ```
+※ E2Eテストを実行するためには、後述のcdk:deployを直前に実行している必要があります。
 
-# デプロイ方法
-```
-# 開発環境
-$ npm run cdk:deploy target=dev
-```
+## デプロイ
+- 手動デプロイ
+    ```bash
+    # 開発環境
+    $ npm run cdk:deploy target=dev
+    # ステージング環境
+    $ npm run cdk:deploy target=stg
+    # 本番環境
+    $ npm run cdk:deploy target=prod
+    ```
 
-- GithubのSecretsに、AWS_ACCESS_KEY,AWS_SECRET_ACCESS_KEYの設定をする
-- 
+- 継続的デプロイ
+![CICD](./docs/CICD設計.drawio.png)
+    ※ フォークしてCICDを実行する場合、GithubのSecretsに以下の設定が必要
+    - AWS_ACCESS_KEY
+    - AWS_SECRET_ACCESS_KEY

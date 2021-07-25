@@ -5,6 +5,8 @@
 *.d.ts
 node_modules
 
+!docs/api/*.js
+
 coverage/
 
 # CDK asset staging directory

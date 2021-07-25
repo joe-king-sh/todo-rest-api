@@ -18,11 +18,12 @@ module.exports = {
     "*.{ts,tsx}",
     "**/*.{ts,tsx}",
     "**/**/*.{ts,tsx}",
+    "!**/script/**",
     "!**/node_modules/**",
     "!**/my_modules/**",
     "!**/test/**",
     "!**/**/*.d.ts",
   ],
   // coverageReporters: ["text"],
-  coverageReporters: ["text", "json", "html","lcov"],
+  coverageReporters: ["text", "json", "html","lcov", "json-summary",],
 };

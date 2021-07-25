@@ -7,6 +7,7 @@ import {
   DynamodbError,
   buildErrorMessage,
 } from "../../lambda/domains/errorUseCase";
+import { buildResponseWithCorsHeader } from "../../lambda/infrastructures/apiGateway";
 
 import { TodoUseCase } from "../../lambda/domains/todoUseCase";
 
@@ -65,12 +66,12 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
 
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["Authorization Header"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -83,12 +84,12 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     // WHEN
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["Request Body"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -102,10 +103,10 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.body = "invalid_json";
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(ErrorMessage.INVALID_PARAMETER()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -121,12 +122,12 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.body = JSON.stringify({
       content: "awesome content",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -140,12 +141,12 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.body = JSON.stringify({ title: "todo title" });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 400,
       body: buildErrorMessage(
         ErrorMessage.PARAMETERS_NOT_FOUND(["title", "content"])
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -174,7 +175,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.body = JSON.stringify({ title: "todo title", content: "content" });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 200,
       body: JSON.stringify({
         userId: "my-unit-test-user",
@@ -183,7 +184,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         content: "content",
         updatedDate: mockUpdatedDate,
       }),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -217,7 +218,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
       title: "todo title",
       content: "content",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 200,
       body: JSON.stringify({
         userId: "my-unit-test-user",
@@ -226,7 +227,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         content: "content",
         updatedDate: mockUpdatedDate,
       }),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -261,7 +262,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
       title: "todo title",
       content: "content",
     });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 200,
       body: JSON.stringify({
         userId: "my-unit-test-user",
@@ -270,7 +271,7 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
         content: "content",
         updatedDate: mockUpdatedDate,
       }),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -293,10 +294,10 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.body = JSON.stringify({ title: "todo title", content: "content" });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 500,
       body: buildErrorMessage(ErrorMessage.UNEXPECTED_ERROR()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -319,10 +320,10 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     const event: APIGatewayEvent = { ...baseApiGatewayEvent };
     event.headers = { Authorization: "XXX" };
     event.body = JSON.stringify({ title: "todo title", content: "content" });
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 500,
       body: buildErrorMessage(ErrorMessage.DYNAMODB_ERROR()),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
@@ -350,12 +351,12 @@ describe("Todo登録処理のハンドラのテスト", (): void => {
     event.headers = { Authorization: "XXX" };
     event.body = JSON.stringify({ title: "todo title", content: "content" });
 
-    const expected = {
+    const expected = buildResponseWithCorsHeader({
       statusCode: 404,
       body: buildErrorMessage(
         ErrorMessage.NOT_FOUND(`todoId: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`)
       ),
-    };
+    });
 
     // THEN
     await expect(handler(event)).resolves.toEqual(expected);
