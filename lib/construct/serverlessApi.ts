@@ -15,6 +15,7 @@ import { StartingPosition } from "@aws-cdk/aws-lambda";
 import { CfnOutput } from "@aws-cdk/core";
 
 import { exportApiSpec } from "../../script/exportApiSpec";
+import * as ssm from "@aws-cdk/aws-ssm";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
@@ -1339,9 +1340,18 @@ export class ServerlessApi extends cdk.Construct {
       })
     );
 
-    // Outputを定義
-    new CfnOutput(this, "api-id", {
-      value: api.restApiId,
+    // // Outputを定義
+    // new CfnOutput(this, "api-id", {
+    //   value: api.restApiId,
+    // });
+
+    new ssm.StringParameter(this, "ApiId", {
+      parameterName: `/${projectName}/${env}/ApiId`,
+      stringValue: api.restApiId,
+    });
+    new ssm.StringParameter(this, "ApiUrl", {
+      parameterName: `/${projectName}/${env}/ApiUrl`,
+      stringValue: api.urlForPath(),
     });
 
     // swagger.ymlをdocsフォルダに吐いておく

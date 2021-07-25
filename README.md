@@ -55,12 +55,11 @@ $ npm run cdk:synth target=dev
 ## テスト
 ```bash
 # 単体テスト
-$ npm run test
+$ npm run test:unit
 # E2Eテスト
-$ npm run e2e
+$ npm run test:e2e target=(dev or stg or prod)
 ```
-※ E2Eテストを実行するためには、後述のcdk:deployを直前に実行している必要があり、
-  その環境に対してE2Eテストを実行します。
+※ E2Eテストを実行するためには、後述のcdk:deployを実行している必要があります
 
 ## デプロイ
 - 手動デプロイ

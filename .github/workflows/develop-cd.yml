@@ -26,7 +26,7 @@ jobs:
         run: npm ci
 
       - name: Run unittest
-        run: npm run test
+        run: npm run test:unit
 
       - name: Run cdk diff check
         run: npm run cdk:synth target=dev

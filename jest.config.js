@@ -2,9 +2,10 @@ module.exports = {
   testEnvironment: "node",
   roots: [
     "<rootDir>/test",
-    "<rootDir>/lambda",
-    "<rootDir>/lib",
-    "<rootDir>/bin",
+    "<rootDir>/e2e",
+    // "<rootDir>/lambda",
+    // "<rootDir>/lib",
+    // "<rootDir>/bin",
   ],
   testMatch: ["**/*.test.ts"],
   transform: {

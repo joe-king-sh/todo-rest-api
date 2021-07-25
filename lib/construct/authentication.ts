@@ -2,6 +2,7 @@ import * as cdk from "@aws-cdk/core";
 import { buildResourceName } from "../utility";
 import cognito = require("@aws-cdk/aws-cognito");
 import * as environment from "../environment";
+import * as ssm from "@aws-cdk/aws-ssm";
 
 interface AuthenticationProps {
   environmentVariables: environment.EnvironmentVariables;
@@ -60,11 +61,13 @@ export class Authentication extends cdk.Construct {
       cognitoDomain: { domainPrefix: this.domainName },
     });
 
-    new cdk.CfnOutput(this, "user-pool-id", {
-      value: this.userPool.userPoolId,
+    new ssm.StringParameter(this, "UserPoolId", {
+      parameterName: `/${projectName}/${env}/UserPoolId`,
+      stringValue: this.userPool.userPoolId,
     });
-    new cdk.CfnOutput(this, "user-pool-client-id", {
-      value: this.userPoolClientId,
+    new ssm.StringParameter(this, "user-pool-id", {
+      parameterName: `/${projectName}/${env}/UserPoolClientId`,
+      stringValue: this.userPoolClientId,
     });
   }
 }
