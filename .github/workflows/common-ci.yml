@@ -32,7 +32,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          test-command: "npm run test"
+          test-command: "npm run test:unit"
 
       - name: Run cdk diff check
         run: npm run cdk:synth target=dev
