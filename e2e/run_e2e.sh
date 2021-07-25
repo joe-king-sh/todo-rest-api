@@ -12,8 +12,6 @@ ARGS=$1
 TARGET_ARR=(${ARGS//=/ })
 ENV=${TARGET_ARR[1]}
 
-echo "引数確認 $1: {$1}, TARGET_ARR: ${TARGET_ARR}, ENV: ${ENV}"
-
 if [ "${ENV}" != "dev" ] && [ "${ENV}" != "stg" ] && [ "${ENV}" != "prod" ]; then
     echo "引数を[target=env]の形で指定してください。"
     echo "許可されるenvは[dev or stg or prod]です"
