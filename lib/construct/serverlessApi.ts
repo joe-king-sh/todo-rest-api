@@ -14,6 +14,8 @@ import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
 import { CfnOutput } from "@aws-cdk/core";
 
+import { exportApiSpec } from "../../script/exportApiSpec";
+
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
   userPoolDomainName: string;
@@ -224,7 +226,7 @@ export class ServerlessApi extends cdk.Construct {
           url: "https://opensource.org/licenses/mit-license.php",
         },
       },
-      // TODO このAPI＿IDだけ、デプロイ完了後Swagger.ymlだけ入れ替えてから、仕様書をS３へアップする。もしくはデプロイされた後の仕様書を抜いてきて、入れ替える
+      // この$API_IDだけ、デプロイ完了後sedで置換する
       servers: [
         {
           url: `https://$API_ID.execute-api.${props.environmentVariables.region}.amazonaws.com/${env}`,
@@ -362,6 +364,23 @@ export class ServerlessApi extends cdk.Construct {
                     },
                   },
                 },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
               },
               default: {
                 description: "予期せぬエラーが発生",
@@ -387,12 +406,78 @@ export class ServerlessApi extends cdk.Construct {
               responses: {
                 default: {
                   statusCode: "200",
+
+                  responses: {
+                    default: {
+                      statusCode: "200",
+                      responseParameters: {
+                        "method.response.header.Access-Control-Allow-Headers":
+                          "'*'",
+                        "method.response.header.Access-Control-Allow-Methods":
+                          "'*'",
+                        "method.response.header.Access-Control-Allow-Origin":
+                          "'*'",
+                      },
+                      responseTemplates: {
+                        "application/json": "{}",
+                      },
+                    },
+                  },
                 },
               },
               passthroughBehavior: "when_no_match",
               httpMethod: "POST",
               contentHandling: "CONVERT_TO_TEXT",
               type: "aws_proxy",
+            },
+          },
+          options: {
+            summary: "CORS support",
+            description: "Enable CORS by returning correct headers\n",
+            tags: ["CORS"],
+            responses: {
+              "200": {
+                description: "Default response for CORS method",
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
+                content: {},
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              type: "mock",
+              requestTemplates: {
+                "application/json": '{"statusCode" : 200}',
+              },
+              responses: {
+                default: {
+                  statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
+                },
+              },
             },
           },
         },
@@ -500,6 +585,23 @@ export class ServerlessApi extends cdk.Construct {
                     },
                   },
                 },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
               },
               default: {
                 description: "予期せぬエラーが発生",
@@ -525,6 +627,16 @@ export class ServerlessApi extends cdk.Construct {
               responses: {
                 default: {
                   statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
                 },
               },
               passthroughBehavior: "when_no_match",
@@ -591,6 +703,23 @@ export class ServerlessApi extends cdk.Construct {
                     },
                   },
                 },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
               },
               default: {
                 description: "予期せぬエラーが発生",
@@ -616,12 +745,71 @@ export class ServerlessApi extends cdk.Construct {
               responses: {
                 default: {
                   statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
                 },
               },
               passthroughBehavior: "when_no_match",
               httpMethod: "POST",
               contentHandling: "CONVERT_TO_TEXT",
               type: "aws_proxy",
+            },
+          },
+          options: {
+            summary: "CORS support",
+            description: "Enable CORS by returning correct headers\n",
+            tags: ["CORS"],
+            responses: {
+              "200": {
+                description: "Default response for CORS method",
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
+                content: {},
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              type: "mock",
+              requestTemplates: {
+                "application/json": '{"statusCode" : 200}',
+              },
+              responses: {
+                default: {
+                  statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
+                },
+              },
             },
           },
         },
@@ -670,6 +858,23 @@ export class ServerlessApi extends cdk.Construct {
                     },
                   },
                 },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
               },
               404: {
                 description: "指定したTodoIdが存在しない",
@@ -682,6 +887,23 @@ export class ServerlessApi extends cdk.Construct {
                       TodoNotFound: {
                         $ref: "#/components/examples/ErrorNotFoundExample",
                       },
+                    },
+                  },
+                },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
                     },
                   },
                 },
@@ -710,6 +932,16 @@ export class ServerlessApi extends cdk.Construct {
               responses: {
                 default: {
                   statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
                 },
               },
               passthroughBehavior: "when_no_match",
@@ -790,6 +1022,23 @@ export class ServerlessApi extends cdk.Construct {
                     },
                   },
                 },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
               },
               404: {
                 description: "指定したTodoIdが存在しない",
@@ -802,6 +1051,23 @@ export class ServerlessApi extends cdk.Construct {
                       TodoNotFound: {
                         $ref: "#/components/examples/ErrorNotFoundExample",
                       },
+                    },
+                  },
+                },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
                     },
                   },
                 },
@@ -830,6 +1096,16 @@ export class ServerlessApi extends cdk.Construct {
               responses: {
                 default: {
                   statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
                 },
               },
               passthroughBehavior: "when_no_match",
@@ -865,6 +1141,23 @@ export class ServerlessApi extends cdk.Construct {
             responses: {
               200: {
                 description: "Todoを正常に削除完了",
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
               },
               404: {
                 description: "指定したTodoIdが存在しない",
@@ -877,6 +1170,23 @@ export class ServerlessApi extends cdk.Construct {
                       TodoNotFound: {
                         $ref: "#/components/examples/ErrorNotFoundExample",
                       },
+                    },
+                  },
+                },
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
                     },
                   },
                 },
@@ -905,12 +1215,71 @@ export class ServerlessApi extends cdk.Construct {
               responses: {
                 default: {
                   statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
                 },
               },
               passthroughBehavior: "when_no_match",
               httpMethod: "POST",
               contentHandling: "CONVERT_TO_TEXT",
               type: "aws_proxy",
+            },
+          },
+          options: {
+            summary: "CORS support",
+            description: "Enable CORS by returning correct headers\n",
+            tags: ["CORS"],
+            responses: {
+              "200": {
+                description: "Default response for CORS method",
+                headers: {
+                  "Access-Control-Allow-Origin": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Methods": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                  "Access-Control-Allow-Headers": {
+                    schema: {
+                      type: "string",
+                    },
+                  },
+                },
+                content: {},
+              },
+            },
+            "x-amazon-apigateway-integration": {
+              type: "mock",
+              requestTemplates: {
+                "application/json": '{"statusCode" : 200}',
+              },
+              responses: {
+                default: {
+                  statusCode: "200",
+                  responseParameters: {
+                    "method.response.header.Access-Control-Allow-Headers":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Methods":
+                      "'*'",
+                    "method.response.header.Access-Control-Allow-Origin": "'*'",
+                  },
+                  responseTemplates: {
+                    "application/json": "{}",
+                  },
+                },
+              },
             },
           },
         },
@@ -938,6 +1307,12 @@ export class ServerlessApi extends cdk.Construct {
           loggingLevel: apigw.MethodLoggingLevel.INFO,
         },
         cloudWatchRole: true,
+
+        // TODO このCORS設定してデプロイして、Github Pageに載せるところから。Readmeからの仕様書のリンク先も
+        // TODO 別アカウントでgit cloneしてきてデプロイの確認
+        // TODO E2Eテスト実装
+        // TODO リポジトリの説明、仕様書、ドキュメントの整備
+        // TODO あとは、ソースにコメント書いたりとか。最終チェック
       }
     );
 
@@ -976,15 +1351,6 @@ export class ServerlessApi extends cdk.Construct {
     });
 
     // swagger.ymlをdocsフォルダに吐いておく
-    const fs = require("fs");
-    const yaml = require("js-yaml");
-
-    const yamlText = yaml.dump(this.swagger);
-    fs.writeFile("./docs/api/swagger.yaml", yamlText, "utf8", (err: any) => {
-      if (err) {
-        console.error(err.message);
-        process.exit(1);
-      }
-    });
+    exportApiSpec(this.swagger);
   }
 }

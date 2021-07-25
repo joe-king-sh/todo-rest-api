@@ -5,13 +5,13 @@ info:
   version: 1.0.0
   contact:
     name: API Support
-    url: "https://twitter.com/joe_king_sh"
+    url: 'https://twitter.com/joe_king_sh'
   license:
     name: MIT
-    url: "https://opensource.org/licenses/mit-license.php"
+    url: 'https://opensource.org/licenses/mit-license.php'
 servers:
-  - url: "https://14mjw1p7x3.execute-api.ap-northeast-1.amazonaws.com/dev"
-    description: ""
+  - url: 'https://$API_ID.execute-api.ap-northeast-1.amazonaws.com/dev'
+    description: ''
 components:
   securitySchemes:
     CognitoAuth:
@@ -22,7 +22,7 @@ components:
       x-amazon-apigateway-authorizer:
         providerARNs:
           - >-
-            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.731]}
+            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.729]}
         type: cognito_user_pools
   schemas:
     Todo:
@@ -87,7 +87,7 @@ paths:
                   userId: my-user-id
                   password: my-password
       responses:
-        "200":
+        '200':
           description: 認証成功 トークンを発行する
           content:
             application/json:
@@ -103,25 +103,77 @@ paths:
                   summary: 認証結果 トークン発行の例
                   value:
                     idToken: eyJraWQiOiJpV3RidzNaXC9WbFVyUWhCaGp..(省略)
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 unexpected:
-                  $ref: "#/components/examples/ErrorExample"
+                  $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.903]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.901]}/invocations
         responses:
           default:
-            statusCode: "200"
+            statusCode: '200'
+            responses:
+              default:
+                statusCode: '200'
+                responseParameters:
+                  method.response.header.Access-Control-Allow-Headers: '''*'''
+                  method.response.header.Access-Control-Allow-Methods: '''*'''
+                  method.response.header.Access-Control-Allow-Origin: '''*'''
+                responseTemplates:
+                  application/json: '{}'
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
         type: aws_proxy
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+        - CORS
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: '{"statusCode" : 200}'
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
   /todos:
     get:
       operationId: findTodos
@@ -163,7 +215,7 @@ paths:
               summary: 読み込み開始位置指定例
               value: 2
       responses:
-        "200":
+        '200':
           description: 全体の件数、取得したTodo情報、次回読み込み開始位置を返却する
           content:
             application/json:
@@ -175,7 +227,7 @@ paths:
                   todos:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Todo"
+                      $ref: '#/components/schemas/Todo'
                   nextStartKey:
                     type: number
               examples:
@@ -191,21 +243,37 @@ paths:
                         title: 明日朝起きたらやること
                         content: DynamodbをCDKで立てる
                     nextStartKey: 2
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 unexpected:
-                  $ref: "#/components/examples/ErrorExample"
+                  $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.799]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.797]}/invocations
         responses:
           default:
-            statusCode: "200"
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -239,12 +307,12 @@ paths:
                   title: 今日やること
                   content: ゴミを捨てる
       responses:
-        "200":
+        '200':
           description: Todo情報の登録が正常に完了
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Todo"
+                $ref: '#/components/schemas/Todo'
               examples:
                 Todo:
                   summary: Todo情報 登録例
@@ -252,26 +320,75 @@ paths:
                     todoId: a5d93e28-180f-404e-b6fe-29972ca4b73c
                     title: 今日やること
                     content: ゴミを捨てる
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 unexpected:
-                  $ref: "#/components/examples/ErrorExample"
+                  $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.773]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.771]}/invocations
         responses:
           default:
-            statusCode: "200"
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
         type: aws_proxy
-  "/todos/{todoId}":
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+        - CORS
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: '{"statusCode" : 200}'
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
+  '/todos/{todoId}':
     get:
       operationId: showTodoById
       tags:
@@ -289,14 +406,14 @@ paths:
             type: string
           examples:
             todoId:
-              $ref: "#/components/examples/TodoId"
+              $ref: '#/components/examples/TodoId'
       responses:
-        "200":
+        '200':
           description: Todoを正常に取得完了
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Todo"
+                $ref: '#/components/schemas/Todo'
               examples:
                 getTodo:
                   summary: Todo情報 1件取得結果例
@@ -304,30 +421,56 @@ paths:
                     todoId: 111aac0e-eb29-41c3-b377-05e14102942d
                     title: 冷蔵庫の整理
                     content: 卵と納豆を食べる
-        "404":
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+        '404':
           description: 指定したTodoIdが存在しない
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 TodoNotFound:
-                  $ref: "#/components/examples/ErrorNotFoundExample"
+                  $ref: '#/components/examples/ErrorNotFoundExample'
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 unexpected:
-                  $ref: "#/components/examples/ErrorExample"
+                  $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.825]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.823]}/invocations
         responses:
           default:
-            statusCode: "200"
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -349,7 +492,7 @@ paths:
             type: string
           examples:
             todoId:
-              $ref: "#/components/examples/TodoId"
+              $ref: '#/components/examples/TodoId'
       requestBody:
         description: 指定した値で登録されているTodoを更新する
         content:
@@ -371,12 +514,12 @@ paths:
                   title: new title
                   content: new content
       responses:
-        "200":
+        '200':
           description: Todo情報の更新が正常に完了
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Todo"
+                $ref: '#/components/schemas/Todo'
               examples:
                 updateTodo:
                   summary: Todo情報 更新結果例
@@ -384,30 +527,56 @@ paths:
                     todoId: 111aac0e-eb29-41c3-b377-05e14102942d
                     title: 冷蔵庫の整理
                     content: 卵と納豆を食べる
-        "404":
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+        '404':
           description: 指定したTodoIdが存在しない
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 TodoNotFound:
-                  $ref: "#/components/examples/ErrorNotFoundExample"
+                  $ref: '#/components/examples/ErrorNotFoundExample'
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 unexpected:
-                  $ref: "#/components/examples/ErrorExample"
+                  $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.773]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.771]}/invocations
         responses:
           default:
-            statusCode: "200"
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
@@ -429,35 +598,94 @@ paths:
             type: string
           examples:
             todoId:
-              $ref: "#/components/examples/TodoId"
+              $ref: '#/components/examples/TodoId'
       responses:
-        "200":
+        '200':
           description: Todoを正常に削除完了
-        "404":
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+        '404':
           description: 指定したTodoIdが存在しない
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 TodoNotFound:
-                  $ref: "#/components/examples/ErrorNotFoundExample"
+                  $ref: '#/components/examples/ErrorNotFoundExample'
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
         default:
           description: 予期せぬエラーが発生
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"
+                $ref: '#/components/schemas/Error'
               examples:
                 unexpected:
-                  $ref: "#/components/examples/ErrorExample"
+                  $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.851]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.849]}/invocations
         responses:
           default:
-            statusCode: "200"
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'
         passthroughBehavior: when_no_match
         httpMethod: POST
         contentHandling: CONVERT_TO_TEXT
         type: aws_proxy
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+        - CORS
+      responses:
+        '200':
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: '{"statusCode" : 200}'
+        responses:
+          default:
+            statusCode: '200'
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: '''*'''
+              method.response.header.Access-Control-Allow-Methods: '''*'''
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{}'

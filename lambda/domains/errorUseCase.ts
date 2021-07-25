@@ -105,7 +105,7 @@ export class ErrorMessage {
   };
 
   static INVALID_USERID_OR_PASSWORD = () => {
-    return `ユーザIOまたはパスワードが不正です`;
+    return `ユーザIDまたはパスワードが不正です`;
   };
 }
 
