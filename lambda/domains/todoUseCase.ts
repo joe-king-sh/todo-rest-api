@@ -24,6 +24,14 @@ export class TodoUseCase {
     this.userId = CognitoUserPool.getUserNameFromIdToken(token);
   }
 
+  /**
+   * TodoをDBに登録、まは更新する処理。
+   * パラメータにtodoIdを指定した場合更新となる。
+   *
+   * @param {PutTodoProps} putTodoProps
+   * @return {*}  {Promise<Todo>}
+   * @memberof TodoUseCase
+   */
   public async putTodo(putTodoProps: PutTodoProps): Promise<Todo> {
     console.log(
       `Todo 登録更新処理 開始 props:  ${JSON.stringify(putTodoProps)}`
@@ -187,6 +195,11 @@ export class TodoUseCase {
   }
 }
 
+/**
+ * Todo情報のエンティティ
+ * @export
+ * @interface Todo
+ */
 export interface Todo {
   userId: string;
   todoId: string;
@@ -195,16 +208,34 @@ export interface Todo {
   updatedDate: string;
 }
 
+/**
+ * Todo登録、更新処理で使用する引数のインタフェース
+ *
+ * @export
+ * @interface PutTodoProps
+ */
 export interface PutTodoProps {
   todoId?: string;
   title: string;
   content: string;
 }
 
+/**
+ * 特定のTodoを指定する時に使用するインタフェース
+ * Todoの取得・削除で使用している
+ * @export
+ * @interface SpecifyTodoProps
+ */
 export interface SpecifyTodoProps {
   todoId: string;
 }
 
+/**
+ * 新しいTodoIdを発行する処理
+ * コード体系は[yyyyMMddhhmmss-uuid]
+ *
+ * @return {*}  {string}
+ */
 const issueTodoId = (): string => {
   const now = new Date();
   const newTodoId =
@@ -220,12 +251,24 @@ const issueTodoId = (): string => {
   return newTodoId;
 };
 
+/**
+ * Todo検索処理で使用する引数のインタフェース
+ *
+ * @export
+ * @interface FindTodosProps
+ */
 export interface FindTodosProps {
   q?: string;
   node: string;
   size?: number;
   nextStartKey?: number;
 }
+/**
+ * Todo検索処理の戻り値のインタフェース
+ *
+ * @export
+ * @interface FindTodosOutput
+ */
 export interface FindTodosOutput {
   todos: Todo[];
   nextStartKey?: number;

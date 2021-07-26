@@ -1,6 +1,4 @@
 import * as aws from "aws-sdk";
-import axios from "axios";
-import * as environment from "../lib/environment";
 
 aws.config.update({
   region: "ap-northeast-1",
@@ -8,11 +6,17 @@ aws.config.update({
 const cognito = new aws.CognitoIdentityServiceProvider({
   apiVersion: "2016-04-18",
 });
-
 const ssm = new aws.SSM({
   region: "ap-northeast-1",
 });
 
+/**
+ * テストユーザを作成し、パスワードの再設定までを行う処理。
+ * 毎回CLIでやるのが面倒なのでこのスクリプトにまとめる。
+ *
+ * @param {string} userName
+ * @param {string} password
+ */
 const createUser = async (userName: string, password: string) => {
   try {
     // パラメータストアからテスト対象の環境情報を取得

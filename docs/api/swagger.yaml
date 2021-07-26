@@ -10,7 +10,7 @@ info:
     name: MIT
     url: 'https://opensource.org/licenses/mit-license.php'
 servers:
-  - url: https://14mjw1p7x3.execute-api.ap-northeast-1.amazonaws.com/dev/
+  - url: API_ENDPOINT
     description: ''
 components:
   securitySchemes:
@@ -22,7 +22,7 @@ components:
       x-amazon-apigateway-authorizer:
         providerARNs:
           - >-
-            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.66]}
+            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.414]}
         type: cognito_user_pools
   schemas:
     Todo:
@@ -56,7 +56,7 @@ components:
         message: 指定したTodoは見つかりませんでした
     TodoId:
       summary: TodoId 指定例
-      value: 111aac0e-eb29-41c3-b377-05e14102942d
+      value: 20210726212300-111aac0e-eb29-41c3-b377-05e14102942d
 paths:
   /auth/token:
     post:
@@ -134,7 +134,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.246]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.594]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -274,7 +274,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.142]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.490]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -327,7 +327,7 @@ paths:
                 Todo:
                   summary: Todo情報 登録例
                   value:
-                    todoId: a5d93e28-180f-404e-b6fe-29972ca4b73c
+                    todoId: 20210726212521-a5d93e28-180f-404e-b6fe-29972ca4b73c
                     title: 今日やること
                     content: ゴミを捨てる
           headers:
@@ -351,7 +351,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.116]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.464]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -428,7 +428,7 @@ paths:
                 getTodo:
                   summary: Todo情報 1件取得結果例
                   value:
-                    todoId: 111aac0e-eb29-41c3-b377-05e14102942d
+                    todoId: 20210726212521-111aac0e-eb29-41c3-b377-05e14102942d
                     title: 冷蔵庫の整理
                     content: 卵と納豆を食べる
           headers:
@@ -471,7 +471,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.168]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.516]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -534,7 +534,7 @@ paths:
                 updateTodo:
                   summary: Todo情報 更新結果例
                   value:
-                    todoId: 111aac0e-eb29-41c3-b377-05e14102942d
+                    todoId: 20210726212521-111aac0e-eb29-41c3-b377-05e14102942d
                     title: 冷蔵庫の整理
                     content: 卵と納豆を食べる
           headers:
@@ -577,7 +577,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.116]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.464]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -652,7 +652,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.194]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.542]}/invocations
         responses:
           default:
             statusCode: '200'

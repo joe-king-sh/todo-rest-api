@@ -4,6 +4,13 @@ import * as environment from "../environment";
 import { Authentication } from "../construct/authentication";
 import { ServerlessApi } from "../construct/serverlessApi";
 
+/**
+ * デプロイするStackは全てこのStackにまとめる。
+ * このStackが肥大化した場合、元からコンストラクトは分けているので、コンストラクト単位で分割を実施する。
+ * @export
+ * @class AppStack
+ * @extends {cdk.Stack}
+ */
 export class AppStack extends cdk.Stack {
   constructor(
     scope: cdk.Construct,

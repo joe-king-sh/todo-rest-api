@@ -3,9 +3,6 @@ module.exports = {
   roots: [
     "<rootDir>/test",
     "<rootDir>/e2e",
-    // "<rootDir>/lambda",
-    // "<rootDir>/lib",
-    // "<rootDir>/bin",
   ],
   testMatch: ["**/*.test.ts","**/*.e2e.ts"],
   transform: {
@@ -14,7 +11,6 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverage: true,
   collectCoverageFrom: [
-    // "<rootDir>/lambda/api/*.ts",
     "**.{ts,tsx}",
     "*.{ts,tsx}",
     "**/*.{ts,tsx}",
@@ -25,6 +21,5 @@ module.exports = {
     "!**/test/**",
     "!**/**/*.d.ts",
   ],
-  // coverageReporters: ["text"],
   coverageReporters: ["text", "json", "html","lcov", "json-summary",],
 };

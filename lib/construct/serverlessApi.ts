@@ -12,7 +12,6 @@ import * as dynamodb from "@aws-cdk/aws-dynamodb";
 import * as es from "@aws-cdk/aws-elasticsearch";
 import { DynamoEventSource } from "@aws-cdk/aws-lambda-event-sources";
 import { StartingPosition } from "@aws-cdk/aws-lambda";
-import { CfnOutput } from "@aws-cdk/core";
 
 import { exportApiSpec } from "../../script/exportApiSpec";
 import * as ssm from "@aws-cdk/aws-ssm";
@@ -25,6 +24,17 @@ interface ServerlessApiProps {
   userPoolClientId: string;
 }
 
+/**
+ * APIを構成する以下のインフラリソースを作るコンストラクト
+ *  - API Gateway
+ *  - Labmda
+ *  - Dynamodb
+ *  - Elasticsearch
+ *
+ * @export
+ * @class ServerlessApi
+ * @extends {cdk.Construct}
+ */
 export class ServerlessApi extends cdk.Construct {
   swagger: {
     openapi: string;
@@ -44,10 +54,6 @@ export class ServerlessApi extends cdk.Construct {
     /**
      * Dynamodb Table の作成
      */
-    const dynamodbRemovalPolicy =
-      env == environment.Environments.PROD
-        ? cdk.RemovalPolicy.RETAIN // 本番はテーブルの削除ポリシーをRETAINに
-        : cdk.RemovalPolicy.DESTROY;
     const todoTable = new dynamodb.Table(
       this,
       buildResourceName(projectName, "Todo", env),
@@ -56,7 +62,7 @@ export class ServerlessApi extends cdk.Construct {
         sortKey: { name: "todoId", type: dynamodb.AttributeType.STRING },
         billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
         tableName: buildResourceName(projectName, "Todo", env),
-        removalPolicy: dynamodbRemovalPolicy,
+        removalPolicy: props.environmentVariables.dynamodbSetting.removalPolicy,
         stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
       }
     );
@@ -227,7 +233,7 @@ export class ServerlessApi extends cdk.Construct {
           url: "https://opensource.org/licenses/mit-license.php",
         },
       },
-      // この$API_IDだけ、デプロイ完了後sedで置換する
+      // このAPI_ENDPOINTだけデプロイ前だと指定ができない。デプロイ完了後SSMからurlを取得してスクリプトで置換する
       servers: [
         {
           url: `API_ENDPOINT`,
@@ -299,7 +305,7 @@ export class ServerlessApi extends cdk.Construct {
           },
           TodoId: {
             summary: "TodoId 指定例",
-            value: "111aac0e-eb29-41c3-b377-05e14102942d",
+            value: "20210726212300-111aac0e-eb29-41c3-b377-05e14102942d",
           },
         },
       },
@@ -710,7 +716,8 @@ export class ServerlessApi extends cdk.Construct {
                       Todo: {
                         summary: "Todo情報 登録例",
                         value: {
-                          todoId: "a5d93e28-180f-404e-b6fe-29972ca4b73c",
+                          todoId:
+                            "20210726212521-a5d93e28-180f-404e-b6fe-29972ca4b73c",
                           title: "今日やること",
                           content: "ゴミを捨てる",
                         },
@@ -865,7 +872,8 @@ export class ServerlessApi extends cdk.Construct {
                       getTodo: {
                         summary: "Todo情報 1件取得結果例",
                         value: {
-                          todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
+                          todoId:
+                            "20210726212521-111aac0e-eb29-41c3-b377-05e14102942d",
                           title: "冷蔵庫の整理",
                           content: "卵と納豆を食べる",
                         },
@@ -1029,7 +1037,8 @@ export class ServerlessApi extends cdk.Construct {
                       updateTodo: {
                         summary: "Todo情報 更新結果例",
                         value: {
-                          todoId: "111aac0e-eb29-41c3-b377-05e14102942d",
+                          todoId:
+                            "20210726212521-111aac0e-eb29-41c3-b377-05e14102942d",
                           title: "冷蔵庫の整理",
                           content: "卵と納豆を食べる",
                         },
@@ -1353,11 +1362,6 @@ export class ServerlessApi extends cdk.Construct {
         effect: Effect.ALLOW,
       })
     );
-
-    // // Outputを定義
-    // new CfnOutput(this, "api-id", {
-    //   value: api.restApiId,
-    // });
 
     new ssm.StringParameter(this, "ApiId", {
       parameterName: `/${projectName}/${env}/ApiId`,
