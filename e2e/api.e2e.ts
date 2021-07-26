@@ -1,27 +1,26 @@
 import * as aws from "aws-sdk";
 import axios from "axios";
-import { ServerlessApi } from "../lib/construct/serverlessApi";
 import * as environment from "../lib/environment";
 
+// AWS SDKを初期化
 aws.config.update({
   region: "ap-northeast-1",
 });
 const cognito = new aws.CognitoIdentityServiceProvider({
   apiVersion: "2016-04-18",
 });
-
 const ssm = new aws.SSM({
   region: "ap-northeast-1",
 });
 
-// 環境変数から実行環境を取得
+// 環境変数から必要情報を取得
 const TEST_ENV = process.env.TEST_ENV;
 const environmentVariables = environment.getVariablesOf(
   TEST_ENV as environment.Environments
 );
 const projectName = environmentVariables.projectName;
 
-// テストに使用するユーザのセットアップ
+// ユーザのセットアップで使用する情報を初期化
 let userPoolId: string | undefined = undefined;
 let apiUrl: string | undefined = undefined;
 const now = new Date();
@@ -37,7 +36,16 @@ const password = "Passw0rd!";
 let idToken: string | undefined = undefined;
 let testTodos = new Map();
 
-// todoオブジェクトの配列ソート用の比較関数
+// テスト実行時の設定
+// 非同期処理や待ちが多いのでタイムアウトを増やす
+jest.setTimeout(60000);
+
+/**
+ * todo「オブジェクト」の配列をソートする際に使用する比較関数
+ * @param {*} a
+ * @param {*} b
+ * @return {*}
+ */
 const todoSort = (a: any, b: any) => {
   // Use toUpperCase() to ignore character casing
   const todoIdA = a.todoId.toUpperCase();
@@ -52,10 +60,9 @@ const todoSort = (a: any, b: any) => {
   return comparison;
 };
 
-// 非同期処理や待ちが多いのでタイムアウトを増やす
-jest.setTimeout(60000);
-
+// E2Eテストの定義をいかに書いていく
 describe("Todo管理APIのE2Eテスト", (): void => {
+  // テスト開始前に、テストで使用するユーザの新規登録を行う
   beforeAll(async () => {
     try {
       // パラメータストアからテスト対象の環境情報を取得
@@ -104,7 +111,7 @@ describe("Todo管理APIのE2Eテスト", (): void => {
     }
   });
 
-  // テストに使用したユーザの削除
+  // テスト終了後、使用するユーザの削除を行う
   afterAll(async () => {
     try {
       if (!userPoolId) {
@@ -126,7 +133,6 @@ describe("Todo管理APIのE2Eテスト", (): void => {
     }
   });
 
-  //   describe("シナリオ1: 認証", (): void => {
   test("[認証]Case1: 認証用APIを実行し正常に IdTokenが取得できる", async () => {
     expect.assertions(1);
 
@@ -149,9 +155,7 @@ describe("Todo管理APIのE2Eテスト", (): void => {
   test("[認証]Case2: トークンが無い状態で各APIを呼んで認証エラーになること", async () => {
     // 未実装
   });
-  //   });
 
-  //   describe("シナリオ2: 登録→取得→検索", (): void => {
   test("[登録→取得→検索]Case1: Todo登録APIでTodoを 3件 登録", async () => {
     expect.assertions(3);
 
@@ -204,6 +208,7 @@ describe("Todo管理APIのE2Eテスト", (): void => {
     }
   });
 
+  // 以下から各テストケースの実装開始
   test("[登録→取得→検索]Case2: Todo取得APIで指定した 1件 を取得(Todo1)", async () => {
     expect.assertions(1);
 
@@ -346,9 +351,7 @@ describe("Todo管理APIのE2Eテスト", (): void => {
 
     expect(sortedResponse).toEqual(sortedExpected);
   }, 20000);
-  //   });
 
-  //   describe("シナリオ3: 更新→取得→検索", (): void => {
   test("[更新→取得→検索]Case1: Todo更新APIで1件 を更新(Todo2: 動物園->水族館)", async () => {
     expect.assertions(1);
 
@@ -453,9 +456,7 @@ describe("Todo管理APIのE2Eテスト", (): void => {
 
     expect(sortedResponse).toEqual(sortedExpected);
   }, 20000);
-  //   });
 
-  //   describe("シナリオ4: 削除→取得→検索", (): void => {
   test("[削除→取得→検索]Case1: Todo削除APIで指定した 3件 を削除(Todo1,Todo2,Todo3)", async () => {
     expect.assertions(3);
 
@@ -539,5 +540,4 @@ describe("Todo管理APIのE2Eテスト", (): void => {
 
     expect(response?.data).toEqual(expected);
   }, 20000);
-  //   });
 });

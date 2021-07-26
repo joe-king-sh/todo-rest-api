@@ -158,9 +158,6 @@ describe("Cognito関連サービスのテスト IDトークンの発行", (): vo
       userId: "my-unit-test-user",
       password: "password",
     };
-    const expected = {
-      idToken: "eyJraWQiOiJ2bURHOWVpb1dHOHFZcGs1bEFFbTZmZjRNOGYya0R3Tk...",
-    };
 
     // THEN
     expect(async () => {
@@ -188,9 +185,6 @@ describe("Cognito関連サービスのテスト IDトークンの発行", (): vo
     const createIdTokenFromCognitoProps = {
       userId: "my-unit-test-user",
       password: "password",
-    };
-    const expected = {
-      idToken: "eyJraWQiOiJ2bURHOWVpb1dHOHFZcGs1bEFFbTZmZjRNOGYya0R3Tk...",
     };
 
     // THEN

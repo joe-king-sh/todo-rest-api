@@ -1,3 +1,5 @@
+import * as cdk from "@aws-cdk/core";
+
 /**
  * 環境名の定義
  */
@@ -30,28 +32,33 @@ const CommonVariableConfig: CommonVariable = {
  */
 export interface EnvironmentVariables extends CommonVariable {
   environment: Environments;
-  dynamodbSetting: { [key: string]: any }; //Dynamodbに渡す環境変数
+  cognitoUserPoolSetting: { [key: string]: any };
+  dynamodbSetting: { [key: string]: any };
 }
 
 /**
- * 各環境毎の環境変数
+ * 各環境毎で変わる設定値をここで管理
  */
 const EnvironmentsVariableConfig: {
   [key in Environments]: EnvironmentVariables;
 } = {
   [Environments.PROD]: {
     environment: Environments.PROD,
-    dynamodbSetting: { params1: "aaa" },
+    cognitoUserPoolSetting: { removalPolicy: cdk.RemovalPolicy.RETAIN },
+    dynamodbSetting: { removalPolicy: cdk.RemovalPolicy.RETAIN },
+
     ...CommonVariableConfig,
   },
   [Environments.STAGING]: {
     environment: Environments.STAGING,
-    dynamodbSetting: { params1: "aaa" },
+    cognitoUserPoolSetting: { removalPolicy: cdk.RemovalPolicy.DESTROY },
+    dynamodbSetting: { removalPolicy: cdk.RemovalPolicy.DESTROY },
     ...CommonVariableConfig,
   },
   [Environments.DEV]: {
     environment: Environments.DEV,
-    dynamodbSetting: { params1: "aaa" },
+    cognitoUserPoolSetting: { removalPolicy: cdk.RemovalPolicy.DESTROY },
+    dynamodbSetting: { removalPolicy: cdk.RemovalPolicy.DESTROY },
     ...CommonVariableConfig,
   },
 };

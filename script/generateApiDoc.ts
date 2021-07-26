@@ -1,9 +1,10 @@
-import { UserPoolIdentityProvider } from "@aws-cdk/aws-cognito";
-import { config } from "yargs";
-import { readCdkOutputs } from "./readCdkOutputs";
-const yaml = require("js-yaml");
-const fs = require("fs");
+/**
+ * Swagger.yamlのエンドポイントの値を設定する処理
+ * API Gatewayのエンドポイントはデプロイ後に決まるので、デプロイ後にこれを動かしてSSMに保存したAPIのurlを設定する。
+ */
+
 import * as aws from "aws-sdk";
+const fs = require("fs");
 
 aws.config.update({
   region: "ap-northeast-1",

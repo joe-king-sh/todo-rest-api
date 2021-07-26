@@ -21,10 +21,6 @@ export class Authentication extends cdk.Construct {
     const env = props.environmentVariables.environment;
 
     //Cognitoのユーザプールを作成
-    const removalPolicy =
-      env == environment.Environments.PROD
-        ? cdk.RemovalPolicy.RETAIN // 本番はユーザプールの削除ポリシーをRETAINに
-        : cdk.RemovalPolicy.DESTROY;
     this.userPool = new cognito.UserPool(this, "UserPool", {
       selfSignUpEnabled: true,
       signInCaseSensitive: false,
@@ -33,7 +29,8 @@ export class Authentication extends cdk.Construct {
         email: true,
       },
       userPoolName: buildResourceName(projectName, "UserPool", env),
-      removalPolicy: removalPolicy,
+      removalPolicy:
+        props.environmentVariables.cognitoUserPoolSetting.removalPolicy,
     });
     // アプリクライアントをユーザプールに作成
     const userPoolClient = new cognito.UserPoolClient(
