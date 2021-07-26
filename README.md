@@ -31,9 +31,10 @@ TODOリストを管理するWebやモバイルアプリケーションを想定�
     Default output format [json]: 
     ```
 ## 環境構築
-1. npm依存パッケージをインストール
+1. npm依存パッケージをインストール、ビルド
     ```bash
     $ npm install
+    $ npm run build
     ```
 
 4. AWS CDKのブートストラップ

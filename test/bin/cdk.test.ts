@@ -15,7 +15,7 @@ describe("CDKエントリポイントのテスト", (): void => {
     jest.resetAllMocks();
 
     // WHEN
-    const tryGetContextpy = jest
+    const tryGetContextSpy = jest
       .spyOn(cdk.ConstructNode.prototype as any, "tryGetContext")
       .mockReturnValue("unknown");
 
@@ -31,7 +31,7 @@ describe("CDKエントリポイントのテスト", (): void => {
       jest.resetAllMocks();
 
       // WHEN
-      const tryGetContextpy = jest
+      const tryGetContextSpy = jest
         .spyOn(cdk.ConstructNode.prototype as any, "tryGetContext")
         .mockReturnValue(env);
 
