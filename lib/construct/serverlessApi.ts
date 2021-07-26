@@ -329,11 +329,25 @@ export class ServerlessApi extends cdk.Construct {
                     },
                   },
                   examples: {
-                    Todo: {
-                      summary: "認証情報 例",
+                    user1: {
+                      summary: "認証情報 例(テスト用ユーザ1)",
                       value: {
-                        userId: "my-user-id",
-                        password: "my-password",
+                        userId: "api-test-user-1",
+                        password: "Passw0rd!",
+                      },
+                    },
+                    user2: {
+                      summary: "認証情報 例(テスト用ユーザ2)",
+                      value: {
+                        userId: "api-test-user-2",
+                        password: "Passw0rd!",
+                      },
+                    },
+                    user3: {
+                      summary: "認証情報 例(テスト用ユーザ3)",
+                      value: {
+                        userId: "api-test-user-3",
+                        password: "Passw0rd!",
                       },
                     },
                   },
