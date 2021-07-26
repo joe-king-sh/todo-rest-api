@@ -15,7 +15,7 @@
     "cdk:diff": "npm run prebuild && cdk diff -c ",
     "cdk:deploy": "npm run prebuild && cdk deploy -v --require-approval never --outputs-file ./cdk-outputs.json -c ",
     "cdk:destroy": "npm run prebuild && cdk destroy --force --require-approval never -c ",
-    "cdk:bootstrap": "cdk bootstrap -c",
+    "cdk:bootstrap": "npm run prebuild && cdk bootstrap -c",
     "docs:api": "ts-node ./script/generateApiDoc.ts"
   },
   "devDependencies": {
