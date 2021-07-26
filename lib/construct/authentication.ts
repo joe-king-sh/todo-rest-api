@@ -11,7 +11,7 @@ interface AuthenticationProps {
 export class Authentication extends cdk.Construct {
   userPool: cognito.IUserPool;
   userPoolDomain: cognito.IUserPoolDomain;
-  domainName: string;
+  // domainName: string;
   userPoolClientId: string;
 
   constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
@@ -47,16 +47,16 @@ export class Authentication extends cdk.Construct {
     this.userPoolClientId = userPoolClient.userPoolClientId;
 
     // 認証用UIのためドメイン名を追加する
-    this.domainName = buildResourceName(
-      projectName.toLowerCase(),
-      "domain",
-      env
-    );
+    // this.domainName = buildResourceName(
+    //   projectName.toLowerCase(),
+    //   "domain",
+    //   env
+    // );
 
-    this.userPoolDomain = new cognito.UserPoolDomain(this, "Domain", {
-      userPool: this.userPool,
-      cognitoDomain: { domainPrefix: this.domainName },
-    });
+    // this.userPoolDomain = new cognito.UserPoolDomain(this, "Domain", {
+    //   userPool: this.userPool,
+    //   cognitoDomain: { domainPrefix: this.domainName },
+    // });
 
     new ssm.StringParameter(this, "UserPoolId", {
       parameterName: `/${projectName}/${env}/UserPoolId`,
