@@ -18,7 +18,7 @@ import * as ssm from "@aws-cdk/aws-ssm";
 
 interface ServerlessApiProps {
   environmentVariables: environment.EnvironmentVariables;
-  userPoolDomainName: string;
+  // userPoolDomainName: string;
   userPoolArn: string;
   userPoolId: string;
   userPoolClientId: string;

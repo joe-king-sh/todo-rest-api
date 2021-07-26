@@ -37,7 +37,7 @@ for (const env of Object.values(environment.Environments)) {
         // WHEN
         new ServerlessApi(stack, "MyServerlessConstruct", {
           environmentVariables: environmentVariables,
-          userPoolDomainName: auth.domainName,
+          // userPoolDomainName: auth.domainName,
           userPoolArn: auth.userPool.userPoolArn,
           userPoolId: auth.userPool.userPoolId,
           userPoolClientId: auth.userPoolClientId,

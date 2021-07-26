@@ -67,15 +67,15 @@ for (const env of Object.values(environment.Environments)) {
               ClientName: buildResourceName(projectName, "Client", env),
             })
           );
-          expectCDK(stack).to(
-            haveResource("AWS::Cognito::UserPoolDomain", {
-              Domain: buildResourceName(
-                projectName.toLowerCase(),
-                "domain",
-                env
-              ),
-            })
-          );
+          // expectCDK(stack).to(
+          //   haveResource("AWS::Cognito::UserPoolDomain", {
+          //     Domain: buildResourceName(
+          //       projectName.toLowerCase(),
+          //       "domain",
+          //       env
+          //     ),
+          //   })
+          // );
         }
       );
     }

@@ -36,7 +36,7 @@ export class AppStack extends cdk.Stack {
       buildResourceName(projectName, "ServerlessApi", env),
       {
         environmentVariables: environmentVariables,
-        userPoolDomainName: auth.domainName,
+        // userPoolDomainName: auth.domainName,
         userPoolArn: auth.userPool.userPoolArn,
         userPoolId: auth.userPool.userPoolId,
         userPoolClientId: auth.userPoolClientId,

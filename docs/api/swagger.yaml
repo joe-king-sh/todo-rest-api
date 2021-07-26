@@ -10,7 +10,7 @@ info:
     name: MIT
     url: 'https://opensource.org/licenses/mit-license.php'
 servers:
-  - url: API_ENDPOINT
+  - url: https://14mjw1p7x3.execute-api.ap-northeast-1.amazonaws.com/dev/
     description: ''
 components:
   securitySchemes:
@@ -22,7 +22,7 @@ components:
       x-amazon-apigateway-authorizer:
         providerARNs:
           - >-
-            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.765]}
+            arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${Token[TOKEN.753]}
         type: cognito_user_pools
   schemas:
     Todo:
@@ -134,7 +134,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.945]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.930]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -274,7 +274,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.841]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.826]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -351,7 +351,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.815]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.800]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -471,7 +471,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.867]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.852]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -577,7 +577,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.815]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.800]}/invocations
         responses:
           default:
             statusCode: '200'
@@ -652,7 +652,7 @@ paths:
                   $ref: '#/components/examples/ErrorExample'
       x-amazon-apigateway-integration:
         uri: >-
-          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.893]}/invocations
+          arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${Token[TOKEN.878]}/invocations
         responses:
           default:
             statusCode: '200'
