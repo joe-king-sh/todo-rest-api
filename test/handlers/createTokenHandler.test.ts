@@ -4,7 +4,6 @@ import { AuthUseCase } from "../../lambda/domains/authUserCase";
 import { APIGatewayEvent } from "aws-lambda";
 import {
   ErrorMessage,
-  NotFoundError,
   buildErrorMessage,
   UnauthorizedError,
 } from "../../lambda/domains/errorUseCase";
