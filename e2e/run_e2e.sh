@@ -22,7 +22,7 @@ export TEST_ENV=${TARGET_ARR[1]}
 echo "E2Eテスト実行環境変数を設定: ${TEST_ENV}"
 
 # テストの実行
-jest e2e
+jest --roots e2e
 
 # 環境変数のリセット
 export TEST_ENV=''
