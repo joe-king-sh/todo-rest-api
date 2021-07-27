@@ -8,7 +8,7 @@
     "prebuild": "./script/delete_conflict_package.sh",
     "build": "npm run prebuild && tsc",
     "watch": "npm run prebuild && tsc -w",
-    "test:unit": "npm run prebuild && jest test",
+    "test:unit": "npm run prebuild && jest --roots test",
     "test:e2e": "npm run prebuild && ./e2e/run_e2e.sh",
     "test:coverage": "npm test -- --coverage",
     "cdk:synth": "npm run prebuild && cdk synth -c ",
